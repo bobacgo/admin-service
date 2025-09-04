@@ -26,9 +26,9 @@ func (r *I18nRepo) FindOne(ctx context.Context, req *dto.GetI18nReq) (*model.I18
 		columns = make([]string, 0, len(mapping))
 		values  = make([]any, 0, len(mapping))
 	)
-	for k, fn := range mapping {
+	for k, v := range mapping {
 		columns = append(columns, k)
-		values = append(values, fn(row))
+		values = append(values, v)
 	}
 
 	condValues := make([]interface{}, 0)
@@ -55,12 +55,14 @@ func (r *I18nRepo) FindOne(ctx context.Context, req *dto.GetI18nReq) (*model.I18
 }
 
 func (r *I18nRepo) Find(ctx context.Context, req *dto.I18nListReq) ([]*model.I18n, error) {
-	u := new(model.I18n)
-	mapping := u.Mapping(true)
+	row := new(model.I18n)
+	mapping := row.Mapping(true)
 
 	columns := make([]string, 0, len(mapping))
-	for col := range mapping {
-		columns = append(columns, col)
+	values := make([]any, 0, len(mapping))
+	for k, v := range mapping {
+		columns = append(columns, k)
+		values = append(values, v)
 	}
 
 	cond := []string{
@@ -81,7 +83,7 @@ func (r *I18nRepo) Find(ctx context.Context, req *dto.I18nListReq) ([]*model.I18
 		condValues = append(condValues, req.Key)
 	}
 
-	sqlText := "SELECT " + strings.Join(columns, ",") + " FROM " + u.TableName() + " WHERE " + strings.Join(cond, " ") + " ORDER BY id DESC"
+	sqlText := "SELECT " + strings.Join(columns, ",") + " FROM " + row.TableName() + " WHERE " + strings.Join(cond, " ") + " ORDER BY id DESC"
 	rows, err := r.clt.DB.QueryContext(ctx, sqlText, condValues...)
 	if err != nil {
 		return nil, fmt.Errorf("db.Query: %w", err)
@@ -90,15 +92,11 @@ func (r *I18nRepo) Find(ctx context.Context, req *dto.I18nListReq) ([]*model.I18
 
 	list := make([]*model.I18n, 0)
 	for rows.Next() {
-		record := new(model.I18n)
-		values := make([]any, 0, len(columns))
-		for _, col := range columns {
-			values = append(values, mapping[col](record))
-		}
 		if err = rows.Scan(values...); err != nil {
 			return nil, fmt.Errorf("rows.Scan: %w", err)
 		}
-		list = append(list, record)
+		var item = *row
+		list = append(list, &item)
 	}
 	return list, nil
 }
@@ -111,13 +109,13 @@ func (r *I18nRepo) Create(ctx context.Context, row *model.I18n) error {
 		pos     = make([]string, 0, len(mapping))
 		values  = make([]any, 0, len(mapping))
 	)
-	for k, fn := range mapping {
+	for k, v := range mapping {
 		if k == "id" {
 			continue
 		}
 		columns = append(columns, k)
 		pos = append(pos, "?")
-		values = append(values, fn(row))
+		values = append(values, v)
 	}
 
 	sqlText := "INSERT INTO " + row.TableName() + " (" + strings.Join(columns, ",") + ") VALUES (" + strings.Join(pos, ",") + ")"
@@ -135,14 +133,21 @@ func (r *I18nRepo) Update(ctx context.Context, row *model.I18n) error {
 		columns = make([]string, 0, len(mapping))
 		values  = make([]any, 0, len(mapping))
 	)
-	for k, fn := range mapping {
-		v := fn(row)
+	for k, v := range mapping {
+		if k == "id" {
+			continue
+		}
 		if util.IsZero(v) {
 			continue
 		}
 		columns = append(columns, k+" = ?")
 		values = append(values, v)
 	}
+
+	if len(columns) == 0 { // 没有更新字段
+		return nil
+	}
+
 	sqlText := "UPDATE " + row.TableName() + " SET " + strings.Join(columns, ",") + " WHERE id = ?"
 	values = append(values, row.ID)
 	_, err := r.clt.DB.ExecContext(ctx, sqlText, values...)

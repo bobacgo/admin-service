@@ -7,7 +7,6 @@ import (
 
 	"github.com/bobacgo/admin-service/pkg/kit-web/response"
 	"github.com/bobacgo/admin-service/repo/dto"
-	"github.com/bobacgo/admin-service/repo/model"
 	"github.com/bobacgo/admin-service/service"
 )
 
@@ -47,6 +46,15 @@ func (h *I18nHandler) Create(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	if err := h.svc.Validator.StructCtx(r.Context(), req); err != nil {
+		response.JSON(w, response.Resp{
+			Code: ErrCodeParam,
+			Msg:  err.Error(),
+		})
+		return
+	}
+
 	if err := h.svc.I18n.Create(r.Context(), req); err != nil {
 		slog.Error("Create error", "req", req, "err", err)
 		response.JSON(w, response.Resp{
@@ -62,7 +70,7 @@ func (h *I18nHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *I18nHandler) Update(w http.ResponseWriter, r *http.Request) {
-	req := new(model.I18n)
+	req := new(dto.I18nUpdateReq)
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		response.JSON(w, response.Resp{
 			Code: ErrCodeParam,
@@ -70,6 +78,15 @@ func (h *I18nHandler) Update(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	if err := h.svc.Validator.StructCtx(r.Context(), req); err != nil {
+		response.JSON(w, response.Resp{
+			Code: ErrCodeParam,
+			Msg:  err.Error(),
+		})
+		return
+	}
+
 	if err := h.svc.I18n.Update(r.Context(), req); err != nil {
 		slog.Error("Update error", "i18n", req, "err", err)
 		response.JSON(w, response.Resp{

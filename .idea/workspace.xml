@@ -4,24 +4,28 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/api/i18n.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repo/dto/i18n.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repo/i18n.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repo/menu.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repo/model/i18n.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repo/model/menu.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repo/model/role.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repo/role.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/service/i18n.go" afterDir="false" />
+    <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="feat i18n api">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/kit-orm/count.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/repo/dto/response.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin.db" beforeDir="false" afterPath="$PROJECT_DIR$/admin.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/api.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/api.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/model/db.sql" beforeDir="false" afterPath="$PROJECT_DIR$/repo/model/db.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/i18n.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repo/dto/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/dto/i18n.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repo/dto/requset.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/dto/requset.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repo/dto/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/dto/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repo/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/i18n.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repo/model/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/model/i18n.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repo/model/mode.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/model/mode.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repo/model/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/model/users.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repo/repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/repo.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repo/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/i18n.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/user.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,6 +58,7 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file:///usr/local/go/src/database/sql/sql.go" root0="SKIP_INSPECTION" />
+    <setting file="file:///usr/local/go/src/net/http/request.go" root0="SKIP_INSPECTION" />
     <setting file="file:///usr/local/go/src/runtime/debug/stack.go" root0="SKIP_INSPECTION" />
   </component>
   <component name="ProjectColorInfo">{
@@ -90,7 +95,7 @@
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.goide.configuration.GoLibrariesConfigurableProvider&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
@@ -174,6 +179,21 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat i18n api" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat i18n api" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

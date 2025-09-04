@@ -12,3 +12,10 @@ type Relation struct {
 	R1Id uint32 `json:"r1_id"`
 	R2Id uint32 `json:"r2_id"`
 }
+
+func ptrFunc(ptr bool, p, v any) any {
+	if ptr {
+		return p
+	}
+	return v
+}

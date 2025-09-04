@@ -136,7 +136,7 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	slog.Info("List", "req", req)
-	rows, err := h.svc.User.List(r.Context(), req)
+	rows, total, err := h.svc.User.List(r.Context(), req)
 	if err != nil {
 		slog.Error("List error", "req", req, "err", err)
 		response.JSON(w, response.Resp{
@@ -145,10 +145,11 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
 	response.JSON(w, response.Resp{
 		Code: OK,
 		Msg:  "success",
-		Data: map[string]any{"list": rows, "total": len(rows)},
+		Data: dto.NewPageResp(total, rows),
 	})
 }
 

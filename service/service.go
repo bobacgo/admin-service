@@ -1,15 +1,20 @@
 package service
 
-import "github.com/bobacgo/admin-service/repo"
+import (
+	"github.com/bobacgo/admin-service/repo"
+	"github.com/go-playground/validator/v10"
+)
 
 type Service struct {
-	User *UserService
-	I18n *I18nService
+	Validator *validator.Validate
+	User      *UserService
+	I18n      *I18nService
 }
 
 func NewService(repo *repo.Repo) *Service {
 	return &Service{
-		User: NewUserService(repo),
-		I18n: NewI18nService(repo),
+		Validator: validator.New(),
+		User:      NewUserService(repo),
+		I18n:      NewI18nService(repo),
 	}
 }
