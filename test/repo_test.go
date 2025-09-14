@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	repo2 "github.com/bobacgo/admin-service/repo"
-	"github.com/bobacgo/admin-service/repo/data"
-	"github.com/bobacgo/admin-service/repo/model"
+	"github.com/bobacgo/admin-service/apps/repo"
+	"github.com/bobacgo/admin-service/apps/repo/data"
+	"github.com/bobacgo/admin-service/apps/repo/model"
 )
 
 func TestDB(t *testing.T) {
@@ -46,7 +46,7 @@ func Init() {
 		log.Fatal("创建索引失败:", err)
 	}
 
-	repo := repo2.NewUserRepo(clt)
+	repo := repo.NewUserRepo(clt)
 	err = repo.Create(context.Background(), &model.User{
 		Account:    "admin",
 		Password:   "admin",
