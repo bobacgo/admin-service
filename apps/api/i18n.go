@@ -19,6 +19,27 @@ func NewI18nHandler(svc *service.Service) *I18nHandler {
 	return &I18nHandler{svc: svc}
 }
 
+func (h *I18nHandler) Get(w http.ResponseWriter, r *http.Request) {
+	l := r.URL.Query().Get("lang")
+
+	get, err := h.svc.I18n.Get(r.Context(), &dto.GetI18nReq{
+		Lang: l,
+	})
+	if err != nil {
+		slog.Error("Get error", "err", err)
+		response.JSON(w, response.Resp{
+			Code: ErrCodeServer,
+			Msg:  err.Error(),
+		})
+		return
+	}
+	response.JSON(w, response.Resp{
+		Code: OK,
+		Msg:  "success",
+		Data: get,
+	})
+}
+
 func (h *I18nHandler) List(w http.ResponseWriter, r *http.Request) {
 	req := &dto.I18nListReq{}
 

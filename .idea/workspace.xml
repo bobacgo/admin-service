@@ -4,50 +4,23 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="fix">
-      <change afterPath="$PROJECT_DIR$/apps/repo/i18n.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/create.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/delete.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/iface.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/select.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/update.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/tmp_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/MarsCodeWorkspaceAppSettings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/MarsCodeWorkspaceAppSettings.xml" afterDir="false" />
+    <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="orm">
+      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/db.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/db_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/debug.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/insert.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/kit/orm/model.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/api.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/api.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/err_code.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/err_code.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/i18n.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/menu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/menu.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/menu.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ioc.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/ioc.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit-orm/count.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/orm/count.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit-web/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/hs/middleware.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit-web/response/r.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/hs/response/r.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit-web/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/hs/router.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit-web/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/hs/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/data/data.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/data/data.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/dto/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/dto/i18n.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/dto/requset.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/dto/requset.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/dto/response.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/dto/response.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/dto/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/dto/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/i18n.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/menu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/model/db.sql" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/db.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/model/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/i18n.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/model/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/menu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/model/mode.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/mode.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/model/role.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/role.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/model/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/users.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/repo.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/role.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/role.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repo/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/router.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/service/i18n.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/service/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/service/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/repo_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/repo_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/api/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/i18n.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/repo/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/i18n.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/count.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/create.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/delete.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/orm/delete.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/iface.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/orm/iface.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/select.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/orm/select.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/update.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/orm/update.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/tmp_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/tmp_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +74,12 @@
     "Go Build.go build github.com/bobacgo/admin-service/cmd/server.executor": "Debug",
     "Go Test.TestDB in github.com/bobacgo/admin-service/repo.executor": "Debug",
     "Go Test.TestDB in github.com/bobacgo/admin-service/test.executor": "Debug",
+    "Go Test.TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm.executor": "Run",
+    "Go Test.TestInsert in github.com/bobacgo/admin-service/pkg/kit/orm.executor": "Run",
+    "Go Test.TestInsertModel in github.com/bobacgo/admin-service/pkg/kit/orm.executor": "Debug",
+    "Go Test.TestInsertModels in github.com/bobacgo/admin-service/pkg/kit/orm.executor": "Run",
     "Go Test.TestName in github.com/bobacgo/admin-service/test.executor": "Debug",
+    "Go Test.TestPath in github.com/bobacgo/admin-service/test.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.GoLinterPluginOnboarding": "true",
     "RunOnceActivity.GoLinterPluginStorageMigration": "true",
@@ -120,7 +98,7 @@
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "com.codeverse.userSettings.AppSettingsConfigurable",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   },
@@ -142,16 +120,7 @@
       <recent name="$PROJECT_DIR$/api" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build github.com/bobacgo/admin-service/cmd/server">
-    <configuration name="go build github.com/bobacgo/admin-service" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="admin-service" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="github.com/bobacgo/admin-service" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/main.go" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Go Test.TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm">
     <configuration name="go build github.com/bobacgo/admin-service/cmd/server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="admin-service" />
       <working_directory value="$PROJECT_DIR$" />
@@ -161,49 +130,61 @@
       <filePath value="$PROJECT_DIR$/cmd/server/main.go" />
       <method v="2" />
     </configuration>
-    <configuration name="TestDB in github.com/bobacgo/admin-service/repo" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="admin-service" />
-      <working_directory value="$PROJECT_DIR$/repo" />
+      <working_directory value="$PROJECT_DIR$/pkg/kit/orm" />
       <root_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <package value="github.com/bobacgo/admin-service/repo" />
+      <package value="github.com/bobacgo/admin-service/pkg/kit/orm" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
-      <pattern value="^\QTestDB\E$" />
+      <pattern value="^\QTestDelete\E$" />
       <method v="2" />
     </configuration>
-    <configuration name="TestDB in github.com/bobacgo/admin-service/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestInsert in github.com/bobacgo/admin-service/pkg/kit/orm" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="admin-service" />
-      <working_directory value="$PROJECT_DIR$/test" />
+      <working_directory value="$PROJECT_DIR$/pkg/kit/orm" />
       <root_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <package value="github.com/bobacgo/admin-service/test" />
+      <package value="github.com/bobacgo/admin-service/pkg/kit/orm" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
-      <pattern value="^\QTestDB\E$" />
+      <pattern value="^\QTestInsert\E$" />
       <method v="2" />
     </configuration>
-    <configuration name="TestName in github.com/bobacgo/admin-service/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestInsertModel in github.com/bobacgo/admin-service/pkg/kit/orm" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="admin-service" />
-      <working_directory value="$PROJECT_DIR$/test" />
+      <working_directory value="$PROJECT_DIR$/pkg/kit/orm" />
       <root_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <package value="github.com/bobacgo/admin-service/test" />
+      <package value="github.com/bobacgo/admin-service/pkg/kit/orm" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
-      <pattern value="^\QTestName\E$" />
+      <pattern value="^\QTestInsertModel\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestInsertModels in github.com/bobacgo/admin-service/pkg/kit/orm" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="admin-service" />
+      <working_directory value="$PROJECT_DIR$/pkg/kit/orm" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/bobacgo/admin-service/pkg/kit/orm" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestInsertModels\E$" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Test.TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm" />
+        <item itemvalue="Go Test.TestInsertModels in github.com/bobacgo/admin-service/pkg/kit/orm" />
+        <item itemvalue="Go Test.TestInsertModel in github.com/bobacgo/admin-service/pkg/kit/orm" />
+        <item itemvalue="Go Test.TestInsert in github.com/bobacgo/admin-service/pkg/kit/orm" />
         <item itemvalue="Go Build.go build github.com/bobacgo/admin-service/cmd/server" />
-        <item itemvalue="Go Test.TestName in github.com/bobacgo/admin-service/test" />
-        <item itemvalue="Go Test.TestDB in github.com/bobacgo/admin-service/test" />
-        <item itemvalue="Go Test.TestDB in github.com/bobacgo/admin-service/repo" />
-        <item itemvalue="Go Build.go build github.com/bobacgo/admin-service" />
       </list>
     </recent_temporary>
   </component>
@@ -242,7 +223,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat i18n api" />
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
+    <MESSAGE value="orm" />
+    <option name="LAST_COMMIT_MESSAGE" value="orm" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 )
@@ -40,4 +41,11 @@ func FindOne[T any, PT interface {
 		*v.(*int) = 12
 	}
 	return res
+}
+
+func TestPath(t *testing.T) {
+	err := json.Unmarshal([]byte(""), &User{})
+	if err != nil {
+		fmt.Println(err)
+	}
 }

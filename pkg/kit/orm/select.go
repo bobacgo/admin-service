@@ -2,141 +2,190 @@ package orm
 
 import (
 	"context"
-	"database/sql"
+	"errors"
 	"fmt"
+	"log/slog"
+	"strconv"
 	"strings"
+	"testing"
 )
 
-func FindOne[T any, PT interface {
-	*T
-	Model
-}](ctx context.Context, db *sql.DB, where map[string]any) (PT, error) {
-	row := PT(new(T)) // 显式转换成 PT
-	mapping := row.Mapping(true)
-	var (
-		columns = make([]string, 0, len(mapping))
-		values  = make([]any, 0, len(mapping))
-	)
-	for k, v := range mapping {
-		columns = append(columns, k)
-		values = append(values, v)
-	}
+type Select struct {
+	dbCommon
+	cols []string // 查询字段
+	res  []any    // 查询映射结果字段
 
-	condValues := make([]any, 0)
-	cond := []string{
-		"1 = 1", // Always true condition to simplify appending
-	}
+	row  Model
+	rows []Model
 
-	for k, v := range where {
-		cond = append(cond, k)
-		condValues = append(condValues, v)
-	}
-
-	sqlText := "SELECT " + strings.Join(columns, ",") + " FROM " + row.TableName() + " WHERE " + strings.Join(cond, " ")
-	res := db.QueryRowContext(ctx, sqlText, condValues...)
-	err := res.Scan(values...)
-	return row, err
+	where   []string // 查询语法条件 例如：["AND id = ?", "OR account = ?"]
+	groupBy []string
+	having  string
+	orderBy []string
+	limit   int
+	offset  int
 }
 
-func Find[T any, PT interface {
-	*T
-	Model
-}](ctx context.Context, db *sql.DB, where map[string]any) ([]PT, error) {
-	row := PT(new(T)) // 显式转换成 PT
-	mapping := row.Mapping(true)
-
-	columns := make([]string, 0, len(mapping))
-	values := make([]any, 0, len(mapping))
-	for k, v := range mapping {
-		columns = append(columns, k)
-		values = append(values, v)
+// select a, b from ab where a = 1 group by a order by a limit 1, 2
+func (d *Select) slect(rows []Model) {
+	switch len(rows) {
+	case 0:
+		d.err = errors.New("model is nil")
+	case 1:
+		d.row = rows[0]
+		mapping := d.row.Mapping(true)
+		for k, v := range mapping {
+			d.cols = append(d.cols, k)
+			d.res = append(d.res, v)
+		}
+	default:
+		d.rows = rows
 	}
+}
 
-	cond := []string{
-		"1 = 1", // Always true condition to simplify appending
+func (d *Select) FROM(table string) *Select {
+	if table == "" {
+		d.err = errors.New("table name is empty")
 	}
-	condValues := make([]interface{}, 0)
+	d.table = table
+	return d
+}
 
+func (d *Select) WHERE(where map[string]any) *Select {
 	for k, v := range where {
-		cond = append(cond, k)
-		condValues = append(condValues, v)
+		d.where = append(d.where, k)
+		d.args = append(d.args, v)
+	}
+	return d
+}
+
+func (d *Select) GROUP_BY(cols ...string) *Select {
+	d.groupBy = cols
+	return d
+}
+
+func (d *Select) HAVING(text string) *Select {
+	d.having = text
+	return d
+}
+
+func (d *Select) ORDER_BY(orders ...string) *Select {
+	d.orderBy = orders
+	return d
+}
+
+func (d *Select) LIMIT(limit int) *Select {
+	d.limit = limit
+	return d
+}
+
+func (d *Select) OFFSET(offset int) *Select {
+	d.offset = offset
+	return d
+}
+
+func (d *Select) COUNT(col string, v any) Model {
+	if col == "" {
+		col = "*"
+	}
+	text := fmt.Sprintf("COUNT(%s)", col)
+	d.cols = append(d.cols, text)
+	d.res = append(d.res, v)
+	return &model{}
+}
+
+func (d *Select) SUM(col string, v any) Model {
+	if col == "" {
+		col = "*"
+	}
+	text := fmt.Sprintf("SUM(%s)", col)
+	d.cols = append(d.cols, text)
+	d.res = append(d.res, v)
+	return &model{}
+}
+
+func (d *Select) Builder() string {
+	return "" // TODO xxx
+}
+
+// 查到单个
+func (d *Select) QueryRow(ctx context.Context) error {
+	if d.err != nil {
+		return d.err
+	}
+	sqlText := d.queryBuilder(false)
+	if d.debug {
+		slog.InfoContext(ctx, "sql text", "sql", sqlText, "args", d.args)
+	}
+	return d.db.QueryRowContext(ctx, sqlText, d.args...).Scan(d.res...)
+}
+
+// 查询多个
+func (d *Select) Query(ctx context.Context) error {
+	if d.err != nil {
+		return d.err
 	}
 
-	sqlText := "SELECT " + strings.Join(columns, ",") + " FROM " + row.TableName() + " WHERE " + strings.Join(cond, " ") + " ORDER BY id DESC"
-	rows, err := db.QueryContext(ctx, sqlText, condValues...)
+	sqlText := d.queryBuilder(true)
+	if d.debug {
+		slog.InfoContext(ctx, "sql text", "sql", sqlText, "args", d.args)
+	}
+	rows, err := d.db.QueryContext(ctx, sqlText, d.args...)
 	if err != nil {
-		return nil, fmt.Errorf("stmt.Query: %w", err)
+		return fmt.Errorf("stmt.Query: %w", err)
 	}
 	defer rows.Close()
 
-	list := make([]PT, 0)
 	for rows.Next() {
-		if err = rows.Scan(values...); err != nil {
-			return nil, fmt.Errorf("rows.Scan: %w", err)
+		if err = rows.Scan(d.res...); err != nil {
+			return fmt.Errorf("rows.Scan: %w", err)
 		}
-		cp := *row
-		list = append(list, &cp)
+		cp := d.row // TODO 这里拷贝
+		d.rows = append(d.rows, cp)
 	}
-	return list, nil
+	return rows.Err()
 }
 
-func FindPage[T any, PT interface {
-	*T
-	Model
-}](ctx context.Context, db *sql.DB, where map[string]any, page, pageSize int) ([]PT, int64, error) {
-	list := make([]PT, 0)
-
-	if page <= 0 || pageSize <= 0 {
-		return list, 0, nil
+func (d *Select) queryBuilder(isMulti bool) string {
+	sqlText := "SELECT " + strings.Join(d.cols, ", ") + " FROM " + d.table
+	if len(d.where) > 0 {
+		sqlText += " WHERE " + strings.TrimLeft(strings.Join(d.where, " "), "AND ")
+	}
+	if len(d.groupBy) > 0 {
+		sqlText += " GROUP BY " + strings.Join(d.groupBy, ", ")
+	}
+	if d.having != "" {
+		sqlText += " HAVING " + d.having
+	}
+	if len(d.orderBy) > 0 {
+		sqlText += " ORDER BY " + strings.Join(d.orderBy, ", ")
 	}
 
-	row := PT(new(T)) // 显式转换成 PT
-
-	// 过滤条件
-	cond := []string{"1 = 1"}
-	condValues := make([]interface{}, 0)
-	for k, v := range where {
-		cond = append(cond, k)
-		condValues = append(condValues, v)
-	}
-
-	var total sql.NullInt64
-
-	sqlText := "SELECT COUNT(*) FROM " + row.TableName() + " WHERE " + strings.Join(cond, " ")
-	if err := db.QueryRowContext(ctx, sqlText, condValues...).
-		Scan(&total); err != nil {
-		return nil, 0, fmt.Errorf("COUNT: %w", err)
-	}
-	if total.Int64 == 0 {
-		return list, 0, nil
-	}
-
-	mapping := row.Mapping(true)
-
-	// 查询字段和对应的字段映射
-	columns := make([]string, 0, len(mapping))
-	values := make([]any, 0, len(mapping))
-	for k, v := range mapping {
-		columns = append(columns, k)
-		values = append(values, v)
-	}
-
-	// 分页
-	condValues = append(condValues, (page-1)*pageSize, pageSize)
-
-	sqlText = "SELECT " + strings.Join(columns, ",") + " FROM " + row.TableName() + " WHERE " + strings.Join(cond, " ") + " ORDER BY id DESC LIMIT ?, ?"
-	rows, err := db.QueryContext(ctx, sqlText, condValues...)
-	if err != nil {
-		return nil, 0, fmt.Errorf("stmt.Query: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		if err = rows.Scan(values...); err != nil {
-			return nil, 0, fmt.Errorf("rows.Scan: %w", err)
+	if !isMulti {
+		sqlText += " LIMIT 1"
+	} else {
+		if d.limit > 0 {
+			sqlText += " LIMIT " + strconv.Itoa(d.limit)
 		}
-		cp := *row
-		list = append(list, &cp)
+		if d.offset > 0 {
+			sqlText += " OFFSET " + strconv.Itoa(d.offset)
+		}
 	}
-	return list, total.Int64, nil
+	return sqlText
+}
+
+func TestSelect(t *testing.T) {
+	db := NewDB(nil)
+	// SELECT a, b FROM xx WHERE id = 1 GROUP BY a HAVING a > 0 ORDER BY a desc, b LIMIT 1, 1
+	err := db.SELECT(&TestModel{}).
+		FROM("xx").
+		WHERE(map[string]any{"AND id = ?": 1}).
+		GROUP_BY("a").
+		HAVING("a > 0").
+		ORDER_BY("a desc", "b").
+		OFFSET(1).LIMIT(1).
+		QueryRow(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
 }
