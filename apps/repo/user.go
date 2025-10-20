@@ -7,7 +7,6 @@ import (
 	"github.com/bobacgo/admin-service/apps/repo/data"
 	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
-	"github.com/bobacgo/admin-service/pkg/kit/orm"
 	"github.com/bobacgo/admin-service/pkg/util"
 )
 
@@ -101,7 +100,9 @@ func (r *UserRepo) Find(ctx context.Context, req *dto.UserListReq) ([]*model.Use
 		where["AND status IN (?)"] = req.Status
 	}
 
-	return orm.FindPage[model.User](ctx, r.clt.DB, where, req.Page, req.PageSize)
+	//return orm.FindPage[model.User](ctx, r.clt.DB, where, req.Page, req.PageSize)
+	// TODO: 分页查询
+	return nil, 0, nil
 }
 
 func (r *UserRepo) Update(ctx context.Context, row *model.User) error {

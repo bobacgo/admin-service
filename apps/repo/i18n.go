@@ -2,12 +2,13 @@ package repo
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 
 	"github.com/bobacgo/admin-service/apps/repo/data"
 	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
-	"github.com/bobacgo/admin-service/pkg/kit/orm"
+	. "github.com/bobacgo/orm"
 )
 
 type I18nRepo struct {
@@ -34,7 +35,7 @@ func (r *I18nRepo) FindOne(ctx context.Context, req *dto.GetI18nReq) (*model.I18
 	}
 
 	row := new(model.I18n)
-	err := orm.NewDB(r.clt.DB).Select(row).From(row.TableName()).Where(where).QueryRowContext(ctx)
+	err := SELECT1(row).FROM(model.I18nTable).WHERE(where).Query(ctx, r.clt.DB)
 	return row, err
 }
 
@@ -50,28 +51,39 @@ func (r *I18nRepo) Find(ctx context.Context, req *dto.I18nListReq) ([]*model.I18
 		where["AND lang = ?"] = req.Lang
 	}
 
-	var count int64
-	db := orm.NewDB(r.clt.DB)
-	if err := db.Debug().Select(db.Count("*", &count)).From(model.I18nTable).Where(where).QueryContext(ctx); err != nil {
+	var (
+		list  = make([]*model.I18n, 0)
+		total sql.Null[int64]
+	)
+	if err := SELECT1(COUNT("*", total)).FROM(model.I18nTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
+		return nil, 0, err
+	}
+	if !total.Valid {
+		return list, 0, nil
+	}
+
+	slog.InfoContext(ctx, "i18n find count", "total", total)
+
+	rows := make([]*model.I18n, 0)
+	offset, limit := req.Limit()
+	if err := SELECT(&rows).FROM(model.I18nTable).WHERE(where).ORDER_BY("id desc").OFFSET(int64(offset)).LIMIT(int64(limit)).Query(ctx, r.clt.DB); err != nil {
 		return nil, 0, err
 	}
 
-	slog.InfoContext(ctx, "i18n find count", "count", count)
-
-	return orm.FindPage[model.I18n](ctx, r.clt.DB, where, req.Page, req.PageSize)
+	return rows, total.V, nil
 }
 
 func (r *I18nRepo) Create(ctx context.Context, row *model.I18n) error {
-	_, err := orm.NewDB(r.clt.DB).INSERT(row).INTO(model.I18nTable).Exec(ctx)
+	_, err := INSERT(row).INTO(model.I18nTable).Exec(ctx, r.clt.DB)
 	return err
 }
 
 func (r *I18nRepo) Update(ctx context.Context, row *model.I18n) error {
-	_, err := orm.Update(ctx, r.clt.DB, row.ID, row)
+	_, err := UPDATE(model.I18nTable).SET1(row).WHERE(M{"id = ?": row.ID}).Exec(ctx, r.clt.DB)
 	return err
 }
 
 func (r *I18nRepo) Delete(ctx context.Context, ids string) error {
-	_, err := orm.Delete(ctx, r.clt.DB, model.I18nTable, ids)
+	_, err := DELETE().FROM(model.I18nTable).WHERE(M{"id IN (?)": ids}).Exec(ctx, r.clt.DB)
 	return err
 }

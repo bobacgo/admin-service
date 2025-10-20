@@ -1,5 +1,7 @@
 package model
 
+import "github.com/bobacgo/orm"
+
 const I18nTable = "i18n"
 
 type I18n struct {
@@ -10,18 +12,14 @@ type I18n struct {
 	Value string `json:"value"`
 }
 
-func (*I18n) TableName() string {
-	return I18nTable
-}
-
-func (m *I18n) Mapping(ptr bool) map[string]any {
-	return map[string]any{
-		"id":         ptrFunc(ptr, &m.ID, m.ID),
-		"class":      ptrFunc(ptr, &m.Class, m.Class),
-		"lang":       ptrFunc(ptr, &m.Lang, m.Lang),
-		"key":        ptrFunc(ptr, &m.Key, m.Key),
-		"value":      ptrFunc(ptr, &m.Value, m.Value),
-		"created_at": ptrFunc(ptr, &m.CreatedAt, m.CreatedAt),
-		"updated_at": ptrFunc(ptr, &m.UpdatedAt, m.UpdatedAt),
+func (m *I18n) Mapping() []*orm.Mapping {
+	return []*orm.Mapping{
+		{Column: "id", Result: &m.ID, Value: m.ID},
+		{Column: "class", Result: &m.Class, Value: m.Class},
+		{Column: "lang", Result: &m.Lang, Value: m.Lang},
+		{Column: "key", Result: &m.Key, Value: m.Key},
+		{Column: "value", Result: &m.Value, Value: m.Value},
+		{Column: "created_at", Result: &m.CreatedAt, Value: m.CreatedAt},
+		{Column: "updated_at", Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}
 }
