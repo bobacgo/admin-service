@@ -55,7 +55,7 @@ func (r *I18nRepo) Find(ctx context.Context, req *dto.I18nListReq) ([]*model.I18
 		list  = make([]*model.I18n, 0)
 		total sql.Null[int64]
 	)
-	if err := SELECT1(COUNT("*", total)).FROM(model.I18nTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
+	if err := SELECT1(COUNT("*", &total)).FROM(model.I18nTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
 		return nil, 0, err
 	}
 	if !total.Valid {
