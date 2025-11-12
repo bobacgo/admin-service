@@ -1,36 +1,46 @@
 package model
 
+import "github.com/bobacgo/orm"
+
 const UsersTable = "users"
 
 type User struct {
 	Model
-	Account    string `json:"account"`
-	Password   string `json:"password"`
-	Phone      string `json:"phone"`
-	Email      string `json:"email"`
-	Status     int8   `json:"status"` // 状态 1:正常 2:禁用
-	RegisterAt int64  `json:"register_at"`
-	RegisterIp string `json:"register_ip"`
-	LoginAt    int64  `json:"login_at"`
-	LoginIp    string `json:"login_ip"`
+	Account    string `json:"account"`     // 账号
+	Password   string `json:"password"`    // 密码
+	Phone      string `json:"phone"`       // 手机号
+	Email      string `json:"email"`       // 邮箱
+	Status     int8   `json:"status"`      // 状态 1:正常 2:禁用
+	RegisterAt int64  `json:"register_at"` // 注册时间
+	RegisterIp string `json:"register_ip"` // 注册IP
+	LoginAt    int64  `json:"login_at"`    // 登录时间
+	LoginIp    string `json:"login_ip"`    // 登录IP
 }
 
-func (User) TableName() string {
-	return UsersTable
-}
+const (
+	Account    string = "account"
+	Password   string = "password"
+	Phone      string = "phone"
+	Email      string = "email"
+	RegisterAt string = "register_at"
+	RegisterIp string = "register_ip"
+	LoginAt    string = "login_at"
+	LoginIp    string = "login_ip"
+)
 
-func (m User) Mapping(ptr bool) map[string]any {
-	return map[string]any{
-		"account":     ptrFunc(ptr, &m.Account, m.Account),
-		"password":    ptrFunc(ptr, &m.Password, m.Password),
-		"phone":       ptrFunc(ptr, &m.Phone, m.Phone),
-		"email":       ptrFunc(ptr, &m.Email, m.Email),
-		"status":      ptrFunc(ptr, &m.Status, m.Status),
-		"register_at": ptrFunc(ptr, &m.RegisterAt, m.RegisterAt),
-		"register_ip": ptrFunc(ptr, &m.RegisterIp, m.RegisterIp),
-		"login_at":    ptrFunc(ptr, &m.LoginAt, m.LoginAt),
-		"login_ip":    ptrFunc(ptr, &m.LoginIp, m.LoginIp),
-		"created_at":  ptrFunc(ptr, &m.CreatedAt, m.CreatedAt),
-		"updated_at":  ptrFunc(ptr, &m.UpdatedAt, m.UpdatedAt),
+func (m *User) Mapping() []*orm.Mapping {
+	return []*orm.Mapping{
+		{Column: Id, Result: &m.ID, Value: m.ID},
+		{Column: Account, Result: &m.Account, Value: m.Account},
+		{Column: Password, Result: &m.Password, Value: m.Password},
+		{Column: Phone, Result: &m.Phone, Value: m.Phone},
+		{Column: Email, Result: &m.Email, Value: m.Email},
+		{Column: Status, Result: &m.Status, Value: m.Status},
+		{Column: RegisterAt, Result: &m.RegisterAt, Value: m.RegisterAt},
+		{Column: RegisterIp, Result: &m.RegisterIp, Value: m.RegisterIp},
+		{Column: LoginAt, Result: &m.LoginAt, Value: m.LoginAt},
+		{Column: LoginIp, Result: &m.LoginIp, Value: m.LoginIp},
+		{Column: CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
+		{Column: UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}
 }

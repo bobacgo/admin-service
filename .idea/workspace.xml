@@ -4,23 +4,19 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="orm v2">
+    <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="fix">
+      <change afterPath="$PROJECT_DIR$/apps/repo/sql.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/repo/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/i18n.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/repo/model/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/i18n.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/repo/model/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/menu.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/repo/model/mode.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/mode.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/repo/model/role.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/role.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/repo/model/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/users.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/repo/role.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/role.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/repo/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/db.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/db_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/debug.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/delete.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/iface.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/insert.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/model.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/select.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kit/orm/update.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tmp_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/tmp_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,9 +48,15 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/go/pkg/mod/github.com/bobacgo/orm@v0.0.0-20251020151606-daea1a18a60d/aggregate.go" root0="SKIP_INSPECTION" />
+    <setting file="file://$USER_HOME$/go/pkg/mod/github.com/bobacgo/orm@v0.0.0-20251020151606-daea1a18a60d/select_models.go" root0="SKIP_INSPECTION" />
+    <setting file="file://$USER_HOME$/go/pkg/mod/github.com/bobacgo/orm@v0.0.0-20251020151606-daea1a18a60d/update.go" root0="SKIP_INSPECTION" />
+    <setting file="file://$USER_HOME$/go/pkg/mod/github.com/bobacgo/orm@v0.0.0-20251022141453-78b6355f93fd/aggregate.go" root0="SKIP_INSPECTION" />
+    <setting file="file://$USER_HOME$/go/pkg/mod/github.com/bobacgo/orm@v0.0.0-20251109150828-cfcae8c0b297/insert.go" root0="SKIP_INSPECTION" />
     <setting file="file://$USER_HOME$/go/pkg/mod/github.com/go-playground/validator/v10@v10.27.0/validator_instance.go" root0="SKIP_INSPECTION" />
     <setting file="file:///usr/local/go/src/database/sql/sql.go" root0="SKIP_INSPECTION" />
     <setting file="file:///usr/local/go/src/net/http/request.go" root0="SKIP_INSPECTION" />
+    <setting file="file:///usr/local/go/src/net/http/server.go" root0="SKIP_INSPECTION" />
     <setting file="file:///usr/local/go/src/runtime/debug/stack.go" root0="SKIP_INSPECTION" />
   </component>
   <component name="ProjectColorInfo">{
@@ -121,7 +123,16 @@
       <recent name="$PROJECT_DIR$/api" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Test.TestTime in github.com/bobacgo/admin-service/test">
+  <component name="RunManager" selected="Go Build.go build github.com/bobacgo/admin-service/cmd/server">
+    <configuration name="go build github.com/bobacgo/admin-service/cmd/server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="admin-service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/bobacgo/admin-service/cmd/server" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/server/main.go" />
+      <method v="2" />
+    </configuration>
     <configuration name="TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="admin-service" />
       <working_directory value="$PROJECT_DIR$/pkg/kit/orm" />
@@ -132,18 +143,6 @@
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
       <pattern value="^\QTestDelete\E$" />
-      <method v="2" />
-    </configuration>
-    <configuration name="TestInsert in github.com/bobacgo/admin-service/pkg/kit/orm" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="admin-service" />
-      <working_directory value="$PROJECT_DIR$/pkg/kit/orm" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="github.com/bobacgo/admin-service/pkg/kit/orm" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestInsert\E$" />
       <method v="2" />
     </configuration>
     <configuration name="TestInsertModel in github.com/bobacgo/admin-service/pkg/kit/orm" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
@@ -184,19 +183,19 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build github.com/bobacgo/admin-service/cmd/server" />
         <item itemvalue="Go Test.TestTime in github.com/bobacgo/admin-service/test" />
         <item itemvalue="Go Test.TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm" />
         <item itemvalue="Go Test.TestInsertModels in github.com/bobacgo/admin-service/pkg/kit/orm" />
         <item itemvalue="Go Test.TestInsertModel in github.com/bobacgo/admin-service/pkg/kit/orm" />
-        <item itemvalue="Go Test.TestInsert in github.com/bobacgo/admin-service/pkg/kit/orm" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-f466f9b0953e-3d2cccfc42a2-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-252.23892.530" />
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-GO-252.23892.530" />
+        <option value="bundled-gosdk-72a9cf600ed8-448e06e64ec5-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-253.27864.37" />
+        <option value="bundled-js-predefined-d6986cc7102b-75c7c973e13d-JavaScript-GO-253.27864.37" />
       </set>
     </attachedChunks>
   </component>
@@ -226,13 +225,10 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat i18n api" />
-    <MESSAGE value="fix" />
     <MESSAGE value="orm" />
     <MESSAGE value="orm v2" />
-    <option name="LAST_COMMIT_MESSAGE" value="orm v2" />
-  </component>
-  <component name="VgoProject">
-    <settings-migrated>true</settings-migrated>
+    <MESSAGE value="fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

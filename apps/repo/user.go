@@ -2,12 +2,12 @@ package repo
 
 import (
 	"context"
-	"strings"
+	"database/sql"
 
 	"github.com/bobacgo/admin-service/apps/repo/data"
 	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
-	"github.com/bobacgo/admin-service/pkg/util"
+	. "github.com/bobacgo/orm"
 )
 
 type UserRepo struct {
@@ -20,118 +20,71 @@ func NewUserRepo(data *data.Client) *UserRepo {
 
 // 创建
 func (r *UserRepo) Create(ctx context.Context, row *model.User) error {
-	mapping := row.Mapping(false)
-
-	var (
-		columns = make([]string, 0, len(mapping))
-		pos     = make([]string, 0, len(mapping))
-		values  = make([]any, 0, len(mapping))
-	)
-	for k, v := range mapping {
-		if k == "id" {
-			continue
-		}
-		columns = append(columns, k)
-		pos = append(pos, "?")
-		values = append(values, v)
-	}
-
-	sqlText := "INSERT INTO " + row.TableName() + " (" + strings.Join(columns, ",") + ") VALUES (" + strings.Join(pos, ",") + ")"
-	_, err := r.clt.DB.ExecContext(ctx, sqlText, values...)
+	id, err := INSERT(row).INTO(model.UsersTable).Exec(ctx, r.clt.DB)
+	row.ID = id
 	return err
 }
 
 func (r *UserRepo) FindOne(ctx context.Context, req *dto.GetUserReq) (*model.User, error) {
 	row := new(model.User)
-	mapping := row.Mapping(true)
-	var (
-		columns = make([]string, 0, len(mapping))
-		values  = make([]any, 0, len(mapping))
-	)
-	for k, v := range mapping {
-		columns = append(columns, k)
-		values = append(values, v)
-	}
 
-	condValues := make([]interface{}, 0)
-	cond := []string{
-		"1 = 1", // Always true condition to simplify appending
-	}
+	where := make(map[string]any)
 	if req.ID > 0 {
-		cond = append(cond, "AND id = ?")
-		condValues = append(condValues, req.ID)
+		where[AND(model.Id)] = req.ID
 	}
 	if req.Account != "" {
-		cond = append(cond, "AND account = ?")
-		condValues = append(condValues, req.Account)
+		where[AND(model.Account)] = req.Account
 	}
 	if req.Phone != "" {
-		cond = append(cond, "AND phone = ?")
-		condValues = append(condValues, req.Phone)
+		where[AND(model.Phone)] = req.Phone
 	}
 	if req.Email != "" {
-		cond = append(cond, "AND email = ?")
-		condValues = append(condValues, req.Email)
+		where[AND(model.Email)] = req.Email
 	}
 
-	sqlText := "SELECT " + strings.Join(columns, ",") + " FROM " + row.TableName() + " WHERE " + strings.Join(cond, " ")
-	res := r.clt.DB.QueryRowContext(ctx, sqlText, condValues...)
-	err := res.Scan(values...)
+	err := SELECT1(row).FROM(model.UsersTable).WHERE(where).Query(ctx, r.clt.DB)
 	return row, err
 }
 
 func (r *UserRepo) Find(ctx context.Context, req *dto.UserListReq) ([]*model.User, int64, error) {
-	where := map[string]any{
-		"AND account LIKE ?": req.Account + "%",
-		"AND phone LIKE ?":   req.Phone + "%",
-		"AND email LIKE ?":   req.Email + "%",
-		"AND status IN (?)":  req.Status,
-	}
+	where := map[string]any{}
 	if req.Account != "" {
-		where["AND account LIKE ?"] = req.Account + "%"
+		where[AND_LIKE(model.Account)] = req.Account + "%" // 右模糊查询
 	}
 	if req.Phone != "" {
-		where["AND phone LIKE ?"] = req.Phone + "%"
+		where[AND_LIKE(model.Phone)] = req.Phone + "%" // 右模糊查询
 	}
 	if req.Email != "" {
-		where["AND email LIKE ?"] = req.Email + "%"
+		where[AND_LIKE(model.Email)] = req.Email + "%" // 右模糊查询
 	}
 	if req.Status != "" {
-		where["AND status IN (?)"] = req.Status
+		where[AND_IN(model.Status)] = req.Status
 	}
 
-	//return orm.FindPage[model.User](ctx, r.clt.DB, where, req.Page, req.PageSize)
-	// TODO: 分页查询
-	return nil, 0, nil
+	var (
+		list  = make([]*model.User, 0)
+		total sql.Null[int64]
+	)
+	if err := SELECT1(COUNT("*", &total)).FROM(model.UsersTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
+		return nil, 0, err
+	}
+	if !total.Valid {
+		return list, 0, nil
+	}
+	offset, limit := req.Limit()
+	if err := SELECT2(&list).FROM(model.UsersTable).WHERE(where).ORDER_BY(DESC(model.Id)).OFFSET(int64(offset)).LIMIT(int64(limit)).Query(ctx, r.clt.DB); err != nil {
+		return nil, 0, err
+	}
+
+	return list, total.V, nil
 }
 
 func (r *UserRepo) Update(ctx context.Context, row *model.User) error {
-	mapping := row.Mapping(false)
-	var (
-		columns = make([]string, 0, len(mapping))
-		values  = make([]any, 0, len(mapping))
-	)
-	for k, v := range mapping {
-		if k == "id" {
-			continue
-		}
-		if util.IsZero(v) {
-			continue
-		}
-		columns = append(columns, k+" = ?")
-		values = append(values, v)
-	}
-	if len(columns) == 0 {
-		return nil
-	}
-	sqlText := "UPDATE " + row.TableName() + " SET " + strings.Join(columns, ",") + " WHERE id = ?"
-	values = append(values, row.ID)
-	_, err := r.clt.DB.ExecContext(ctx, sqlText, values...)
+	_, err := UPDATE(model.UsersTable).SET1(row).WHERE(M{AND(model.Id): row.ID}).Exec(ctx, r.clt.DB)
 	return err
 }
 
 func (r *UserRepo) Delete(ctx context.Context, ids string) error {
-	sqlText := "DELETE FROM " + model.UsersTable + " WHERE id IN (?)"
-	_, err := r.clt.DB.ExecContext(ctx, sqlText, ids)
+	_, err := DELETE().FROM(model.UsersTable).WHERE(M{AND_IN(model.Id): ids}).Exec(ctx, r.clt.DB)
 	return err
 }
