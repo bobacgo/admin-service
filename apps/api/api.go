@@ -11,6 +11,7 @@ type Handler struct {
 	User *UserHandler
 	Menu *MenuHandler
 	I18n *I18nHandler
+	Role *RoleHandler
 }
 
 func NewHandler(svc *service.Service) *Handler {
@@ -18,6 +19,7 @@ func NewHandler(svc *service.Service) *Handler {
 		User: NewUserHandler(svc),
 		Menu: NewMenuHandler(svc),
 		I18n: NewI18nHandler(svc),
+		Role: NewRoleHandler(svc),
 	}
 }
 

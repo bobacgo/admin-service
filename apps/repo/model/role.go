@@ -4,6 +4,7 @@ import "github.com/bobacgo/orm"
 
 const (
 	RoleCodeAdmin string = "admin"
+	RoleTable     string = "roles"
 )
 
 type Role struct {
@@ -18,7 +19,7 @@ const (
 	Description string = "description"
 )
 
-func (m *Role) Mappping() []*orm.Mapping {
+func (m *Role) Mapping() []*orm.Mapping {
 	return []*orm.Mapping{
 		{Column: Id, Result: &m.ID, Value: m.ID},
 		{Column: Code, Result: &m.Code, Value: m.Code},

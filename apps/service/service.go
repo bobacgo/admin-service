@@ -9,6 +9,8 @@ type Service struct {
 	Validator *validator.Validate
 	User      *UserService
 	I18n      *I18nService
+	Menu      *MenuService
+	Role      *RoleService
 }
 
 func NewService(repo *repo.Repo) *Service {
@@ -16,5 +18,7 @@ func NewService(repo *repo.Repo) *Service {
 		Validator: validator.New(),
 		User:      NewUserService(repo),
 		I18n:      NewI18nService(repo),
+		Menu:      NewMenuService(repo),
+		Role:      NewRoleService(repo),
 	}
 }

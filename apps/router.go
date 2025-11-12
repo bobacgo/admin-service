@@ -25,7 +25,6 @@ func RegisterRoutes(container *Container) http.Handler {
 	mux := http.NewServeMux()
 
 	// 创建一个处理链，先应用Cors中间件设置CORS头，再应用OptionsMiddleware处理OPTIONS请求
-	handlerChain := hs.Cors(OptionsMiddleware(mux))
 	public := hs.NewGroup("/", mux, hs.Logger, hs.Cors)
 	public.HandleFunc("GET /health", container.api.Health)
 	public.HandleFunc("POST /api/login", container.api.User.Login)
@@ -40,7 +39,21 @@ func RegisterRoutes(container *Container) http.Handler {
 	api.HandleFunc("POST /user/add", container.api.User.Create)
 	api.HandleFunc("PUT /user/update", container.api.User.Update)
 	api.HandleFunc("DELETE /user/delete", container.api.User.Delete)
+
+	// Menu
+	api.HandleFunc("GET /menu/get", container.api.Menu.Get)
+	api.HandleFunc("GET /menu/list", container.api.Menu.GetList)
+	api.HandleFunc("POST /menu/add", container.api.Menu.Create)
+	api.HandleFunc("PUT /menu/update", container.api.Menu.Update)
+	api.HandleFunc("DELETE /menu/delete", container.api.Menu.Delete)
 	api.HandleFunc("GET /get-menu-list-i18n", container.api.Menu.GetList)
+
+	// Role
+	api.HandleFunc("GET /role/get", container.api.Role.Get)
+	api.HandleFunc("GET /role/list", container.api.Role.List)
+	api.HandleFunc("POST /role/add", container.api.Role.Create)
+	api.HandleFunc("PUT /role/update", container.api.Role.Update)
+	api.HandleFunc("DELETE /role/delete", container.api.Role.Delete)
 
 	// I18n
 	api.HandleFunc("GET /i18n/get", container.api.I18n.Get)
@@ -49,5 +62,6 @@ func RegisterRoutes(container *Container) http.Handler {
 	api.HandleFunc("PUT /i18n/update", container.api.I18n.Update)
 	api.HandleFunc("DELETE /i18n/delete", container.api.I18n.Delete)
 
+	handlerChain := hs.Cors(OptionsMiddleware(mux))
 	return handlerChain
 }
