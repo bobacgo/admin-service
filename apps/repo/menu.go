@@ -61,13 +61,13 @@ func (r *MenuRepo) Find(ctx context.Context, req *dto.MenuListReq) ([]*model.Men
 }
 
 func (r *MenuRepo) Create(ctx context.Context, row *model.Menu) error {
-	id, err := INSERT(row).INTO(model.MenuTable).Exec(ctx, r.clt.DB)
+	id, err := INSERT(row).INTO(model.MenuTable).Omit(model.Id).Exec(ctx, r.clt.DB)
 	row.ID = id
 	return err
 }
 
 func (r *MenuRepo) Update(ctx context.Context, row *model.Menu) error {
-	_, err := UPDATE(model.MenuTable).SET1(row).WHERE(M{AND(model.Id): row.ID}).Exec(ctx, r.clt.DB)
+	_, err := UPDATE(model.MenuTable).SET1(row).WHERE(M{AND(model.Id): row.ID}).Omit(model.Id).Exec(ctx, r.clt.DB)
 	return err
 }
 

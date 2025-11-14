@@ -67,11 +67,9 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = h.svc.User.Update(r.Context(), &model.User{
-		Model:   model.Model{ID: row.ID},
-		LoginAt: time.Now().Unix(),
-		LoginIp: r.Host,
-	}); err != nil {
+	row.LoginAt = time.Now().Unix()
+	row.LoginIp = r.Host
+	if err = h.svc.User.Update(r.Context(), row); err != nil {
 		slog.Error("Update error", "err", err)
 	}
 

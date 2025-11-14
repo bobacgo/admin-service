@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/bobacgo/admin-service/apps/repo"
 	"github.com/bobacgo/admin-service/apps/repo/dto"
@@ -49,4 +50,59 @@ func (s *MenuService) List(ctx context.Context, req *dto.MenuListReq) ([]*model.
 
 func (s *MenuService) Delete(ctx context.Context, ids string) error {
 	return s.repo.Menu.Delete(ctx, ids)
+}
+
+func (s *MenuService) Tree(ctx context.Context) ([]*dto.MenuItem, error) {
+	menuList, _, err := s.List(ctx, &dto.MenuListReq{})
+	if err != nil {
+		return nil, err
+	}
+	return s.buildTree(menuList), nil
+}
+
+func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
+	var tree []*dto.MenuItem
+	for _, menu := range menuList {
+		if menu.ParentID == 0 {
+			meta := make(map[string]any)
+			if err := json.Unmarshal([]byte(menu.Meta), &meta); err != nil {
+				continue
+			}
+			tree = append(tree, &dto.MenuItem{
+				ID:        menu.ID,
+				ParentID:  menu.ParentID,
+				Path:      menu.Path,
+				Name:      menu.Name,
+				Component: menu.Component,
+				Redirect:  menu.Redirect,
+				Meta:      meta,
+				Icon:      menu.Icon,
+				Sort:      menu.Sort,
+			})
+		}
+	}
+	for _, menu := range menuList {
+		if menu.ParentID != 0 {
+			for _, item := range tree {
+				if item.ID == menu.ParentID {
+					meta := make(map[string]any)
+					if err := json.Unmarshal([]byte(menu.Meta), &meta); err != nil {
+						continue
+					}
+					item.Children = append(item.Children, &dto.MenuItem{
+						ID:        menu.ID,
+						ParentID:  menu.ParentID,
+						Path:      menu.Path,
+						Name:      menu.Name,
+						Component: menu.Component,
+						Redirect:  menu.Redirect,
+						Meta:      meta,
+						Icon:      menu.Icon,
+						Sort:      menu.Sort,
+					})
+				}
+			}
+		}
+	}
+	return tree
 }

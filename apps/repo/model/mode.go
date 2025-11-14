@@ -1,6 +1,8 @@
 package model
 
-import "github.com/bobacgo/orm"
+import (
+	"github.com/bobacgo/orm"
+)
 
 // common columns
 const (

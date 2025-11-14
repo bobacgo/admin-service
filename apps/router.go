@@ -46,7 +46,7 @@ func RegisterRoutes(container *Container) http.Handler {
 	api.HandleFunc("POST /menu/add", container.api.Menu.Create)
 	api.HandleFunc("PUT /menu/update", container.api.Menu.Update)
 	api.HandleFunc("DELETE /menu/delete", container.api.Menu.Delete)
-	api.HandleFunc("GET /get-menu-list-i18n", container.api.Menu.GetList)
+	api.HandleFunc("GET /get-menu-list-i18n", container.api.Menu.Tree)
 
 	// Role
 	api.HandleFunc("GET /role/get", container.api.Role.Get)

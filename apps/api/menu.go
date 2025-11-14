@@ -19,6 +19,23 @@ func NewMenuHandler(svc *service.Service) *MenuHandler {
 	return &MenuHandler{svc: svc}
 }
 
+func (h *MenuHandler) Tree(w http.ResponseWriter, r *http.Request) {
+	menuTree, err := h.svc.Menu.Tree(r.Context())
+	if err != nil {
+		slog.Error("Tree error", "err", err)
+		response.JSON(w, response.Resp{
+			Code: ErrCodeServer,
+			Msg:  err.Error(),
+		})
+		return
+	}
+	response.JSON(w, response.Resp{
+		Code: OK,
+		Msg:  "success",
+		Data: menuTree,
+	})
+}
+
 func (h *MenuHandler) GetList(w http.ResponseWriter, r *http.Request) {
 	req := &dto.MenuListReq{}
 

@@ -61,13 +61,13 @@ func (r *RoleRepo) Find(ctx context.Context, req *dto.RoleListReq) ([]*model.Rol
 }
 
 func (r *RoleRepo) Create(ctx context.Context, row *model.Role) error {
-	id, err := INSERT(row).INTO(model.RoleTable).Exec(ctx, r.clt.DB)
+	id, err := INSERT(row).INTO(model.RoleTable).Omit(model.Id).Exec(ctx, r.clt.DB)
 	row.ID = id
 	return err
 }
 
 func (r *RoleRepo) Update(ctx context.Context, row *model.Role) error {
-	_, err := UPDATE(model.RoleTable).SET1(row).WHERE(M{AND(model.Id): row.ID}).Exec(ctx, r.clt.DB)
+	_, err := UPDATE(model.RoleTable).SET1(row).WHERE(M{AND(model.Id): row.ID}).Omit(model.Id).Exec(ctx, r.clt.DB)
 	return err
 }
 

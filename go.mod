@@ -3,7 +3,7 @@ module github.com/bobacgo/admin-service
 go 1.25.0
 
 require (
-	github.com/bobacgo/orm v0.0.0-20251109150828-cfcae8c0b297 // indirect
+	github.com/bobacgo/orm v0.0.0-20251114145637-df3fa709ab23 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect

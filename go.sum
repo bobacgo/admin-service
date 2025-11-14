@@ -6,6 +6,8 @@ github.com/bobacgo/orm v0.0.0-20251022145819-adb46bff8c1b h1:3mCDVnVPKcc8wfhGZWH
 github.com/bobacgo/orm v0.0.0-20251022145819-adb46bff8c1b/go.mod h1:/CSvC674FQBxjC55H4D/PYfIM+PmFmeHyBKUl400uZ4=
 github.com/bobacgo/orm v0.0.0-20251109150828-cfcae8c0b297 h1:EHi1Yc/qa2yP5Fh1bjOMPxN8TIbxBLdfGTVA7DGdGN0=
 github.com/bobacgo/orm v0.0.0-20251109150828-cfcae8c0b297/go.mod h1:/CSvC674FQBxjC55H4D/PYfIM+PmFmeHyBKUl400uZ4=
+github.com/bobacgo/orm v0.0.0-20251114145637-df3fa709ab23 h1:iDj3qFkezI+WK2d+TGSisnt4J82PQpakSyNxYruuvuE=
+github.com/bobacgo/orm v0.0.0-20251114145637-df3fa709ab23/go.mod h1:qEEj8WpgIaiyNk2wKicyRXy7a8jbWu7vHbf9mye/0KQ=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=

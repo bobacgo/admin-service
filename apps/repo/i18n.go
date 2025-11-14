@@ -71,13 +71,13 @@ func (r *I18nRepo) Find(ctx context.Context, req *dto.I18nListReq) ([]*model.I18
 }
 
 func (r *I18nRepo) Create(ctx context.Context, row *model.I18n) error {
-	id, err := INSERT(row).INTO(model.I18nTable).Exec(ctx, r.clt.DB)
+	id, err := INSERT(row).INTO(model.I18nTable).Omit(model.Id).Exec(ctx, r.clt.DB)
 	row.ID = id
 	return err
 }
 
 func (r *I18nRepo) Update(ctx context.Context, row *model.I18n) error {
-	_, err := UPDATE(model.I18nTable).SET1(row).WHERE(M{AND(model.Id): row.ID}).Exec(ctx, r.clt.DB)
+	_, err := UPDATE(model.I18nTable).SET1(row).WHERE(M{AND(model.Id): row.ID}).Omit(model.Id).Exec(ctx, r.clt.DB)
 	return err
 }
 

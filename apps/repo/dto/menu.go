@@ -11,6 +11,19 @@ type MenuListReq struct {
 	Name string `json:"name"`
 }
 
+type MenuItem struct {
+	ID        int64          `json:"id"`        // ID
+	ParentID  int64          `json:"parent_id"` // 父ID
+	Path      string         `json:"path"`      // 路径
+	Name      string         `json:"name"`      // 名称
+	Component string         `json:"component"` // 组件
+	Redirect  string         `json:"redirect"`  // 重定向
+	Meta      map[string]any `json:"meta"`      // 元数据
+	Icon      string         `json:"icon"`      // 图标
+	Sort      int64          `json:"sort"`      // 排序
+	Children  []*MenuItem    `json:"children"`
+}
+
 type MenuCreateReq struct {
 	Path      string `json:"path" validate:"required"`
 	Name      string `json:"name" validate:"required"`

@@ -20,7 +20,7 @@ func NewUserRepo(data *data.Client) *UserRepo {
 
 // 创建
 func (r *UserRepo) Create(ctx context.Context, row *model.User) error {
-	id, err := INSERT(row).INTO(model.UsersTable).Exec(ctx, r.clt.DB)
+	id, err := INSERT(row).INTO(model.UsersTable).Omit(model.Id).Exec(ctx, r.clt.DB)
 	row.ID = id
 	return err
 }
@@ -80,7 +80,7 @@ func (r *UserRepo) Find(ctx context.Context, req *dto.UserListReq) ([]*model.Use
 }
 
 func (r *UserRepo) Update(ctx context.Context, row *model.User) error {
-	_, err := UPDATE(model.UsersTable).SET1(row).WHERE(M{AND(model.Id): row.ID}).Exec(ctx, r.clt.DB)
+	_, err := UPDATE(model.UsersTable).SET1(row).WHERE(M{AND(model.Id): row.ID}).Omit(model.Id).Exec(ctx, r.clt.DB)
 	return err
 }
 
