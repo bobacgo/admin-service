@@ -65,8 +65,8 @@ func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
 	for _, menu := range menuList {
 		if menu.ParentID == 0 {
 			meta := make(map[string]any)
-			if err := json.Unmarshal([]byte(menu.Meta), &meta); err != nil {
-				continue
+			if menu.Meta != "" {
+				_ = json.Unmarshal([]byte(menu.Meta), &meta)
 			}
 			tree = append(tree, &dto.MenuItem{
 				ID:        menu.ID,
@@ -78,6 +78,7 @@ func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
 				Meta:      meta,
 				Icon:      menu.Icon,
 				Sort:      menu.Sort,
+				Children:  make([]*dto.MenuItem, 0),
 			})
 		}
 	}
@@ -86,8 +87,8 @@ func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
 			for _, item := range tree {
 				if item.ID == menu.ParentID {
 					meta := make(map[string]any)
-					if err := json.Unmarshal([]byte(menu.Meta), &meta); err != nil {
-						continue
+					if menu.Meta != "" {
+						_ = json.Unmarshal([]byte(menu.Meta), &meta)
 					}
 					item.Children = append(item.Children, &dto.MenuItem{
 						ID:        menu.ID,
@@ -99,6 +100,7 @@ func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
 						Meta:      meta,
 						Icon:      menu.Icon,
 						Sort:      menu.Sort,
+						Children:  make([]*dto.MenuItem, 0),
 					})
 				}
 			}

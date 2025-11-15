@@ -4,28 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="fix">
-      <change beforePath="$PROJECT_DIR$/.idea/MarsCodeWorkspaceAppSettings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/MarsCodeWorkspaceAppSettings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/admin-service.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/admin-service.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="menus">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin.db" beforeDir="false" afterPath="$PROJECT_DIR$/admin.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/api/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/menu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/api/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/repo/dto/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/dto/menu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/repo/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/i18n.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/repo/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/menu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/repo/model/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/menu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/repo/model/mode.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/model/mode.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/repo/role.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/role.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/repo/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/repo/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/router.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/service/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/service/i18n.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/service/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/service/menu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -229,7 +209,8 @@
     <MESSAGE value="orm" />
     <MESSAGE value="orm v2" />
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
+    <MESSAGE value="menus" />
+    <option name="LAST_COMMIT_MESSAGE" value="menus" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
