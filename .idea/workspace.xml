@@ -5,7 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="menus">
+      <change beforePath="$PROJECT_DIR$/.idea/MarsCodeWorkspaceAppSettings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/MarsCodeWorkspaceAppSettings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/api/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/menu.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/api/menu.json" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,9 +94,12 @@
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "npm.dev (1).executor": "Run",
     "npm.dev.executor": "Run",
+    "npm.dev:mock.executor": "Run",
     "settings.editor.selected.configurable": "database.query.execution",
     "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "/Users/lanjin/Documents/work/code/bobacgo/admin-service/web/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -128,18 +135,6 @@
       <filePath value="$PROJECT_DIR$/cmd/server/main.go" />
       <method v="2" />
     </configuration>
-    <configuration name="TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="admin-service" />
-      <working_directory value="$PROJECT_DIR$/pkg/kit/orm" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="github.com/bobacgo/admin-service/pkg/kit/orm" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestDelete\E$" />
-      <method v="2" />
-    </configuration>
     <configuration name="TestTime in github.com/bobacgo/admin-service/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="admin-service" />
       <working_directory value="$PROJECT_DIR$/test" />
@@ -153,7 +148,7 @@
       <method v="2" />
     </configuration>
     <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
-      <package-json value="$PROJECT_DIR$/../admin-web/package.json" />
+      <package-json value="$PROJECT_DIR$/web/package.json" />
       <command value="run" />
       <scripts>
         <script value="dev" />
@@ -165,10 +160,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build github.com/bobacgo/admin-service/cmd/server" />
-        <item itemvalue="Database Script.db.sql" />
         <item itemvalue="npm.dev" />
+        <item itemvalue="Database Script.db.sql" />
         <item itemvalue="Go Test.TestTime in github.com/bobacgo/admin-service/test" />
-        <item itemvalue="Go Test.TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm" />
       </list>
     </recent_temporary>
   </component>
