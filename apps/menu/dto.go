@@ -44,3 +44,7 @@ type MenuUpdateReq struct {
 	Meta      string `json:"meta"`
 	Icon      string `json:"icon"`
 }
+
+type DeleteMenuReq struct {
+	IDs string `json:"ids" query:"ids" validate:"required"`
+}

@@ -26,9 +26,9 @@ func NewContainer() *Container {
 	i18nRepo := i18n.NewI18nRepo(clt)
 
 	// Initialize services
-	userSvc := user.NewUserService(userRepo)
-	menuSvc := menu.NewMenuService(menuRepo)
-	roleSvc := role.NewRoleService(roleRepo)
+	userSvc := user.NewUserService(userRepo, service.GetValidator())
+	menuSvc := menu.NewMenuService(menuRepo, service.GetValidator())
+	roleSvc := role.NewRoleService(roleRepo, service.GetValidator())
 	i18nSvc := i18n.NewI18nService(i18nRepo, service.GetValidator())
 
 	// Initialize service container

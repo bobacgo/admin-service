@@ -21,3 +21,7 @@ type GetUserReq struct {
 	Phone   string `json:"phone"`
 	Email   string `json:"email"`
 }
+
+type DeleteUserReq struct {
+	IDs string `json:"ids" query:"ids" validate:"required"`
+}

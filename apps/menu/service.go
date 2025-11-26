@@ -4,34 +4,63 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/go-playground/validator/v10"
 )
 
 type MenuService struct {
-	repo *MenuRepo
+	repo      *MenuRepo
+	validator *validator.Validate
 }
 
-func NewMenuService(r *MenuRepo) *MenuService {
-	return &MenuService{repo: r}
+func NewMenuService(r *MenuRepo, v *validator.Validate) *MenuService {
+	return &MenuService{repo: r, validator: v}
 }
 
-func (s *MenuService) Create(ctx context.Context, req *MenuCreateReq) error {
-	return s.repo.Create(ctx, &Menu{
+// GetOne 获取单个菜单
+func (s *MenuService) GetOne(ctx context.Context, req *GetMenuReq) (*Menu, error) {
+	return s.repo.FindOne(ctx, req)
+}
+
+// GetList 获取菜单列表
+func (s *MenuService) GetList(ctx context.Context, req *MenuListReq) (*dto.PageResp[Menu], error) {
+	list, total, err := s.repo.Find(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return dto.NewPageResp(total, list), nil
+}
+
+// PostCreate 创建菜单
+func (s *MenuService) PostCreate(ctx context.Context, req *MenuCreateReq) (*Menu, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
+
+	menu := &Menu{
 		Path:      req.Path,
 		Name:      req.Name,
 		Component: req.Component,
 		Redirect:  req.Redirect,
 		Meta:      req.Meta,
 		Icon:      req.Icon,
-	})
+	}
+
+	if err := s.repo.Create(ctx, menu); err != nil {
+		return nil, err
+	}
+
+	return menu, nil
 }
 
-func (s *MenuService) Get(ctx context.Context, req *GetMenuReq) (*Menu, error) {
-	return s.repo.FindOne(ctx, req)
-}
+// PutUpdate 更新菜单
+func (s *MenuService) PutUpdate(ctx context.Context, req *MenuUpdateReq) (*Menu, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
 
-func (s *MenuService) Update(ctx context.Context, req *MenuUpdateReq) error {
-	return s.repo.Update(ctx, &Menu{
+	menu := &Menu{
 		Model:     model.Model{ID: req.ID},
 		Path:      req.Path,
 		Name:      req.Name,
@@ -39,19 +68,23 @@ func (s *MenuService) Update(ctx context.Context, req *MenuUpdateReq) error {
 		Redirect:  req.Redirect,
 		Meta:      req.Meta,
 		Icon:      req.Icon,
-	})
+	}
+
+	if err := s.repo.Update(ctx, menu); err != nil {
+		return nil, err
+	}
+
+	return menu, nil
 }
 
-func (s *MenuService) List(ctx context.Context, req *MenuListReq) ([]*Menu, int64, error) {
-	return s.repo.Find(ctx, req)
+// DeleteDel 删除菜单
+func (s *MenuService) DeleteDel(ctx context.Context, req *DeleteMenuReq) (interface{}, error) {
+	return nil, s.repo.Delete(ctx, req.IDs)
 }
 
-func (s *MenuService) Delete(ctx context.Context, ids string) error {
-	return s.repo.Delete(ctx, ids)
-}
-
-func (s *MenuService) Tree(ctx context.Context) ([]*MenuItem, error) {
-	menuList, _, err := s.List(ctx, &MenuListReq{})
+// GetTree 获取菜单树
+func (s *MenuService) GetTree(ctx context.Context, req interface{}) ([]*MenuItem, error) {
+	menuList, _, err := s.repo.Find(ctx, &MenuListReq{})
 	if err != nil {
 		return nil, err
 	}

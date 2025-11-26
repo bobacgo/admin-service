@@ -25,3 +25,7 @@ type RoleUpdateReq struct {
 	Description string `json:"description"`
 	Status      int8   `json:"status"`
 }
+
+type DeleteRoleReq struct {
+	IDs string `json:"ids" query:"ids" validate:"required"`
+}

@@ -23,7 +23,7 @@ func (s *I18nService) GetOne(ctx context.Context, req *GetI18nReq) (*I18n, error
 	return s.repo.FindOne(ctx, req)
 }
 
-// GetList /i18n/list 获取i18n列表
+// Get /i18n/list 获取i18n列表
 func (s *I18nService) GetList(ctx context.Context, req *I18nListReq) (*dto.PageResp[I18n], error) {
 	list, total, err := s.repo.Find(ctx, req)
 	if err != nil {
