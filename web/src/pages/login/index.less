@@ -37,13 +37,16 @@
 
 .login-container {
   position: absolute;
-  top: 12%;
+  top: 50%;
   left: 8%;
+  transform: translateY(-50%);
   min-height: 520px;
   z-index: 2;
   display: flex;
-  gap: 48px;
-  align-items: flex-start;
+  gap: 72px;
+  align-items: center; /* center title and card vertically */
+  align-content: center;
+  width: calc(100% - 16%);
 }
 
 /* geometric pattern layer */
@@ -51,17 +54,17 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: 360px;
-  height: 480px;
+  width: 420px;
+  height: 520px;
   z-index: 1;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 10% 20%, rgba(155,80,255,0.06) 0px, transparent 2px),
-    radial-gradient(circle at 80% 40%, rgba(95,200,255,0.04) 0px, transparent 2px),
-    repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 24px);
-  transform: translate(-12px, -12px) rotate(-4deg);
+    radial-gradient(circle at 10% 20%, rgba(155,80,255,0.06) 0px, transparent 3px),
+    radial-gradient(circle at 80% 40%, rgba(95,200,255,0.04) 0px, transparent 3px),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 28px);
+  transform: translate(-8px, -8px) rotate(-4deg);
   mix-blend-mode: screen;
-  opacity: 0.9;
+  opacity: 0.75;
 }
 
 .title-container {
@@ -71,13 +74,13 @@
   .title {
     font-size: 40px;
     line-height: 1.05;
-    color: transparent;
-    background-image: linear-gradient(90deg,#9be, #7af, #b08cff);
+    background: linear-gradient(90deg, #7fd4ff 0%, #9b5cff 50%, #00d9ff 100%);
     -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 4px 18px rgba(120,90,255,0.18);
     margin: 0 0 8px 0;
     font-weight: 700;
+    letter-spacing: -0.5px;
   }
 
   .sub-title { margin-top: 18px; color: rgba(230,240,255,0.7); }
@@ -88,8 +91,8 @@
 }
 
 .item-container {
-  width: 420px;
-  margin-top: 36px;
+  width: 460px;
+  margin: 0;
   z-index: 3;
   position: relative;
 
@@ -144,7 +147,15 @@
   }
 }
 
-@media screen and (max-width: 900px) {
-  .login-container { left: 5%; top: 14%; gap: 18px; }
-  .item-container { width: 360px }
+@media screen and (max-width: 1000px) {
+  .login-container { left: 5%; top: 14%; transform: none; position: absolute; flex-direction: column; gap: 24px; align-items: flex-start; }
+  .pattern-grid { display: none }
+  .title-container { max-width: 100%; }
+  .item-container { width: 92%; }
+}
+
+@media screen and (max-width: 640px) {
+  .login-container { left: 4%; padding-right: 4%; }
+  .title-container .title { font-size: 28px }
+  .item-container { width: 100%; padding: 18px }
 }

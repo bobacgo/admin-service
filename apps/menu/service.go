@@ -1,24 +1,22 @@
-package service
+package menu
 
 import (
 	"context"
 	"encoding/json"
 
-	"github.com/bobacgo/admin-service/apps/repo"
-	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
 )
 
 type MenuService struct {
-	repo *repo.Repo
+	repo *MenuRepo
 }
 
-func NewMenuService(repo *repo.Repo) *MenuService {
-	return &MenuService{repo: repo}
+func NewMenuService(r *MenuRepo) *MenuService {
+	return &MenuService{repo: r}
 }
 
-func (s *MenuService) Create(ctx context.Context, req *dto.MenuCreateReq) error {
-	return s.repo.Menu.Create(ctx, &model.Menu{
+func (s *MenuService) Create(ctx context.Context, req *MenuCreateReq) error {
+	return s.repo.Create(ctx, &Menu{
 		Path:      req.Path,
 		Name:      req.Name,
 		Component: req.Component,
@@ -28,12 +26,12 @@ func (s *MenuService) Create(ctx context.Context, req *dto.MenuCreateReq) error 
 	})
 }
 
-func (s *MenuService) Get(ctx context.Context, req *dto.GetMenuReq) (*model.Menu, error) {
-	return s.repo.Menu.FindOne(ctx, req)
+func (s *MenuService) Get(ctx context.Context, req *GetMenuReq) (*Menu, error) {
+	return s.repo.FindOne(ctx, req)
 }
 
-func (s *MenuService) Update(ctx context.Context, req *dto.MenuUpdateReq) error {
-	return s.repo.Menu.Update(ctx, &model.Menu{
+func (s *MenuService) Update(ctx context.Context, req *MenuUpdateReq) error {
+	return s.repo.Update(ctx, &Menu{
 		Model:     model.Model{ID: req.ID},
 		Path:      req.Path,
 		Name:      req.Name,
@@ -44,31 +42,31 @@ func (s *MenuService) Update(ctx context.Context, req *dto.MenuUpdateReq) error 
 	})
 }
 
-func (s *MenuService) List(ctx context.Context, req *dto.MenuListReq) ([]*model.Menu, int64, error) {
-	return s.repo.Menu.Find(ctx, req)
+func (s *MenuService) List(ctx context.Context, req *MenuListReq) ([]*Menu, int64, error) {
+	return s.repo.Find(ctx, req)
 }
 
 func (s *MenuService) Delete(ctx context.Context, ids string) error {
-	return s.repo.Menu.Delete(ctx, ids)
+	return s.repo.Delete(ctx, ids)
 }
 
-func (s *MenuService) Tree(ctx context.Context) ([]*dto.MenuItem, error) {
-	menuList, _, err := s.List(ctx, &dto.MenuListReq{})
+func (s *MenuService) Tree(ctx context.Context) ([]*MenuItem, error) {
+	menuList, _, err := s.List(ctx, &MenuListReq{})
 	if err != nil {
 		return nil, err
 	}
 	return s.buildTree(menuList), nil
 }
 
-func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
-	var tree []*dto.MenuItem
+func (s *MenuService) buildTree(menuList []*Menu) []*MenuItem {
+	var tree []*MenuItem
 	for _, menu := range menuList {
 		if menu.ParentID == 0 {
 			meta := make(map[string]any)
 			if menu.Meta != "" {
 				_ = json.Unmarshal([]byte(menu.Meta), &meta)
 			}
-			tree = append(tree, &dto.MenuItem{
+			tree = append(tree, &MenuItem{
 				ID:        menu.ID,
 				ParentID:  menu.ParentID,
 				Path:      menu.Path,
@@ -78,7 +76,7 @@ func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
 				Meta:      meta,
 				Icon:      menu.Icon,
 				Sort:      menu.Sort,
-				Children:  make([]*dto.MenuItem, 0),
+				Children:  make([]*MenuItem, 0),
 			})
 		}
 	}
@@ -90,7 +88,7 @@ func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
 					if menu.Meta != "" {
 						_ = json.Unmarshal([]byte(menu.Meta), &meta)
 					}
-					item.Children = append(item.Children, &dto.MenuItem{
+					item.Children = append(item.Children, &MenuItem{
 						ID:        menu.ID,
 						ParentID:  menu.ParentID,
 						Path:      menu.Path,
@@ -100,7 +98,7 @@ func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
 						Meta:      meta,
 						Icon:      menu.Icon,
 						Sort:      menu.Sort,
-						Children:  make([]*dto.MenuItem, 0),
+						Children:  make([]*MenuItem, 0),
 					})
 				}
 			}

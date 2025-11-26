@@ -1,4 +1,6 @@
-package dto
+package menu
+
+import "github.com/bobacgo/admin-service/apps/repo/dto"
 
 type GetMenuReq struct {
 	ID   int64  `json:"id"`
@@ -6,7 +8,7 @@ type GetMenuReq struct {
 }
 
 type MenuListReq struct {
-	PageReq
+	dto.PageReq
 	Path string `json:"path"`
 	Name string `json:"name"`
 }

@@ -1,6 +1,29 @@
 <template>
   <div class="menu-management">
-    <t-card class="list-card-container" :bordered="false">
+    <div class="mgr-layout">
+      <div class="left-tree">
+        <t-card :bordered="false" class="tree-card">
+          <div class="tree-header">
+            <t-input v-model="treeFilter" placeholder="搜索菜单" clearable @press-enter="handleTreeFilter" @clear="handleTreeFilter">
+              <template #suffix-icon>
+                <search-icon size="14px" @click="handleTreeFilter" />
+              </template>
+            </t-input>
+          </div>
+          <div class="tree-body">
+            <t-tree
+              :data="menuTree"
+              activatable
+              :actived="activedKeys"
+              expand-all
+              @change="handleTreeChange"
+            />
+          </div>
+        </t-card>
+      </div>
+
+      <div class="right-content">
+        <t-card class="list-card-container" :bordered="false">
       <t-row justify="space-between" align="center" class="operation-row">
         <div class="left-operation-container">
           <t-button theme="primary" @click="handleAdd">
@@ -60,7 +83,9 @@
           </t-space>
         </template>
       </t-table>
-    </t-card>
+      </t-card>
+      </div>
+    </div>
 
     <!-- 添加/编辑菜单对话框 -->
     <t-dialog
@@ -123,6 +148,13 @@ const dataLoading = ref(false);
 const selectedRowKeys = ref<(string | number)[]>([]);
 const searchValue = ref('');
 
+// tree related
+const menuTree = ref<any[]>([]);
+const treeFilter = ref('');
+const activeNodeId = ref<number | null>(null);
+const activedKeys = computed(() => (activeNodeId.value ? [String(activeNodeId.value)] : []));
+const selectedParentId = ref<number | null>(null);
+
 const pagination = ref({
   defaultPageSize: 10,
   total: 0,
@@ -138,7 +170,7 @@ const confirmVisible = ref(false);
 const deleteIdx = ref<number | string | null>(null);
 
 const formRef = ref<FormInstanceFunctions>();
-const formData = ref<MenuCreateReq | MenuUpdateReq>({ id: 0 as unknown as number, parent_id: 0 as unknown as number, name: '', path: '', component: '', icon: '', sort: 0 } as any);
+const formData = ref<any>({ id: 0, parent_id: 0, name: '', path: '', component: '', icon: '', sort: 0 });
 
 const columns: PrimaryTableCol[] = [
   { colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left' },
@@ -164,9 +196,13 @@ const fetchMenuList = async () => {
     const resp = await getMenuList({
       page: pagination.value.current,
       page_size: pagination.value.defaultPageSize,
-      keyword: searchValue.value,
+      name: searchValue.value || undefined,
     });
-    menuList.value = resp.list || [];
+    let list = resp.list || [];
+    if (selectedParentId.value !== null) {
+      list = list.filter((i: MenuItem) => Number(i.parent_id || 0) === Number(selectedParentId.value));
+    }
+    menuList.value = list;
     pagination.value.total = resp.total || 0;
   } catch (e) {
     console.error('获取菜单列表失败', e);
@@ -174,6 +210,47 @@ const fetchMenuList = async () => {
   } finally {
     dataLoading.value = false;
   }
+};
+
+const buildTree = (items: MenuItem[]) => {
+  const map = new Map<number, any>();
+  const roots: any[] = [];
+  items.forEach((it) => {
+    map.set(it.id, { ...it, value: it.id, label: it.name, children: [] });
+  });
+  map.forEach((node) => {
+    const parentId = Number(node.parent_id || 0);
+    if (parentId && map.has(parentId)) {
+      map.get(parentId).children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+  return roots;
+};
+
+const fetchTree = async () => {
+  try {
+    const resp = await getMenuList({ page: 1, page_size: 1000 });
+    const list = resp.list || [];
+    const filtered = treeFilter.value ? list.filter((i: MenuItem) => i.name.includes(treeFilter.value) || i.path.includes(treeFilter.value)) : list;
+    menuTree.value = buildTree(filtered as MenuItem[]);
+  } catch (e) {
+    console.error('获取菜单树失败', e);
+  }
+};
+
+const handleTreeFilter = () => { fetchTree(); };
+
+const handleTreeChange = (value: any, context: any) => {
+  if (Array.isArray(value)) {
+    activeNodeId.value = value.length ? Number(value[0]) : null;
+  } else {
+    activeNodeId.value = value ? Number(value) : null;
+  }
+  selectedParentId.value = activeNodeId.value;
+  pagination.value.current = 1;
+  fetchMenuList();
 };
 
 const handleSelectChange = (value: (string | number)[]) => { selectedRowKeys.value = value; };
@@ -194,7 +271,7 @@ const handleAdd = () => {
 
 const handleEdit = (row: MenuItem) => {
   dialogType.value = 'edit';
-  formData.value = { ...(row as MenuUpdateReq), id: row.id };
+  formData.value = { ...row };
   dialogVisible.value = true;
 };
 
@@ -257,13 +334,75 @@ const onConfirmDelete = async () => {
 
 const onCancel = () => { confirmVisible.value = false; deleteIdx.value = null; };
 
-onMounted(() => { fetchMenuList(); });
+onMounted(() => { fetchTree(); fetchMenuList(); });
 </script>
 
 <style scoped lang="less">
-.menu-management { padding: 24px; background-color: var(--td-bg-color-container); min-height: 100%; }
-.list-card-container { :deep(.t-card__body) { padding: 24px; } }
-.operation-row { margin-bottom: 16px; .left-operation-container { display:flex; align-items:center; gap:12px; .selected-count{ color: var(--td-text-color-secondary); font-size:14px;} } .search-input{ width:360px; } }
+.menu-management {
+  padding: 24px;
+  background-color: var(--td-bg-color-container);
+  min-height: 100%;
+}
+
+.mgr-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.left-tree {
+  width: 280px;
+  min-width: 220px;
+  max-width: 34%;
+}
+
+.tree-card {
+  height: 100%;
+  :deep(.t-card__body) {
+    padding: 12px;
+  }
+}
+
+.tree-header { padding-bottom: 8px; }
+.tree-body {
+  max-height: calc(100vh - 240px);
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.right-content { flex: 1 1 0; min-width: 320px; }
+.list-card-container { :deep(.t-card__body) { padding: 20px; } }
+
+.operation-row {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .left-operation-container {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    .selected-count{ color: var(--td-text-color-secondary); font-size:14px;}
+  }
+  .search-input{ width:360px; }
+}
+
 :deep(.t-table) { .t-table__content { border-radius: var(--td-radius-medium); } }
-@media screen and (max-width: 768px) { .operation-row { flex-direction: column; align-items: flex-start; gap: 12px; .search-input { width: 100%; } } }
+
+@media screen and (max-width: 1000px) {
+  .left-tree { width: 220px; min-width: 180px; }
+  .mgr-layout { gap: 16px; }
+  .operation-row .search-input { width: 240px; }
+}
+
+@media screen and (max-width: 760px) {
+  .mgr-layout { flex-direction: column; gap: 16px; }
+  .left-tree { width: 100%; min-width: auto; }
+  .tree-card { order: 1 }
+  .right-content { order: 2 }
+  .operation-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .operation-row .search-input { width: 100%; }
+  .list-card-container { :deep(.t-card__body) { padding: 12px; } }
+}
+
 </style>

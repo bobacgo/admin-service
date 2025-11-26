@@ -1,6 +1,9 @@
-package model
+package role
 
-import "github.com/bobacgo/orm"
+import (
+	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/bobacgo/orm"
+)
 
 const (
 	RoleCodeAdmin string = "admin"
@@ -8,7 +11,7 @@ const (
 )
 
 type Role struct {
-	Model
+	model.Model
 	Code        string `json:"code"`
 	Description string `json:"description"`
 	Status      int8   `json:"status"`
@@ -21,11 +24,11 @@ const (
 
 func (m *Role) Mapping() []*orm.Mapping {
 	return []*orm.Mapping{
-		{Column: Id, Result: &m.ID, Value: m.ID},
+		{Column: model.Id, Result: &m.ID, Value: m.ID},
 		{Column: Code, Result: &m.Code, Value: m.Code},
 		{Column: Description, Result: &m.Description, Value: m.Description},
-		{Column: Status, Result: &m.Status, Value: m.Status},
-		{Column: CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
-		{Column: UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
+		{Column: model.Status, Result: &m.Status, Value: m.Status},
+		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
+		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}
 }

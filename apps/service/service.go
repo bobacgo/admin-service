@@ -1,24 +1,21 @@
 package service
 
 import (
-	"github.com/bobacgo/admin-service/apps/repo"
+	"github.com/bobacgo/admin-service/apps/i18n"
+	"github.com/bobacgo/admin-service/apps/menu"
+	"github.com/bobacgo/admin-service/apps/role"
+	"github.com/bobacgo/admin-service/apps/user"
 	"github.com/go-playground/validator/v10"
 )
 
 type Service struct {
 	Validator *validator.Validate
-	User      *UserService
-	I18n      *I18nService
-	Menu      *MenuService
-	Role      *RoleService
+	User      *user.UserService
+	I18n      *i18n.I18nService
+	Menu      *menu.MenuService
+	Role      *role.RoleService
 }
 
-func NewService(repo *repo.Repo) *Service {
-	return &Service{
-		Validator: validator.New(),
-		User:      NewUserService(repo),
-		I18n:      NewI18nService(repo),
-		Menu:      NewMenuService(repo),
-		Role:      NewRoleService(repo),
-	}
+func GetValidator() *validator.Validate {
+	return validator.New()
 }

@@ -1,6 +1,9 @@
-package model
+package menu
 
-import "github.com/bobacgo/orm"
+import (
+	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/bobacgo/orm"
+)
 
 type MenuMeta struct {
 	Title map[string]string `json:"title"`
@@ -9,7 +12,7 @@ type MenuMeta struct {
 const MenuTable = "menus"
 
 type Menu struct {
-	Model
+	model.Model
 	ParentID  int64  `json:"parent_id"` // 父ID
 	Path      string `json:"path"`      // 路径
 	Name      string `json:"name"`      // 名称
@@ -33,7 +36,7 @@ const (
 
 func (m *Menu) Mapping() []*orm.Mapping {
 	return []*orm.Mapping{
-		{Column: Id, Result: &m.ID, Value: m.ID},
+		{Column: model.Id, Result: &m.ID, Value: m.ID},
 		{Column: ParentID, Result: &m.ParentID, Value: m.ParentID},
 		{Column: Path, Result: &m.Path, Value: m.Path},
 		{Column: Name, Result: &m.Name, Value: m.Name},
@@ -42,7 +45,7 @@ func (m *Menu) Mapping() []*orm.Mapping {
 		{Column: Meta, Result: &m.Meta, Value: m.Meta},
 		{Column: Icon, Result: &m.Icon, Value: m.Icon},
 		{Column: Sort, Result: &m.Sort, Value: m.Sort},
-		{Column: CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
-		{Column: UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
+		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
+		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}
 }

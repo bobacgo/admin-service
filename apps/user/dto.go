@@ -1,4 +1,6 @@
-package dto
+package user
+
+import "github.com/bobacgo/admin-service/apps/repo/dto"
 
 type LoginReq struct {
 	Account  string `json:"account"`
@@ -6,7 +8,7 @@ type LoginReq struct {
 }
 
 type UserListReq struct {
-	PageReq
+	dto.PageReq
 	Account string `json:"account"`
 	Phone   string `json:"phone"`
 	Email   string `json:"email"`

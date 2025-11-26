@@ -1,4 +1,6 @@
-package dto
+package role
+
+import "github.com/bobacgo/admin-service/apps/repo/dto"
 
 type GetRoleReq struct {
 	ID   int64  `json:"id"`
@@ -6,7 +8,7 @@ type GetRoleReq struct {
 }
 
 type RoleListReq struct {
-	PageReq
+	dto.PageReq
 	Code   string `json:"code"`
 	Status string `json:"status"` // 逗号分隔
 }

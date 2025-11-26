@@ -1,11 +1,14 @@
-package model
+package user
 
-import "github.com/bobacgo/orm"
+import (
+	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/bobacgo/orm"
+)
 
 const UsersTable = "users"
 
 type User struct {
-	Model
+	model.Model
 	Account    string `json:"account"`     // 账号
 	Password   string `json:"password"`    // 密码
 	Phone      string `json:"phone"`       // 手机号
@@ -30,17 +33,17 @@ const (
 
 func (m *User) Mapping() []*orm.Mapping {
 	return []*orm.Mapping{
-		{Column: Id, Result: &m.ID, Value: m.ID},
+		{Column: model.Id, Result: &m.ID, Value: m.ID},
 		{Column: Account, Result: &m.Account, Value: m.Account},
 		{Column: Password, Result: &m.Password, Value: m.Password},
 		{Column: Phone, Result: &m.Phone, Value: m.Phone},
 		{Column: Email, Result: &m.Email, Value: m.Email},
-		{Column: Status, Result: &m.Status, Value: m.Status},
+		{Column: model.Status, Result: &m.Status, Value: m.Status},
 		{Column: RegisterAt, Result: &m.RegisterAt, Value: m.RegisterAt},
 		{Column: RegisterIp, Result: &m.RegisterIp, Value: m.RegisterIp},
 		{Column: LoginAt, Result: &m.LoginAt, Value: m.LoginAt},
 		{Column: LoginIp, Result: &m.LoginIp, Value: m.LoginIp},
-		{Column: CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
-		{Column: UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
+		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
+		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}
 }
