@@ -55,12 +55,11 @@ func RegisterRoutes(container *Container) http.Handler {
 	api.HandleFunc("PUT /role/update", container.api.Role.Update)
 	api.HandleFunc("DELETE /role/delete", container.api.Role.Delete)
 
-	// I18n
-	api.HandleFunc("GET /i18n/get", container.api.I18n.Get)
-	api.HandleFunc("GET /i18n/list", container.api.I18n.List)
-	api.HandleFunc("POST /i18n/add", container.api.I18n.Create)
-	api.HandleFunc("PUT /i18n/update", container.api.I18n.Update)
-	api.HandleFunc("DELETE /i18n/delete", container.api.I18n.Delete)
+	// I18n - Auto-register routes from service methods
+	i18nConfig := &hs.HandlerConfig{
+		Validator: container.svc.Validator,
+	}
+	hs.RegisterServiceRoutes(api, container.svc.I18n, "/i18n", i18nConfig)
 
 	handlerChain := hs.Cors(OptionsMiddleware(mux))
 	return handlerChain
