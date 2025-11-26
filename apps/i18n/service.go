@@ -4,27 +4,41 @@ import (
 	"context"
 	"time"
 
+	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/go-playground/validator/v10"
 )
 
 type I18nService struct {
-	repo *I18nRepo
+	repo      *I18nRepo
+	validator *validator.Validate
 }
 
-func NewI18nService(r *I18nRepo) *I18nService {
-	return &I18nService{repo: r}
+func NewI18nService(r *I18nRepo, v *validator.Validate) *I18nService {
+	return &I18nService{repo: r, validator: v}
 }
 
-func (s *I18nService) Get(ctx context.Context, req *GetI18nReq) (*I18n, error) {
+// Get /i18n/one 获取单个i18n记录
+func (s *I18nService) GetOne(ctx context.Context, req *GetI18nReq) (*I18n, error) {
 	return s.repo.FindOne(ctx, req)
 }
 
-func (s *I18nService) List(ctx context.Context, req *I18nListReq) ([]*I18n, int64, error) {
-	return s.repo.Find(ctx, req)
+// GetList /i18n/list 获取i18n列表
+func (s *I18nService) GetList(ctx context.Context, req *I18nListReq) (*dto.PageResp[I18n], error) {
+	list, total, err := s.repo.Find(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return dto.NewPageResp(total, list), nil
 }
 
-func (s *I18nService) Create(ctx context.Context, req *I18nCreateReq) error {
-	return s.repo.Create(ctx, &I18n{
+// Post /i18n/create 创建i18n记录
+func (s *I18nService) PostCreate(ctx context.Context, req *I18nCreateReq) (*I18n, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
+
+	i18n := &I18n{
 		Class: req.Class,
 		Lang:  req.Lang,
 		Key:   req.Key,
@@ -32,20 +46,38 @@ func (s *I18nService) Create(ctx context.Context, req *I18nCreateReq) error {
 		Model: model.Model{
 			CreatedAt: time.Now().Unix(),
 		},
-	})
+	}
+
+	if err := s.repo.Create(ctx, i18n); err != nil {
+		return nil, err
+	}
+
+	return i18n, nil
 }
 
-func (s *I18nService) Update(ctx context.Context, req *I18nUpdateReq) error {
-	return s.repo.Update(ctx, &I18n{
+// Put /i18n/update 更新i18n记录
+func (s *I18nService) PutUpdate(ctx context.Context, req *I18nUpdateReq) (*I18n, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
+
+	i18n := &I18n{
 		Class: req.Class,
 		Lang:  req.Lang,
 		Value: req.Value,
 		Model: model.Model{
 			ID: req.ID,
 		},
-	})
+	}
+
+	if err := s.repo.Update(ctx, i18n); err != nil {
+		return nil, err
+	}
+
+	return i18n, nil
 }
 
-func (s *I18nService) Delete(ctx context.Context, ids string) error {
-	return s.repo.Delete(ctx, ids)
+// Delete /i18n/del 删除i18n记录
+func (s *I18nService) DeleteDel(ctx context.Context, req *DeleteI18nReq) (interface{}, error) {
+	return nil, s.repo.Delete(ctx, req.IDs)
 }

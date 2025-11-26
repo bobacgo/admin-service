@@ -31,3 +31,7 @@ type I18nUpdateReq struct {
 	Lang  string `json:"lang"`
 	Value string `json:"value"`
 }
+
+type DeleteI18nReq struct {
+	IDs string `json:"ids" query:"ids" validate:"required"`
+}

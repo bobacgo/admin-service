@@ -29,7 +29,7 @@ func NewContainer() *Container {
 	userSvc := user.NewUserService(userRepo)
 	menuSvc := menu.NewMenuService(menuRepo)
 	roleSvc := role.NewRoleService(roleRepo)
-	i18nSvc := i18n.NewI18nService(i18nRepo)
+	i18nSvc := i18n.NewI18nService(i18nRepo, service.GetValidator())
 
 	// Initialize service container
 	svc := &service.Service{
