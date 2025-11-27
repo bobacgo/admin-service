@@ -7,9 +7,10 @@ const Api = {
   UserInfo: '/user-info',
   Logout: '/logout',
   UserList: '/user/list',
-  UserAdd: '/user/add',
-  UserUpdate: '/user/update',
-  UserDelete: '/user/delete',
+  UserOne: '/user/one',
+  UserCreate: '/user',
+  UserUpdate: '/user',
+  UserDelete: '/user',
 };
 
 // 用户登录相关接口
@@ -42,17 +43,25 @@ export function getUserList(params: UserListReq) {
   });
 }
 
+// 获取单个用户
+export function getUser(id: number) {
+  return request.get<User>({
+    url: Api.UserOne,
+    params: { id },
+  });
+}
+
 // 添加用户
 export function addUser(data: UserAddReq) {
-  return request.post({
-    url: Api.UserAdd,
+  return request.post<User>({
+    url: Api.UserCreate,
     data,
   });
 }
 
 // 更新用户
 export function updateUser(data: UserUpdateReq) {
-  return request.put({
+  return request.put<User>({
     url: Api.UserUpdate,
     data,
   });
@@ -60,7 +69,7 @@ export function updateUser(data: UserUpdateReq) {
 
 // 删除用户
 export function deleteUser(ids: number[]) {
-  const params = {ids: ids.join(',')}
+  const params = { ids: ids.join(',') };
   return request.delete({
     url: Api.UserDelete,
     params,

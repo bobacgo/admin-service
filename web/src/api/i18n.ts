@@ -4,10 +4,10 @@ import type { I18nItem, I18nListReq, I18nCreateReq, I18nUpdateReq } from './mode
 
 const Api = {
   I18nList: '/i18n/list',
-  I18nGet: '/i18n/get',
-  I18nAdd: '/i18n/add',
-  I18nUpdate: '/i18n/update',
-  I18nDelete: '/i18n/delete',
+  I18nOne: '/i18n/one',
+  I18nCreate: '/i18n',
+  I18nUpdate: '/i18n',
+  I18nDelete: '/i18n',
 };
 
 export function getI18nList(params: I18nListReq) {
@@ -19,20 +19,20 @@ export function getI18nList(params: I18nListReq) {
 
 export function getI18n(id: number) {
   return request.get<I18nItem>({
-    url: Api.I18nGet,
+    url: Api.I18nOne,
     params: { id },
   });
 }
 
 export function addI18n(data: I18nCreateReq) {
-  return request.post({
-    url: Api.I18nAdd,
+  return request.post<I18nItem>({
+    url: Api.I18nCreate,
     data,
   });
 }
 
 export function updateI18n(data: I18nUpdateReq) {
-  return request.put({
+  return request.put<I18nItem>({
     url: Api.I18nUpdate,
     data,
   });

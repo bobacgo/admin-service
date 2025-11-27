@@ -4,10 +4,10 @@ import type { Role, RoleListReq, RoleCreateReq, RoleUpdateReq } from './model/ro
 
 const Api = {
   RoleList: '/role/list',
-  RoleGet: '/role/get',
-  RoleAdd: '/role/add',
-  RoleUpdate: '/role/update',
-  RoleDelete: '/role/delete',
+  RoleOne: '/role/one',
+  RoleCreate: '/role',
+  RoleUpdate: '/role',
+  RoleDelete: '/role',
 };
 
 export function getRoleList(params: RoleListReq) {
@@ -19,20 +19,20 @@ export function getRoleList(params: RoleListReq) {
 
 export function getRole(id: number) {
   return request.get<Role>({
-    url: Api.RoleGet,
+    url: Api.RoleOne,
     params: { id },
   });
 }
 
 export function addRole(data: RoleCreateReq) {
-  return request.post({
-    url: Api.RoleAdd,
+  return request.post<Role>({
+    url: Api.RoleCreate,
     data,
   });
 }
 
 export function updateRole(data: RoleUpdateReq) {
-  return request.put({
+  return request.put<Role>({
     url: Api.RoleUpdate,
     data,
   });

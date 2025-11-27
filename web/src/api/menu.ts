@@ -4,10 +4,11 @@ import type { MenuItem, MenuListReq, MenuCreateReq, MenuUpdateReq } from './mode
 
 const Api = {
   MenuList: '/menu/list',
-  MenuGet: '/menu/get',
-  MenuAdd: '/menu/add',
-  MenuUpdate: '/menu/update',
-  MenuDelete: '/menu/delete',
+  MenuOne: '/menu/one',
+  MenuTree: '/menu/tree',
+  MenuCreate: '/menu',
+  MenuUpdate: '/menu',
+  MenuDelete: '/menu',
 };
 
 export function getMenuList(params: MenuListReq) {
@@ -19,20 +20,26 @@ export function getMenuList(params: MenuListReq) {
 
 export function getMenu(id: number) {
   return request.get<MenuItem>({
-    url: Api.MenuGet,
+    url: Api.MenuOne,
     params: { id },
   });
 }
 
+export function getMenuTree() {
+  return request.get<MenuItem[]>({
+    url: Api.MenuTree,
+  });
+}
+
 export function addMenu(data: MenuCreateReq) {
-  return request.post({
-    url: Api.MenuAdd,
+  return request.post<MenuItem>({
+    url: Api.MenuCreate,
     data,
   });
 }
 
 export function updateMenu(data: MenuUpdateReq) {
-  return request.put({
+  return request.put<MenuItem>({
     url: Api.MenuUpdate,
     data,
   });

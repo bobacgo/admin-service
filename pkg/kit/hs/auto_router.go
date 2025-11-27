@@ -212,8 +212,9 @@ func CreateAutoHandler(methodInfo ServiceMethodInfo, service interface{}) http.H
 
 		// 判断参数类型
 		if isAnyType(reqType) {
-			// 如果是 any 类型，传递 nil
-			req = reflect.ValueOf(nil)
+			// 如果是 any 类型，传递 nil interface{}
+			// 需要创建一个有效的 nil 值，而不是零值的 Value
+			req = reflect.Zero(reqType)
 		} else {
 			// 否则创建指针实例
 			req = reflect.New(reqType.Elem())
