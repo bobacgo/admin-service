@@ -17,12 +17,12 @@ func NewRoleService(r *RoleRepo, v *validator.Validate) *RoleService {
 	return &RoleService{repo: r, validator: v}
 }
 
-// GetOne 获取单个角色
+// Get /role/one 获取单个角色
 func (s *RoleService) GetOne(ctx context.Context, req *GetRoleReq) (*Role, error) {
 	return s.repo.FindOne(ctx, req)
 }
 
-// GetList 获取角色列表
+// Get /role/list 获取角色列表
 func (s *RoleService) GetList(ctx context.Context, req *RoleListReq) (*dto.PageResp[Role], error) {
 	list, total, err := s.repo.Find(ctx, req)
 	if err != nil {
@@ -31,8 +31,8 @@ func (s *RoleService) GetList(ctx context.Context, req *RoleListReq) (*dto.PageR
 	return dto.NewPageResp(total, list), nil
 }
 
-// PostCreate 创建角色
-func (s *RoleService) PostCreate(ctx context.Context, req *RoleCreateReq) (*Role, error) {
+// Post /role 创建角色
+func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (*Role, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -50,8 +50,8 @@ func (s *RoleService) PostCreate(ctx context.Context, req *RoleCreateReq) (*Role
 	return role, nil
 }
 
-// PutUpdate 更新角色
-func (s *RoleService) PutUpdate(ctx context.Context, req *RoleUpdateReq) (*Role, error) {
+// Put /role 更新角色
+func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (*Role, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (s *RoleService) PutUpdate(ctx context.Context, req *RoleUpdateReq) (*Role,
 	return role, nil
 }
 
-// DeleteDel 删除角色
-func (s *RoleService) DeleteDel(ctx context.Context, req *DeleteRoleReq) (interface{}, error) {
+// Delete /role 删除角色
+func (s *RoleService) Delete(ctx context.Context, req *DeleteRoleReq) (interface{}, error) {
 	return nil, s.repo.Delete(ctx, req.IDs)
 }

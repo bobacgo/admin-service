@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/bobacgo/admin-service/apps/ecode"
-	"github.com/bobacgo/admin-service/apps/menu"
 	"github.com/bobacgo/admin-service/apps/user"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/bobacgo/admin-service/pkg/kit/hs/response"
@@ -54,46 +53,6 @@ func makeLoginHandler(svc *user.UserService) http.HandlerFunc {
 	}
 }
 
-func makeLogoutHandler(svc *user.UserService) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		err := svc.Logout(r.Context())
-		if err != nil {
-			response.JSON(w, response.Resp{
-				Code: ecode.ErrCodeServer,
-				Msg:  err.Error(),
-			})
-			return
-		}
-
-		response.JSON(w, response.Resp{
-			Code: ecode.OK,
-			Msg:  "ok",
-		})
-	}
-}
-
-func makeMenuTreeHandler(svc *menu.MenuService) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		menuTree, err := svc.GetTree(r.Context(), nil)
-		if err != nil {
-			slog.Error("GetTree error", "err", err)
-			response.JSON(w, response.Resp{
-				Code: ecode.ErrCodeServer,
-				Msg:  err.Error(),
-			})
-			return
-		}
-
-		response.JSON(w, response.Resp{
-			Code: ecode.OK,
-			Msg:  "success",
-			Data: map[string]any{
-				"list": menuTree,
-			},
-		})
-	}
-}
-
 func RegisterRoutes(container *Container) http.Handler {
 	mux := http.NewServeMux()
 
@@ -101,40 +60,16 @@ func RegisterRoutes(container *Container) http.Handler {
 	public := hs.NewGroup("/", mux, hs.Logger, hs.Cors)
 	public.HandleFunc("GET /health", container.api.Health)
 
-	// api := kitweb.NewGroup("/api", mux, kitweb.Logger, kitweb.Cors, kitweb.AuthMiddleware)
 	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors)
-
 	// Special handlers for login/logout
 	api.HandleFunc("POST /login", makeLoginHandler(container.svc.User))
-	api.HandleFunc("POST /logout", makeLogoutHandler(container.svc.User))
 
-	// User - Auto-register routes from service methods
-	userConfig := &hs.HandlerConfig{
-		Validator: container.svc.Validator,
-	}
-	hs.RegisterServiceRoutes(api, container.svc.User, "/user", userConfig)
-
-	// Menu - Auto-register routes from service methods
-	menuConfig := &hs.HandlerConfig{
-		Validator: container.svc.Validator,
-	}
-	hs.RegisterServiceRoutes(api, container.svc.Menu, "/menu", menuConfig)
+	hs.RegisterService(api, "/user", container.svc.User)
+	hs.RegisterService(api, "/menu", container.svc.Menu)
 
 	// Menu tree endpoint - custom route
-	api.HandleFunc("GET /get-menu-list-i18n", makeMenuTreeHandler(container.svc.Menu))
-
-	// Role - Auto-register routes from service methods
-	roleConfig := &hs.HandlerConfig{
-		Validator: container.svc.Validator,
-	}
-	hs.RegisterServiceRoutes(api, container.svc.Role, "/role", roleConfig)
-
-	// I18n - Auto-register routes from service methods
-	i18nConfig := &hs.HandlerConfig{
-		Validator: container.svc.Validator,
-	}
-	hs.RegisterServiceRoutes(api, container.svc.I18n, "/i18n", i18nConfig)
-
+	hs.RegisterService(api, "/role", container.svc.Role)
+	hs.RegisterService(api, "/i18n", container.svc.I18n)
 	handlerChain := hs.Cors(OptionsMiddleware(mux))
 	return handlerChain
 }

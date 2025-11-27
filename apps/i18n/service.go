@@ -32,8 +32,8 @@ func (s *I18nService) GetList(ctx context.Context, req *I18nListReq) (*dto.PageR
 	return dto.NewPageResp(total, list), nil
 }
 
-// Post /i18n/create 创建i18n记录
-func (s *I18nService) PostCreate(ctx context.Context, req *I18nCreateReq) (*I18n, error) {
+// Post /i18n 创建i18n记录
+func (s *I18nService) Post(ctx context.Context, req *I18nCreateReq) (*I18n, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -55,8 +55,8 @@ func (s *I18nService) PostCreate(ctx context.Context, req *I18nCreateReq) (*I18n
 	return i18n, nil
 }
 
-// Put /i18n/update 更新i18n记录
-func (s *I18nService) PutUpdate(ctx context.Context, req *I18nUpdateReq) (*I18n, error) {
+// Put /i18n 更新i18n记录
+func (s *I18nService) Put(ctx context.Context, req *I18nUpdateReq) (*I18n, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (s *I18nService) PutUpdate(ctx context.Context, req *I18nUpdateReq) (*I18n,
 	return i18n, nil
 }
 
-// Delete /i18n/del 删除i18n记录
-func (s *I18nService) DeleteDel(ctx context.Context, req *DeleteI18nReq) (interface{}, error) {
+// Delete /i18n 删除i18n记录
+func (s *I18nService) Delete(ctx context.Context, req *DeleteI18nReq) (interface{}, error) {
 	return nil, s.repo.Delete(ctx, req.IDs)
 }

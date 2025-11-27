@@ -18,12 +18,12 @@ func NewMenuService(r *MenuRepo, v *validator.Validate) *MenuService {
 	return &MenuService{repo: r, validator: v}
 }
 
-// GetOne 获取单个菜单
+// Get /menu/one 获取单个菜单
 func (s *MenuService) GetOne(ctx context.Context, req *GetMenuReq) (*Menu, error) {
 	return s.repo.FindOne(ctx, req)
 }
 
-// GetList 获取菜单列表
+// Get /menu/list 获取菜单列表
 func (s *MenuService) GetList(ctx context.Context, req *MenuListReq) (*dto.PageResp[Menu], error) {
 	list, total, err := s.repo.Find(ctx, req)
 	if err != nil {
@@ -32,8 +32,8 @@ func (s *MenuService) GetList(ctx context.Context, req *MenuListReq) (*dto.PageR
 	return dto.NewPageResp(total, list), nil
 }
 
-// PostCreate 创建菜单
-func (s *MenuService) PostCreate(ctx context.Context, req *MenuCreateReq) (*Menu, error) {
+// Post /menu 创建菜单
+func (s *MenuService) Post(ctx context.Context, req *MenuCreateReq) (*Menu, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -54,8 +54,8 @@ func (s *MenuService) PostCreate(ctx context.Context, req *MenuCreateReq) (*Menu
 	return menu, nil
 }
 
-// PutUpdate 更新菜单
-func (s *MenuService) PutUpdate(ctx context.Context, req *MenuUpdateReq) (*Menu, error) {
+// Put /menu 更新菜单
+func (s *MenuService) Put(ctx context.Context, req *MenuUpdateReq) (*Menu, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -77,18 +77,18 @@ func (s *MenuService) PutUpdate(ctx context.Context, req *MenuUpdateReq) (*Menu,
 	return menu, nil
 }
 
-// DeleteDel 删除菜单
-func (s *MenuService) DeleteDel(ctx context.Context, req *DeleteMenuReq) (interface{}, error) {
+// Delete /menu 删除菜单
+func (s *MenuService) Delete(ctx context.Context, req *DeleteMenuReq) (any, error) {
 	return nil, s.repo.Delete(ctx, req.IDs)
 }
 
-// GetTree 获取菜单树
-func (s *MenuService) GetTree(ctx context.Context, req interface{}) ([]*MenuItem, error) {
+// Get /menu/tree 获取菜单树
+func (s *MenuService) GetTree(ctx context.Context, _ any) (*MenuTreeResp, error) {
 	menuList, _, err := s.repo.Find(ctx, &MenuListReq{})
 	if err != nil {
 		return nil, err
 	}
-	return s.buildTree(menuList), nil
+	return &MenuTreeResp{List: s.buildTree(menuList)}, nil
 }
 
 func (s *MenuService) buildTree(menuList []*Menu) []*MenuItem {

@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/bobacgo/admin-service/apps/ecode"
 	"github.com/bobacgo/admin-service/apps/service"
 	"github.com/bobacgo/admin-service/pkg/kit/hs/response"
 )
@@ -16,7 +17,7 @@ func NewHandler(svc *service.Service) *Handler {
 
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, response.Resp{
-		Code: OK,
+		Code: ecode.OK,
 		Msg:  "ok",
 	})
 }

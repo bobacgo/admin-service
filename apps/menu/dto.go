@@ -48,3 +48,7 @@ type MenuUpdateReq struct {
 type DeleteMenuReq struct {
 	IDs string `json:"ids" query:"ids" validate:"required"`
 }
+
+type MenuTreeResp struct {
+	List []*MenuItem `json:"list"`
+}

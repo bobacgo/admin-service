@@ -19,12 +19,12 @@ func NewUserService(r *UserRepo, v *validator.Validate) *UserService {
 	return &UserService{repo: r, validator: v}
 }
 
-// GetOne 获取单个用户
+// Get /user/one 获取单个用户
 func (s *UserService) GetOne(ctx context.Context, req *GetUserReq) (*User, error) {
 	return s.repo.FindOne(ctx, req)
 }
 
-// GetList 获取用户列表
+// Get /user/list 获取用户列表
 func (s *UserService) GetList(ctx context.Context, req *UserListReq) (*dto.PageResp[User], error) {
 	rows, total, err := s.repo.Find(ctx, req)
 	if err != nil {
@@ -36,8 +36,8 @@ func (s *UserService) GetList(ctx context.Context, req *UserListReq) (*dto.PageR
 	return dto.NewPageResp(total, rows), nil
 }
 
-// PostCreate 创建用户
-func (s *UserService) PostCreate(ctx context.Context, req *User) (*User, error) {
+// Post /user 创建用户
+func (s *UserService) Post(ctx context.Context, req *User) (*User, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -50,8 +50,8 @@ func (s *UserService) PostCreate(ctx context.Context, req *User) (*User, error) 
 	return req, nil
 }
 
-// PutUpdate 更新用户
-func (s *UserService) PutUpdate(ctx context.Context, req *User) (*User, error) {
+// Put /user 更新用户
+func (s *UserService) Put(ctx context.Context, req *User) (*User, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -64,8 +64,8 @@ func (s *UserService) PutUpdate(ctx context.Context, req *User) (*User, error) {
 	return req, nil
 }
 
-// DeleteDel 删除用户
-func (s *UserService) DeleteDel(ctx context.Context, req *DeleteUserReq) (interface{}, error) {
+// Delete /user 删除用户
+func (s *UserService) Delete(ctx context.Context, req *DeleteUserReq) (interface{}, error) {
 	return nil, s.repo.Delete(ctx, req.IDs)
 }
 
@@ -97,7 +97,7 @@ func (s *UserService) Login(ctx context.Context, req *LoginReq) (map[string]stri
 	return map[string]string{"token": "xxxxx"}, nil
 }
 
-// Logout 用户登出（特殊方法，不参与自动路由）
-func (s *UserService) Logout(ctx context.Context) error {
-	return nil
+// Get /user/logout 用户登出
+func (s *UserService) GetLogout(ctx context.Context, _ any) (any, error) {
+	return nil, nil
 }
