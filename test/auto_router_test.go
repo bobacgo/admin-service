@@ -36,8 +36,8 @@ func (s *TestServiceForAutoRouter) PutUser(ctx context.Context, req *TestPutUser
 }
 
 // DeleteUser 测试Delete方法
-func (s *TestServiceForAutoRouter) DeleteUser(ctx context.Context, req *TestDeleteUserReq) error {
-	return nil
+func (s *TestServiceForAutoRouter) DeleteUser(ctx context.Context, req *TestDeleteUserReq) (interface{}, error) {
+	return nil, nil
 }
 
 // TestDTO structures

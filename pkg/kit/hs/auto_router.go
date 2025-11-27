@@ -23,7 +23,7 @@ var HTTPMethodPrefix = map[string]string{
 }
 
 // camelToKebab 将驼峰命名转换为斜杠分隔的路径
-// 例如: GetUserInfo -> /user/info, List -> /list
+// 例如: GetUserInfo -> /user/info, GetList -> /list
 func camelToKebab(s string) string {
 	// 移除HTTP方法前缀
 	for prefix := range HTTPMethodPrefix {
@@ -71,7 +71,9 @@ type ServiceMethodInfo struct {
 }
 
 // DiscoverServiceMethods 发现服务中符合自动路由规则的方法
-// 规则: 方法名以 Get/Post/Put/Delete/Patch 开头
+// 规则:
+// 1. 方法名以 Get/Post/Put/Delete/Patch 开头
+// 2. 方法签名必须为: func(ctx context.Context, req *ReqType) (*RespType, error)
 func DiscoverServiceMethods(service interface{}) []ServiceMethodInfo {
 	var methods []ServiceMethodInfo
 	serviceType := reflect.TypeOf(service)
@@ -91,6 +93,12 @@ func DiscoverServiceMethods(service interface{}) []ServiceMethodInfo {
 			continue
 		}
 
+		// 验证方法签名: func(ctx context.Context, req *ReqType) (*RespType, error)
+		if !isValidServiceMethodSignature(method.Type) {
+			slog.Warn("skip method with invalid signature", "method", methodName, "reason", "signature does not match func(ctx context.Context, req *ReqType) (*RespType, error)")
+			continue
+		}
+
 		// 生成路由路径
 		path := camelToKebab(methodName)
 
@@ -105,17 +113,67 @@ func DiscoverServiceMethods(service interface{}) []ServiceMethodInfo {
 	return methods
 }
 
+// isValidServiceMethodSignature 检查方法签名是否符合自动路由要求
+// 要求: func(ctx context.Context, req *ReqType) (*RespType, error)
+// 即: 3个输入参数(receiver, context, request), 2个输出参数(response, error)
+func isValidServiceMethodSignature(methodType reflect.Type) bool {
+	// 检查输入参数数量: receiver + context + request = 3
+	if methodType.NumIn() != 3 {
+		return false
+	}
+
+	// 检查输出参数数量: response + error = 2
+	if methodType.NumOut() != 2 {
+		return false
+	}
+
+	// 检查第二个输入参数是否是 context.Context
+	if !isContextType(methodType.In(1)) {
+		return false
+	}
+
+	// 检查最后一个输出参数是否是 error
+	if !isErrorType(methodType.Out(1)) {
+		return false
+	}
+
+	// 检查第三个输入参数是否是指针类型 (request)
+	reqType := methodType.In(2)
+	if reqType.Kind() != reflect.Ptr {
+		return false
+	}
+
+	// 检查第一个输出参数是否是指针类型 (response)
+	respType := methodType.Out(0)
+	if respType.Kind() != reflect.Ptr && respType.Kind() != reflect.Interface {
+		// 允许接口类型(如interface{})作为返回值
+		return false
+	}
+
+	return true
+}
+
+// isContextType 检查类型是否为 context.Context
+func isContextType(t reflect.Type) bool {
+	return t.String() == "context.Context"
+}
+
+// isErrorType 检查类型是否为 error
+func isErrorType(t reflect.Type) bool {
+	return t.String() == "error"
+}
+
 // HandlerConfig 用于处理程序的配置
 type HandlerConfig struct {
 	Validator *validator.Validate
 }
 
 // CreateAutoHandler 为服务方法创建HTTP处理程序
-// 支持的服务方法签名:
-// func(ctx context.Context, req *ReqType) (*RespType, error)
+// 方法签名: func(ctx context.Context, req *ReqType) (*RespType, error)
 func CreateAutoHandler(methodInfo ServiceMethodInfo, service interface{}, config *HandlerConfig) http.HandlerFunc {
 	method := methodInfo.Method
 	serviceValue := reflect.ValueOf(service)
+	methodType := method.Type
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		// 验证HTTP方法匹配
@@ -127,67 +185,51 @@ func CreateAutoHandler(methodInfo ServiceMethodInfo, service interface{}, config
 			return
 		}
 
-		// 获取方法的参数类型
-		methodType := method.Type
-		numIn := methodType.NumIn()
-
-		// 确保方法至少有2个输入(receiver + context)
-		if numIn < 2 {
-			slog.Error("invalid method signature", "method", methodInfo.MethodName)
-			response.JSON(w, response.Resp{
-				Code: ecode.ErrCodeServer,
-				Msg:  "internal server error",
-			})
-			return
-		}
-
-		// 构建输入参数
+		// 构建输入参数: [receiver, context, request]
 		var args []reflect.Value
 		args = append(args, serviceValue)
 		args = append(args, reflect.ValueOf(r.Context()))
 
-		// 处理第三个参数(请求对象)
-		if numIn >= 3 {
-			reqType := methodType.In(2)
-			req := reflect.New(reqType.Elem())
+		// 获取请求对象类型并创建实例
+		reqType := methodType.In(2)
+		req := reflect.New(reqType.Elem())
 
-			// 根据HTTP方法解析请求
-			if methodInfo.HTTPMethod == http.MethodGet || methodInfo.HTTPMethod == http.MethodDelete {
-				// 从Query参数解析
-				if err := parseQueryParams(r, req.Interface()); err != nil {
-					slog.Error("parse query error", "err", err)
-					response.JSON(w, response.Resp{
-						Code: ecode.ErrCodeParam,
-						Msg:  err.Error(),
-					})
-					return
-				}
-			} else {
-				// 从JSON Body解析
-				if err := json.NewDecoder(r.Body).Decode(req.Interface()); err != nil {
-					slog.Error("decode body error", "err", err)
-					response.JSON(w, response.Resp{
-						Code: ecode.ErrCodeParam,
-						Msg:  err.Error(),
-					})
-					return
-				}
+		// 根据HTTP方法解析请求
+		if methodInfo.HTTPMethod == http.MethodGet || methodInfo.HTTPMethod == http.MethodDelete {
+			// 从Query参数解析
+			if err := parseQueryParams(r, req.Interface()); err != nil {
+				slog.Error("parse query error", "method", methodInfo.MethodName, "err", err)
+				response.JSON(w, response.Resp{
+					Code: ecode.ErrCodeParam,
+					Msg:  err.Error(),
+				})
+				return
 			}
-
-			// 验证请求对象
-			if config != nil && config.Validator != nil {
-				if err := config.Validator.StructCtx(r.Context(), req.Interface()); err != nil {
-					slog.Error("validation error", "err", err)
-					response.JSON(w, response.Resp{
-						Code: ecode.ErrCodeParam,
-						Msg:  err.Error(),
-					})
-					return
-				}
+		} else {
+			// 从JSON Body解析
+			if err := json.NewDecoder(r.Body).Decode(req.Interface()); err != nil {
+				slog.Error("decode body error", "method", methodInfo.MethodName, "err", err)
+				response.JSON(w, response.Resp{
+					Code: ecode.ErrCodeParam,
+					Msg:  err.Error(),
+				})
+				return
 			}
-
-			args = append(args, req)
 		}
+
+		// 验证请求对象
+		if config != nil && config.Validator != nil {
+			if err := config.Validator.StructCtx(r.Context(), req.Interface()); err != nil {
+				slog.Error("validation error", "method", methodInfo.MethodName, "err", err)
+				response.JSON(w, response.Resp{
+					Code: ecode.ErrCodeParam,
+					Msg:  err.Error(),
+				})
+				return
+			}
+		}
+
+		args = append(args, req)
 
 		// 调用方法
 		results := method.Func.Call(args)
