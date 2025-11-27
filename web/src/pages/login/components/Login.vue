@@ -72,9 +72,12 @@
       </t-form-item>
     </template>
 
-    <t-form-item v-if="type !== 'qrcode'" class="btn-container">
+    <t-form-item v-if="type !== 'qrcode'" class="btn-container" style="display: none">
       <t-button block size="large" type="submit"> {{ t('pages.login.signIn') }} </t-button>
     </t-form-item>
+    
+    <!-- 隐藏的提交按钮，用于支持回车提交 -->
+    <button type="submit" style="display: none"></button>
 
     <div class="switch-container">
       <span v-if="type !== 'password'" class="tip" @click="switchLoginType('password')">{{

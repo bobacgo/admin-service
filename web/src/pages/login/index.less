@@ -197,58 +197,90 @@
 
 // 覆盖 TDesign 输入框样式以匹配 macOS
 .item-container {
+  width: 240px !important; // 限制宽度，更像 macOS 密码框
+  margin: 0 auto;
+
+  :deep(.t-form__item) {
+    margin-bottom: 12px;
+  }
+
+  :deep(.t-input) {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
   :deep(.t-input__inner) {
-    background: rgba(255, 255, 255, 0.2) !important;
-    border: none !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 20px !important; // 胶囊形状
     color: #fff !important;
     text-align: center; // 文字居中
-    height: 36px;
-    backdrop-filter: blur(10px);
+    height: 38px;
+    backdrop-filter: blur(20px);
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
+    font-size: 13px;
     
     &::placeholder {
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.6);
     }
     
     &:focus {
-      background: rgba(255, 255, 255, 0.3) !important;
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+      background: rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+      border-color: rgba(255, 255, 255, 0.3) !important;
     }
   }
   
   // 隐藏输入框的前后缀图标，保持极简
   :deep(.t-input__prefix),
   :deep(.t-input__suffix) {
-    color: rgba(255,255,255,0.6);
+    display: none; // macOS 风格通常不显示图标
   }
-  
-  :deep(.t-button) {
-    border-radius: 20px !important;
-    background: rgba(255,255,255,0.3) !important;
-    border: none !important;
-    backdrop-filter: blur(10px);
-    height: 36px;
+
+  // 记住密码/忘记密码 样式调整
+  .check-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 0;
     
-    &:hover {
-      background: rgba(255,255,255,0.4) !important;
+    :deep(.t-checkbox__label) {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+    }
+    
+    .tip {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+      margin-left: 8px;
+      text-decoration: none;
+      
+      &:hover {
+        color: #fff;
+        text-decoration: underline;
+      }
     }
   }
   
-  // 隐藏不需要的元素
-  .check-container,
+  // 切换登录方式
   .switch-container {
     display: flex;
     justify-content: center;
-    margin-top: 10px;
+    gap: 12px;
+    margin-top: 16px;
     font-size: 12px;
-    opacity: 0.8;
     
     .tip {
-      color: #fff;
-      text-decoration: underline;
+      color: rgba(255, 255, 255, 0.6);
       cursor: pointer;
+      transition: color 0.2s;
+      
+      &:hover {
+        color: #fff;
+      }
     }
   }
 }
