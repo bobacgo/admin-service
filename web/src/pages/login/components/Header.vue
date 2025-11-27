@@ -35,39 +35,59 @@ const navToHelper = () => {
 </script>
 <style lang="less" scoped>
 .login-header {
-  padding: 0 var(--td-comp-paddingLR-xl);
+  padding: 20px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: var(--td-comp-size-xxxl);
+  height: auto;
   z-index: 4;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
   .logo {
-    width: 178px;
-    height: var(--td-comp-size-s);
-    filter: drop-shadow(0 8px 28px rgba(155,80,255,0.18));
+    width: 140px;
+    height: 30px;
+    filter: brightness(1.1) drop-shadow(0 4px 12px rgba(99, 179, 237, 0.2));
+    transition: filter 0.3s ease;
+    
+    &:hover {
+      filter: brightness(1.2) drop-shadow(0 6px 16px rgba(99, 179, 237, 0.3));
+    }
   }
 
   .operations-container {
     display: flex;
     align-items: center;
+    gap: 8px;
 
     .t-button {
-      margin-left: var(--td-comp-margin-l);
-      background: rgba(255,255,255,0.02);
-      border-radius: 8px;
-      border: 1px solid rgba(155,80,255,0.06);
-      color: rgba(220,230,255,0.9);
-      transition: transform .18s ease, box-shadow .18s ease;
+      margin: 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.6);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 8px;
 
       .icon {
-        color: rgba(180,210,255,0.9);
-        filter: drop-shadow(0 6px 14px rgba(99,123,255,0.12));
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 18px;
       }
 
       &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 26px rgba(99,123,255,0.12);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(99, 179, 237, 0.4);
+        color: rgba(99, 179, 237, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(99, 179, 237, 0.15);
+
+        .icon {
+          color: rgba(99, 179, 237, 0.9);
+        }
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
   }

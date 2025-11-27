@@ -10,7 +10,12 @@
   >
     <template v-if="type === 'password'">
       <t-form-item name="account">
-        <t-input v-model="formData.account" size="large" :placeholder="`${t('pages.login.input.account')}：admin`">
+        <t-input 
+          v-model="formData.account" 
+          size="large" 
+          :placeholder="`${t('pages.login.input.account')}：admin`"
+          clearable
+        >
           <template #prefix-icon>
             <t-icon name="user" />
           </template>
@@ -29,7 +34,7 @@
             <t-icon name="lock-on" />
           </template>
           <template #suffix-icon>
-            <t-icon :name="showPsw ? 'browse' : 'browse-off'" @click="showPsw = !showPsw" />
+            <t-icon :name="showPsw ? 'browse' : 'browse-off'" class="icon-btn" @click="showPsw = !showPsw" />
           </template>
         </t-input>
       </t-form-item>
@@ -46,13 +51,13 @@
         <span class="tip">{{ t('pages.login.wechatLogin') }}</span>
         <span class="refresh">{{ t('pages.login.refresh') }} <t-icon name="refresh" /> </span>
       </div>
-      <qrcode-vue value="" :size="160" level="H" />
+      <qrcode-vue value="" :size="160" level="H" class="qrcode-container" />
     </template>
 
     <!-- 手机号登录 -->
     <template v-else>
       <t-form-item name="phone">
-        <t-input v-model="formData.phone" size="large" :placeholder="t('pages.login.input.phone')">
+        <t-input v-model="formData.phone" size="large" :placeholder="t('pages.login.input.phone')" clearable>
           <template #prefix-icon>
             <t-icon name="mobile" />
           </template>
@@ -60,7 +65,7 @@
       </t-form-item>
 
       <t-form-item class="verification-code" name="verifyCode">
-        <t-input v-model="formData.verifyCode" size="large" :placeholder="t('pages.login.input.verification')" />
+        <t-input v-model="formData.verifyCode" size="large" :placeholder="t('pages.login.input.verification')" clearable />
         <t-button size="large" variant="outline" :disabled="countDown > 0" @click="sendCode">
           {{ countDown === 0 ? t('pages.login.sendVerification') : `${countDown}秒后可重发` }}
         </t-button>
@@ -72,11 +77,12 @@
     </t-form-item>
 
     <div class="switch-container">
-      <span v-if="type !== 'password'" class="tip" @click="switchType('password')">{{
+      <span v-if="type !== 'password'" class="tip" @click="switchLoginType('password')">{{
         t('pages.login.accountLogin')
       }}</span>
-      <span v-if="type !== 'qrcode'" class="tip" @click="switchType('qrcode')">{{ t('pages.login.wechatLogin') }}</span>
-      <span v-if="type !== 'phone'" class="tip" @click="switchType('phone')">{{ t('pages.login.phoneLogin') }}</span>
+      <span v-if="type !== 'qrcode'" class="tip" @click="switchLoginType('qrcode')">{{ t('pages.login.wechatLogin') }}</span>
+      <span v-if="type !== 'phone'" class="tip" @click="switchLoginType('phone')">{{ t('pages.login.phoneLogin') }}</span>
+      <span class="tip" @click="switchToRegister">{{ t('pages.login.register') || '注册账号' }}</span>
     </div>
   </t-form>
 </template>
@@ -92,6 +98,10 @@ import { t } from '@/locales';
 import { useUserStore } from '@/store';
 
 const userStore = useUserStore();
+
+const emit = defineEmits<{
+  switchType: [type: string];
+}>();
 
 const INITIAL_DATA = {
   phone: '',
@@ -116,8 +126,12 @@ const showPsw = ref(false);
 
 const [countDown, handleCounter] = useCounter();
 
-const switchType = (val: string) => {
+const switchLoginType = (val: string) => {
   type.value = val;
+};
+
+const switchToRegister = () => {
+  emit('switchType', 'register');
 };
 
 const router = useRouter();
@@ -153,19 +167,87 @@ const onSubmit = async (ctx: SubmitContext) => {
 <style lang="less" scoped>
 @import '../index.less';
 
-.tip-container { color: rgba(200,220,255,0.9); display:flex; gap:12px; align-items:center }
-
-.tip-container .refresh { color: rgba(140,190,255,0.9); display:flex; align-items:center; gap:6px }
-
-:deep(.qrcode) {
-  border-radius: 8px;
-  box-shadow: 0 12px 40px rgba(20,40,80,0.6);
+.tip-container { 
+  color: rgba(255, 255, 255, 0.7); 
+  display: flex; 
+  gap: 12px; 
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 14px;
 }
 
-.verification-code :deep(.t-button) {
-  border: 1px solid rgba(155,80,255,0.12);
+.tip-container .refresh { 
+  color: rgba(99, 179, 237, 0.8); 
+  display: flex; 
+  align-items: center; 
+  gap: 6px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: rgba(99, 179, 237, 1);
+  }
 }
 
-.check-container .tip { color: rgba(150,200,255,0.85) }
+.qrcode-container {
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(99, 179, 237, 0.15);
+  overflow: hidden;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
 
+.verification-code {
+  display: flex;
+  gap: 12px;
+
+  :deep(.t-input) {
+    flex: 1;
+  }
+
+  :deep(.t-button) {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+  }
+}
+
+.check-container {
+  .tip { 
+    color: rgba(99, 179, 237, 0.8);
+    transition: color 0.3s ease;
+    cursor: pointer;
+    
+    &:hover {
+      color: rgba(99, 179, 237, 1);
+    }
+  }
+}
+
+:deep(.t-checkbox) {
+  color: rgba(255, 255, 255, 0.6);
+  
+  .t-checkbox__input {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &:hover .t-checkbox__input {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  &.t-is-checked .t-checkbox__input {
+    background-color: rgba(99, 179, 237, 0.8);
+    border-color: rgba(99, 179, 237, 0.8);
+  }
+}
+
+.icon-btn {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+}
 </style>

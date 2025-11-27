@@ -64,9 +64,10 @@
     </t-form-item>
 
     <div class="switch-container">
-      <span class="tip" @click="switchType(type === 'phone' ? 'email' : 'phone')">{{
+      <span class="tip" @click="switchRegisterType(type === 'phone' ? 'email' : 'phone')">{{
         type === 'phone' ? '使用邮箱注册' : '使用手机号注册'
       }}</span>
+      <span class="tip" @click="switchToLogin">返回登录</span>
     </div>
   </t-form>
 </template>
@@ -77,7 +78,10 @@ import { ref } from 'vue';
 
 import { useCounter } from '@/hooks';
 
-const emit = defineEmits(['register-success']);
+const emit = defineEmits<{
+  registerSuccess: [];
+  switchType: [type: string];
+}>();
 
 const INITIAL_DATA = {
   phone: '',
@@ -106,6 +110,15 @@ const showPsw = ref(false);
 
 const [countDown, handleCounter] = useCounter();
 
+const switchRegisterType = (val: string) => {
+  form.value.reset();
+  type.value = val;
+};
+
+const switchToLogin = () => {
+  emit('switchType', 'login');
+};
+
 const onSubmit = (ctx: SubmitContext) => {
   if (ctx.validateResult === true) {
     if (!formData.value.checked) {
@@ -113,13 +126,8 @@ const onSubmit = (ctx: SubmitContext) => {
       return;
     }
     MessagePlugin.success('注册成功');
-    emit('register-success');
+    emit('registerSuccess');
   }
-};
-
-const switchType = (val: string) => {
-  form.value.reset();
-  type.value = val;
 };
 </script>
 <style lang="less" scoped>
