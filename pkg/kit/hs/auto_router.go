@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"reflect"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -262,7 +263,21 @@ func parseQueryParams(r *http.Request, v any) error {
 	data := make(map[string]any)
 	for key, values := range r.URL.Query() {
 		if len(values) > 0 {
-			data[key] = values[0]
+			// try to coerce numeric strings to numbers so json.Unmarshal
+			// can decode into numeric struct fields (int/float)
+			val := values[0]
+			// keep 'ids' parameters as strings to support comma-separated id lists
+			if key == "ids" {
+				data[key] = val
+				continue
+			}
+			if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+				data[key] = i
+			} else if f, err := strconv.ParseFloat(val, 64); err == nil {
+				data[key] = f
+			} else {
+				data[key] = val
+			}
 		}
 	}
 

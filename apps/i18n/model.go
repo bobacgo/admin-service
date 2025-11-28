@@ -18,8 +18,8 @@ type I18n struct {
 const (
 	Class string = "class"
 	Lang  string = "lang"
-	Key   string = "key"
-	Value string = "value"
+	Key   string = "`key`"
+	Value string = "`value`"
 )
 
 func (m *I18n) Mapping() []*orm.Mapping {

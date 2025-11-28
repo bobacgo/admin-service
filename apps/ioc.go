@@ -1,19 +1,31 @@
 package apps
 
 import (
-	"github.com/bobacgo/admin-service/apps/api"
+	"github.com/bobacgo/admin-service/apps/basic"
 	"github.com/bobacgo/admin-service/apps/i18n"
 	"github.com/bobacgo/admin-service/apps/menu"
 	"github.com/bobacgo/admin-service/apps/repo/data"
 	"github.com/bobacgo/admin-service/apps/role"
-	"github.com/bobacgo/admin-service/apps/service"
 	"github.com/bobacgo/admin-service/apps/user"
+	"github.com/go-playground/validator/v10"
 )
+
+type Service struct {
+	Validator *validator.Validate
+	Basic     *basic.Service
+	User      *user.UserService
+	I18n      *i18n.I18nService
+	Menu      *menu.MenuService
+	Role      *role.RoleService
+}
+
+func GetValidator() *validator.Validate {
+	return validator.New()
+}
 
 type Container struct {
 	clt *data.Client
-	svc *service.Service
-	api *api.Handler
+	svc *Service
 }
 
 func NewContainer() *Container {
@@ -26,26 +38,24 @@ func NewContainer() *Container {
 	i18nRepo := i18n.NewI18nRepo(clt)
 
 	// Initialize services
-	userSvc := user.NewUserService(userRepo, service.GetValidator())
-	menuSvc := menu.NewMenuService(menuRepo, service.GetValidator())
-	roleSvc := role.NewRoleService(roleRepo, service.GetValidator())
-	i18nSvc := i18n.NewI18nService(i18nRepo, service.GetValidator())
+	basicSvc := basic.NewService()
+	userSvc := user.NewUserService(userRepo, GetValidator())
+	menuSvc := menu.NewMenuService(menuRepo, GetValidator())
+	roleSvc := role.NewRoleService(roleRepo, GetValidator())
+	i18nSvc := i18n.NewI18nService(i18nRepo, GetValidator())
 
 	// Initialize service container
-	svc := &service.Service{
-		Validator: service.GetValidator(),
+	svc := &Service{
+		Validator: GetValidator(),
+		Basic:     basicSvc,
 		User:      userSvc,
 		Menu:      menuSvc,
 		Role:      roleSvc,
 		I18n:      i18nSvc,
 	}
 
-	// Initialize API handlers
-	apiHandler := api.NewHandler(svc)
-
 	return &Container{
 		clt: clt,
 		svc: svc,
-		api: apiHandler,
 	}
 }

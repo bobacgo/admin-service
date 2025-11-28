@@ -58,18 +58,15 @@ func RegisterRoutes(container *Container) http.Handler {
 
 	// 创建一个处理链，先应用Cors中间件设置CORS头，再应用OptionsMiddleware处理OPTIONS请求
 	public := hs.NewGroup("/", mux, hs.Logger, hs.Cors)
-	public.HandleFunc("GET /health", container.api.Health)
+	hs.RegisterService(public, "/", container.svc.Basic)
 
 	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors)
-	// Special handlers for login/logout
 	api.HandleFunc("POST /login", makeLoginHandler(container.svc.User))
 
 	hs.RegisterService(api, "/user", container.svc.User)
 	hs.RegisterService(api, "/menu", container.svc.Menu)
-
-	// Menu tree endpoint - custom route
 	hs.RegisterService(api, "/role", container.svc.Role)
 	hs.RegisterService(api, "/i18n", container.svc.I18n)
-	handlerChain := hs.Cors(OptionsMiddleware(mux))
-	return handlerChain
+
+	return hs.Cors(OptionsMiddleware(mux))
 }
