@@ -1,5 +1,7 @@
 github.com/bobacgo/orm v0.0.0-20251114145637-df3fa709ab23 h1:iDj3qFkezI+WK2d+TGSisnt4J82PQpakSyNxYruuvuE=
 github.com/bobacgo/orm v0.0.0-20251114145637-df3fa709ab23/go.mod h1:qEEj8WpgIaiyNk2wKicyRXy7a8jbWu7vHbf9mye/0KQ=
+github.com/bobacgo/orm v0.0.0-20251129135159-5d81b7036550 h1:XwPD1Xho4UbRXRewmQLS9dWDEPcmDiWQZX+v/bS6fYk=
+github.com/bobacgo/orm v0.0.0-20251129135159-5d81b7036550/go.mod h1:qEEj8WpgIaiyNk2wKicyRXy7a8jbWu7vHbf9mye/0KQ=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gabriel-vasile/mimetype v1.4.8 h1:FfZ3gj38NjllZIeJAmMhr+qKL8Wu+nOoI3GqacKw1NM=

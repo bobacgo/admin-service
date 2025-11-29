@@ -3,7 +3,7 @@ module github.com/bobacgo/admin-service
 go 1.25.0
 
 require (
-	github.com/bobacgo/orm v0.0.0-20251114145637-df3fa709ab23
+	github.com/bobacgo/orm v0.0.0-20251129135159-5d81b7036550
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/go-sql-driver/mysql v1.7.0
 )

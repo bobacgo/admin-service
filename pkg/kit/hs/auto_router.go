@@ -259,39 +259,109 @@ func CreateAutoHandler(methodInfo ServiceMethodInfo, service interface{}) http.H
 
 // parseQueryParams 从URL Query参数解析到结构体
 func parseQueryParams(r *http.Request, v any) error {
-	// 将Query参数转换为JSON
-	data := make(map[string]any)
-	for key, values := range r.URL.Query() {
-		if len(values) > 0 {
-			// try to coerce numeric strings to numbers so json.Unmarshal
-			// can decode into numeric struct fields (int/float)
-			val := values[0]
-			// keep 'ids' parameters as strings to support comma-separated id lists
-			if key == "ids" {
-				data[key] = val
-				continue
-			}
-			if i, err := strconv.ParseInt(val, 10, 64); err == nil {
-				data[key] = i
-			} else if f, err := strconv.ParseFloat(val, 64); err == nil {
-				data[key] = f
-			} else {
-				data[key] = val
-			}
-		}
-	}
-
-	if len(data) == 0 {
+	queryParams := r.URL.Query()
+	if len(queryParams) == 0 {
 		return nil
 	}
 
-	// 使用JSON Marshal/Unmarshal来处理类型转换
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return err
+	rv := reflect.ValueOf(v)
+	if rv.Kind() != reflect.Ptr {
+		return nil
 	}
 
-	return json.Unmarshal(jsonData, v)
+	elem := rv.Elem()
+	if elem.Kind() != reflect.Struct {
+		return nil
+	}
+
+	elemType := elem.Type()
+
+	// 遍历结构体字段
+	for i := 0; i < elemType.NumField(); i++ {
+		field := elemType.Field(i)
+		fieldValue := elem.Field(i)
+
+		// 跳过不可设置的字段
+		if !fieldValue.CanSet() {
+			continue
+		}
+
+		// 获取 json tag 作为参数名
+		jsonTag := field.Tag.Get("json")
+		if jsonTag == "" || jsonTag == "-" {
+			continue
+		}
+
+		// 解析 json tag
+		paramName := strings.Split(jsonTag, ",")[0]
+
+		// 获取查询参数值
+		values := queryParams[paramName]
+		if len(values) == 0 {
+			continue
+		}
+
+		val := values[0]
+		if val == "" {
+			continue
+		}
+
+		// 根据字段类型直接赋值，避免 JSON 编解码
+		if err := setFieldValue(fieldValue, field.Type, val); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// setFieldValue 根据字段类型设置值
+func setFieldValue(fieldValue reflect.Value, fieldType reflect.Type, val string) error {
+	switch fieldType.Kind() {
+	case reflect.String:
+		fieldValue.SetString(val)
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		i, err := strconv.ParseInt(val, 10, 64)
+		if err != nil {
+			return err
+		}
+		fieldValue.SetInt(i)
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		u, err := strconv.ParseUint(val, 10, 64)
+		if err != nil {
+			return err
+		}
+		fieldValue.SetUint(u)
+
+	case reflect.Float32, reflect.Float64:
+		f, err := strconv.ParseFloat(val, 64)
+		if err != nil {
+			return err
+		}
+		fieldValue.SetFloat(f)
+
+	case reflect.Bool:
+		b, err := strconv.ParseBool(val)
+		if err != nil {
+			return err
+		}
+		fieldValue.SetBool(b)
+
+	case reflect.Ptr:
+		// 处理指针类型
+		if fieldValue.IsNil() {
+			fieldValue.Set(reflect.New(fieldType.Elem()))
+		}
+		return setFieldValue(fieldValue.Elem(), fieldType.Elem(), val)
+
+	default:
+		// 其他类型暂不支持，保持原有行为
+		return nil
+	}
+
+	return nil
 }
 
 // handleMethodResults 处理服务方法的返回值

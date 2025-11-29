@@ -26,14 +26,13 @@ func setupUserService(t *testing.T) *http.ServeMux {
 
 	// 注册路由
 	hs.RegisterService(api, "/user", svc)
-
 	return mux
 }
 
 func TestUserGetOne(t *testing.T) {
 	mux := setupUserService(t)
 
-	req := httptest.NewRequest("GET", "/api/user/one?id=1", nil)
+	req := httptest.NewRequest("GET", "/api/user/one?id=2", nil)
 	w := httptest.NewRecorder()
 	mux.ServeHTTP(w, req)
 
@@ -54,7 +53,7 @@ func TestUserPost(t *testing.T) {
 	mux := setupUserService(t)
 
 	// 测试 POST /api/user
-	newUser := &user.User{Account: "newuser", Password: "123456", Status: 1}
+	newUser := &user.User{Account: "admin", Password: "admin", Status: 1}
 	body, _ := json.Marshal(newUser)
 
 	req := httptest.NewRequest("POST", "/api/user", bytes.NewReader(body))

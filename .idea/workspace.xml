@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="menus">
-      <change beforePath="$PROJECT_DIR$/.idea/MarsCodeWorkspaceAppSettings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/MarsCodeWorkspaceAppSettings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/api/menu.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/api/menu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/api/menu.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/menu/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/menu/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/basic_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/basic_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/user_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/user_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,55 +61,57 @@
     <option name="sortByType" value="true" />
     <option name="sortKey" value="BY_TYPE" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "Go Build.go build github.com/bobacgo/admin-service.executor": "Debug",
-    "Go Build.go build github.com/bobacgo/admin-service/cmd/server.executor": "Debug",
-    "Go Test.TestDB in github.com/bobacgo/admin-service/repo.executor": "Debug",
-    "Go Test.TestDB in github.com/bobacgo/admin-service/test.executor": "Debug",
-    "Go Test.TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm.executor": "Run",
-    "Go Test.TestInsert in github.com/bobacgo/admin-service/pkg/kit/orm.executor": "Run",
-    "Go Test.TestInsertModel in github.com/bobacgo/admin-service/pkg/kit/orm.executor": "Debug",
-    "Go Test.TestInsertModels in github.com/bobacgo/admin-service/pkg/kit/orm.executor": "Run",
-    "Go Test.TestName in github.com/bobacgo/admin-service/test.executor": "Debug",
-    "Go Test.TestPath in github.com/bobacgo/admin-service/test.executor": "Run",
-    "Go Test.TestTime in github.com/bobacgo/admin-service/test.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.GoLinterPluginOnboarding": "true",
-    "RunOnceActivity.GoLinterPluginStorageMigration": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "codeReviewSummary": "[]",
-    "git-widget-placeholder": "main",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/Users/lanjin/Documents/work/code/bobacgo/admin-service",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "npm.dev (1).executor": "Run",
-    "npm.dev.executor": "Run",
-    "npm.dev:mock.executor": "Run",
-    "settings.editor.selected.configurable": "database.query.execution",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "/Users/lanjin/Documents/work/code/bobacgo/admin-service/web/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build github.com/bobacgo/admin-service.executor&quot;: &quot;Debug&quot;,
+    &quot;Go Build.go build github.com/bobacgo/admin-service/cmd/server.executor&quot;: &quot;Debug&quot;,
+    &quot;Go Test.TestDB in github.com/bobacgo/admin-service/repo.executor&quot;: &quot;Debug&quot;,
+    &quot;Go Test.TestDB in github.com/bobacgo/admin-service/test.executor&quot;: &quot;Debug&quot;,
+    &quot;Go Test.TestDelete in github.com/bobacgo/admin-service/pkg/kit/orm.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestInsert in github.com/bobacgo/admin-service/pkg/kit/orm.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestInsertModel in github.com/bobacgo/admin-service/pkg/kit/orm.executor&quot;: &quot;Debug&quot;,
+    &quot;Go Test.TestInsertModels in github.com/bobacgo/admin-service/pkg/kit/orm.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestName in github.com/bobacgo/admin-service/test.executor&quot;: &quot;Debug&quot;,
+    &quot;Go Test.TestPath in github.com/bobacgo/admin-service/test.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestTime in github.com/bobacgo/admin-service/test.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboardingV2&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeReviewSummary&quot;: &quot;[]&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/lanjin/Documents/work/code/bobacgo/admin-service&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.dev (1).executor&quot;: &quot;Run&quot;,
+    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
+    &quot;npm.dev:mock.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/lanjin/Documents/work/code/bobacgo/admin-service/web/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "sqlite"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;sqlite&quot;
     ],
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "JSON"
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;JSON&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/cmd/server" />
@@ -120,7 +121,7 @@
       <recent name="$PROJECT_DIR$/api" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build github.com/bobacgo/admin-service/cmd/server">
+  <component name="RunManager" selected="npm.dev">
     <configuration name="db.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/db.sql" />
       <script-mode>FILE</script-mode>
@@ -159,8 +160,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build github.com/bobacgo/admin-service/cmd/server" />
         <item itemvalue="npm.dev" />
+        <item itemvalue="Go Build.go build github.com/bobacgo/admin-service/cmd/server" />
         <item itemvalue="Database Script.db.sql" />
         <item itemvalue="Go Test.TestTime in github.com/bobacgo/admin-service/test" />
       </list>
@@ -169,8 +170,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-72a9cf600ed8-448e06e64ec5-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-253.27864.37" />
-        <option value="bundled-js-predefined-d6986cc7102b-75c7c973e13d-JavaScript-GO-253.27864.37" />
+        <option value="bundled-gosdk-72a9cf600ed8-448e06e64ec5-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-253.28294.175" />
+        <option value="bundled-js-predefined-d6986cc7102b-c7e53b3be11b-JavaScript-GO-253.28294.175" />
       </set>
     </attachedChunks>
   </component>

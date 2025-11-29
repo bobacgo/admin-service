@@ -25,7 +25,10 @@ func assertResponse(t *testing.T, w *httptest.ResponseRecorder) {
 		t.Fatalf("%s: expected ret_code 0, got %d, msg: %s", t.Name(), resp.Code, resp.Msg)
 	}
 
-	t.Logf("✅ %s passed, response: %v", t.Name(), w.Body.String())
+	m := map[string]interface{}{}
+	json.Unmarshal(w.Body.Bytes(), &m)
+	bytes, _ := json.MarshalIndent(m, "", "  ")
+	t.Logf("✅ %s passed, response: \n%s\n", t.Name(), string(bytes))
 }
 
 func setupBasicService() *http.ServeMux {
