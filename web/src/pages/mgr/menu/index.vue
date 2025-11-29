@@ -82,6 +82,19 @@
             <span>{{ getMenuName(row) }}</span>
           </t-space>
         </template>
+        <template #path="{ row }">
+          <t-link theme="primary" @click="handlePathClick(row.path)">{{ row.path }}</t-link>
+        </template>
+        <template #component="{ row }">
+          <t-space>
+            <t-tooltip content="预览组件">
+              <t-button variant="text" shape="circle" @click="handlePreview(row)">
+                <template #icon><browse-icon /></template>
+              </t-button>
+            </t-tooltip>
+            <span>{{ row.component }}</span>
+          </t-space>
+        </template>
         <template #created_at="{ row }">
           {{ formatTimestamp(row.created_at) }}
         </template>
@@ -168,24 +181,40 @@
       @confirm="onConfirmDelete"
       @close="onCancel"
     />
+
+    <!-- 组件预览对话框 -->
+    <t-dialog
+      v-model:visible="previewVisible"
+      header="组件预览"
+      width="80%"
+      top="5vh"
+      :footer="false"
+    >
+      <div class="preview-container">
+        <component :is="previewComponent" v-if="previewComponent" />
+      </div>
+    </t-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
-import { SearchIcon, AddIcon, EditIcon, DeleteIcon, manifest } from 'tdesign-icons-vue-next';
+import { ref, onMounted, computed, watch, defineAsyncComponent, shallowRef } from 'vue';
+import { SearchIcon, AddIcon, EditIcon, DeleteIcon, manifest, BrowseIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol } from 'tdesign-vue-next';
+import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import { getMenuList, addMenu, updateMenu, deleteMenu } from '@/api/menu';
 import type { MenuItem, MenuCreateReq, MenuUpdateReq } from '@/api/model/menuModel';
 import { useLocale } from '@/locales/useLocale';
 
+const router = useRouter();
 const { locale } = useLocale();
 const menuList = ref<MenuItem[]>([]);
 const dataLoading = ref(false);
 const selectedRowKeys = ref<(string | number)[]>([]);
 const searchValue = ref('');
 const iconOptions = ref(manifest);
+const viewModules = import.meta.glob('../../**/*.vue');
 
 // tree related
 const menuTree = ref<any[]>([]);
@@ -216,6 +245,8 @@ const dialogVisible = ref(false);
 const dialogType = ref<'add' | 'edit'>('add');
 const confirmVisible = ref(false);
 const deleteIdx = ref<number | string | null>(null);
+const previewVisible = ref(false);
+const previewComponent = shallowRef<any>(null);
 
 const formRef = ref<FormInstanceFunctions>();
 const formData = ref<any>({ id: 0, parent_id: 0, name: '', path: '', component: '', icon: '', sort: 0 });
@@ -343,6 +374,43 @@ const handleSearch = () => {
   selectedParentId.value = null;
   activeNodeId.value = null;
   fetchMenuList();
+};
+
+const handlePathClick = (path: string) => {
+  if (!path) return;
+  if (path.startsWith('http')) {
+    window.open(path, '_blank');
+  } else {
+    router.push(path);
+  }
+};
+
+const handlePreview = (row: MenuItem) => {
+  if (!row.component) {
+    MessagePlugin.warning('组件路径为空');
+    return;
+  }
+  const componentPath = row.component;
+  // Try to match component path to viewModules keys
+  // keys are like ../../dashboard/index.vue
+  // componentPath is like /dashboard/index or dashboard/index
+  
+  const keys = Object.keys(viewModules);
+  const matchKey = keys.find(key => {
+    // Remove ../../ prefix and .vue extension for comparison
+    const normalizedKey = key.replace('../../', '').replace('.vue', '');
+    const normalizedPath = componentPath.startsWith('/') ? componentPath.slice(1) : componentPath;
+    
+    // Check exact match or index match
+    return normalizedKey === normalizedPath || normalizedKey === `${normalizedPath}/index`;
+  });
+
+  if (matchKey) {
+    previewComponent.value = defineAsyncComponent(viewModules[matchKey] as any);
+    previewVisible.value = true;
+  } else {
+    MessagePlugin.warning(`未找到组件: ${componentPath}`);
+  }
 };
 
 const handleAdd = () => {
@@ -518,5 +586,14 @@ onMounted(() => { fetchTree(); fetchMenuList(); });
 .overlay-options {
   display: inline-block;
   font-size: 20px;
+}
+
+.preview-container {
+  min-height: 400px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 16px;
+  border: 1px solid var(--td-component-stroke);
+  border-radius: var(--td-radius-medium);
 }
 </style>
