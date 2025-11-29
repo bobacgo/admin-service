@@ -17,7 +17,12 @@
               :actived="activedKeys"
               expand-all
               @click="handleTreeClick"
-            />
+            >
+              <template #label="{ node }">
+                <t-icon v-if="node.data.icon" :name="node.data.icon" style="margin-right: 8px;" />
+                {{ node.label }}
+              </template>
+            </t-tree>
           </div>
         </t-card>
       </div>
@@ -71,6 +76,15 @@
         @select-change="handleSelectChange"
         @page-change="handlePageChange"
       >
+        <template #name="{ row }">
+          <t-space>
+            <t-icon v-if="row.icon" :name="row.icon" />
+            <span>{{ getMenuName(row) }}</span>
+          </t-space>
+        </template>
+        <template #created_at="{ row }">
+          {{ formatTimestamp(row.created_at) }}
+        </template>
         <template #op="{ row }">
           <t-space>
             <t-link theme="primary" hover="color" @click="handleEdit(row)">
@@ -105,7 +119,14 @@
         @submit="handleDialogConfirm"
       >
         <t-form-item label="父ID" name="parent_id">
-          <t-input v-model="formData.parent_id" type="number" placeholder="父菜单ID，根为0" />
+          <t-tree-select
+            v-model="formData.parent_id"
+            :data="treeSelectOptions"
+            placeholder="请选择父级菜单"
+            check-strictly
+            filterable
+            :tree-props="{ keys: { value: 'value', label: 'label', children: 'children' } }"
+          />
         </t-form-item>
         <t-form-item label="名称" name="name">
           <t-input v-model="formData.name" placeholder="请输入菜单名称" />
@@ -117,10 +138,24 @@
           <t-input v-model="formData.component" placeholder="组件路径或 LAYOUT" />
         </t-form-item>
         <t-form-item label="图标" name="icon">
-          <t-input v-model="formData.icon" placeholder="图标标识" />
+          <t-select
+            v-model="formData.icon"
+            placeholder="请选择图标"
+            :popup-props="{ overlayInnerStyle: { width: '400px' } }"
+          >
+            <t-option v-for="item in iconOptions" :key="item.stem" :value="item.stem" class="overlay-options">
+              <div>
+                <t-icon :name="item.stem" />
+              </div>
+            </t-option>
+            <template #valueDisplay><t-icon :name="formData.icon" :style="{ marginRight: '8px' }" />{{ formData.icon }}</template>
+          </t-select>
         </t-form-item>
         <t-form-item label="排序" name="sort">
           <t-input v-model="formData.sort" type="number" placeholder="排序，数字" />
+        </t-form-item>
+        <t-form-item label="Meta" name="meta">
+          <t-textarea v-model="formData.meta" placeholder="请输入 Meta JSON" :autosize="{ minRows: 3, maxRows: 10 }" />
         </t-form-item>
       </t-form>
     </t-dialog>
@@ -137,20 +172,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { SearchIcon, AddIcon, EditIcon, DeleteIcon } from 'tdesign-icons-vue-next';
+import { ref, onMounted, computed, watch } from 'vue';
+import { SearchIcon, AddIcon, EditIcon, DeleteIcon, manifest } from 'tdesign-icons-vue-next';
 import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol } from 'tdesign-vue-next';
 import dayjs from 'dayjs';
 import { getMenuList, addMenu, updateMenu, deleteMenu } from '@/api/menu';
 import type { MenuItem, MenuCreateReq, MenuUpdateReq } from '@/api/model/menuModel';
+import { useLocale } from '@/locales/useLocale';
 
+const { locale } = useLocale();
 const menuList = ref<MenuItem[]>([]);
 const dataLoading = ref(false);
 const selectedRowKeys = ref<(string | number)[]>([]);
 const searchValue = ref('');
+const iconOptions = ref(manifest);
 
 // tree related
 const menuTree = ref<any[]>([]);
+const treeSelectOptions = computed(() => {
+  return [
+    {
+      value: 0,
+      label: '根目录',
+      children: menuTree.value
+    }
+  ];
+});
 const treeFilter = ref('');
 const activeNodeId = ref<number | null>(null);
 const activedKeys = computed(() => (activeNodeId.value ? [activeNodeId.value] : []));
@@ -178,7 +225,6 @@ const columns: PrimaryTableCol[] = [
   { title: '名称', colKey: 'name', width: 180 },
   { title: '路径', colKey: 'path', width: 160 },
   { title: '组件', colKey: 'component', width: 160 },
-  { title: '图标', colKey: 'icon', width: 100, align: 'center' },
   { title: '排序', colKey: 'sort', width: 80, align: 'center' },
   { title: '创建时间', colKey: 'created_at', width: 180, align: 'center' },
   { title: '操作', colKey: 'op', width: 140, fixed: 'right', align: 'center' }
@@ -187,9 +233,28 @@ const columns: PrimaryTableCol[] = [
 const formRules = {
   name: [ { required: true, message: '名称不能为空' } ],
   path: [ { required: true, message: '路径不能为空' } ],
+  component: [ { required: true, message: '组件不能为空' } ],
 };
 
 const formatTimestamp = (timestamp: number) => (timestamp ? dayjs.unix(timestamp).format('YYYY-MM-DD HH:mm:ss') : '-');
+
+const getMenuName = (row: MenuItem) => {
+  let meta = row.meta;
+  if (typeof meta === 'string') {
+    try {
+      meta = JSON.parse(meta);
+    } catch (e) {
+      // ignore
+    }
+  }
+  if (meta && meta.title && typeof meta.title === 'object') {
+    const title = meta.title as Record<string, string>;
+    if (title[locale.value]) {
+      return title[locale.value];
+    }
+  }
+  return row.name;
+};
 
 const rowClassName = ({ row }: { row: MenuItem }) => {
   if (selectedParentId.value && row.id === selectedParentId.value) {
@@ -227,7 +292,7 @@ const buildTree = (items: MenuItem[]) => {
   const map = new Map<number, any>();
   const roots: any[] = [];
   items.forEach((it) => {
-    map.set(it.id, { ...it, value: it.id, label: it.name, children: [] });
+    map.set(it.id, { ...it, value: it.id, label: getMenuName(it), children: [] });
   });
   map.forEach((node) => {
     const parentId = Number(node.parent_id || 0);
@@ -273,17 +338,22 @@ const handlePageChange = (pageInfo: { current: number; pageSize: number }) => {
   fetchMenuList();
 };
 
-const handleSearch = () => { pagination.value.current = 1; fetchMenuList(); };
+const handleSearch = () => {
+  pagination.value.current = 1;
+  selectedParentId.value = null;
+  activeNodeId.value = null;
+  fetchMenuList();
+};
 
 const handleAdd = () => {
   dialogType.value = 'add';
-  formData.value = { id: 0, parent_id: selectedParentId.value || 0, name: '', path: '', component: '', icon: '', sort: 0 };
+  formData.value = { id: 0, parent_id: selectedParentId.value || 0, name: '', path: '', component: '', icon: '', sort: 0, meta: '{}' };
   dialogVisible.value = true;
 };
 
 const handleEdit = (row: MenuItem) => {
   dialogType.value = 'edit';
-  formData.value = { ...row };
+  formData.value = { ...row, meta: JSON.stringify(row.meta || {}, null, 2) };
   dialogVisible.value = true;
 };
 
@@ -357,6 +427,11 @@ const onConfirmDelete = async () => {
 };
 
 const onCancel = () => { confirmVisible.value = false; deleteIdx.value = null; };
+
+watch(locale, () => {
+  fetchTree();
+  fetchMenuList();
+});
 
 onMounted(() => { fetchTree(); fetchMenuList(); });
 </script>
@@ -435,5 +510,13 @@ onMounted(() => { fetchTree(); fetchMenuList(); });
   td {
     border-bottom: 2px solid var(--td-component-stroke) !important;
   }
+}
+
+</style>
+
+<style lang="less">
+.overlay-options {
+  display: inline-block;
+  font-size: 20px;
 }
 </style>
