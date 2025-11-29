@@ -16,7 +16,7 @@
               activatable
               :actived="activedKeys"
               expand-all
-              @change="handleTreeChange"
+              @click="handleTreeClick"
             />
           </div>
         </t-card>
@@ -67,6 +67,7 @@
         :pagination="pagination"
         :selected-row-keys="selectedRowKeys"
         :loading="dataLoading"
+        :row-class-name="rowClassName"
         @select-change="handleSelectChange"
         @page-change="handlePageChange"
       >
@@ -152,7 +153,7 @@ const searchValue = ref('');
 const menuTree = ref<any[]>([]);
 const treeFilter = ref('');
 const activeNodeId = ref<number | null>(null);
-const activedKeys = computed(() => (activeNodeId.value ? [String(activeNodeId.value)] : []));
+const activedKeys = computed(() => (activeNodeId.value ? [activeNodeId.value] : []));
 const selectedParentId = ref<number | null>(null);
 
 const pagination = ref({
@@ -190,20 +191,30 @@ const formRules = {
 
 const formatTimestamp = (timestamp: number) => (timestamp ? dayjs.unix(timestamp).format('YYYY-MM-DD HH:mm:ss') : '-');
 
+const rowClassName = ({ row }: { row: MenuItem }) => {
+  if (selectedParentId.value && row.id === selectedParentId.value) {
+    return 'menu-parent-row';
+  }
+  return '';
+};
+
 const fetchMenuList = async () => {
   dataLoading.value = true;
   try {
+    const isTreeSelected = selectedParentId.value !== null;
     const resp = await getMenuList({
-      page: pagination.value.current,
-      page_size: pagination.value.defaultPageSize,
+      page: isTreeSelected ? 1 : pagination.value.current,
+      page_size: isTreeSelected ? 1000 : pagination.value.defaultPageSize,
       name: searchValue.value || undefined,
     });
     let list = resp.list || [];
-    if (selectedParentId.value !== null) {
-      list = list.filter((i: MenuItem) => Number(i.parent_id || 0) === Number(selectedParentId.value));
+    if (isTreeSelected) {
+      const parent = list.find((i: MenuItem) => i.id === selectedParentId.value);
+      const children = list.filter((i: MenuItem) => Number(i.parent_id || 0) === Number(selectedParentId.value));
+      list = parent ? [parent, ...children] : children;
     }
     menuList.value = list;
-    pagination.value.total = resp.total || 0;
+    pagination.value.total = isTreeSelected ? list.length : (resp.total || 0);
   } catch (e) {
     console.error('获取菜单列表失败', e);
     MessagePlugin.error('获取菜单列表失败');
@@ -242,11 +253,12 @@ const fetchTree = async () => {
 
 const handleTreeFilter = () => { fetchTree(); };
 
-const handleTreeChange = (value: any, context: any) => {
-  if (Array.isArray(value)) {
-    activeNodeId.value = value.length ? Number(value[0]) : null;
+const handleTreeClick = ({ node }: { node: any }) => {
+  const val = node.value;
+  if (activeNodeId.value === val) {
+    activeNodeId.value = null;
   } else {
-    activeNodeId.value = value ? Number(value) : null;
+    activeNodeId.value = val;
   }
   selectedParentId.value = activeNodeId.value;
   pagination.value.current = 1;
@@ -265,7 +277,7 @@ const handleSearch = () => { pagination.value.current = 1; fetchMenuList(); };
 
 const handleAdd = () => {
   dialogType.value = 'add';
-  formData.value = { id: 0, parent_id: 0, name: '', path: '', component: '', icon: '', sort: 0 };
+  formData.value = { id: 0, parent_id: selectedParentId.value || 0, name: '', path: '', component: '', icon: '', sort: 0 };
   dialogVisible.value = true;
 };
 
@@ -295,6 +307,7 @@ const handleDialogConfirm = async () => {
     }
     dialogVisible.value = false;
     fetchMenuList();
+    fetchTree();
   } catch (err: any) {
     const msg = err?.response?.data?.message || '操作失败';
     MessagePlugin.error(msg);
@@ -313,17 +326,28 @@ const confirmBody = computed(() => {
 
 const onConfirmDelete = async () => {
   try {
+    let ids: number[] = [];
     if (deleteIdx.value === null) {
-      const ids = selectedRowKeys.value.map(id => Number(id));
-      await deleteMenu(ids);
+      ids = selectedRowKeys.value.map(id => Number(id));
+    } else {
+      ids = [Number(deleteIdx.value)];
+    }
+
+    await deleteMenu(ids);
+
+    if (selectedParentId.value && ids.includes(Number(selectedParentId.value))) {
+      selectedParentId.value = null;
+      activeNodeId.value = null;
+    }
+
+    if (deleteIdx.value === null) {
       selectedRowKeys.value = [];
       MessagePlugin.success('批量删除成功');
     } else {
-      const ids = [Number(deleteIdx.value)];
-      await deleteMenu(ids);
       MessagePlugin.success('删除成功');
     }
     fetchMenuList();
+    fetchTree();
   } catch (e: any) {
     const msg = e.response?.data?.message || '删除失败';
     MessagePlugin.error(msg);
@@ -405,4 +429,11 @@ onMounted(() => { fetchTree(); fetchMenuList(); });
   .list-card-container { :deep(.t-card__body) { padding: 12px; } }
 }
 
+:deep(.menu-parent-row) {
+  background-color: var(--td-bg-color-secondarycontainer);
+  font-weight: bold;
+  td {
+    border-bottom: 2px solid var(--td-component-stroke) !important;
+  }
+}
 </style>
