@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/bobacgo/admin-service/apps/repo/model"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -46,26 +45,48 @@ func (s *MenuService) Post(ctx context.Context, req *MenuCreateReq) (any, error)
 }
 
 // Put /menu 更新菜单
-func (s *MenuService) Put(ctx context.Context, req *MenuUpdateReq) (*Menu, error) {
+func (s *MenuService) Put(ctx context.Context, req *MenuUpdateReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
-	menu := &Menu{
-		Model:     model.Model{ID: req.ID},
-		Path:      req.Path,
-		Name:      req.Name,
-		Component: req.Component,
-		Redirect:  req.Redirect,
-		Meta:      req.Meta,
-		Icon:      req.Icon,
-	}
-
-	if err := s.repo.Update(ctx, menu); err != nil {
+	// 先查询现有菜单数据
+	existMenu, err := s.repo.FindOne(ctx, req.ID)
+	if err != nil {
 		return nil, err
 	}
 
-	return menu, nil
+	// 只更新前端发送的非空字段
+	if req.ParentID != 0 {
+		existMenu.ParentID = req.ParentID
+	}
+	if req.Path != "" {
+		existMenu.Path = req.Path
+	}
+	if req.Name != "" {
+		existMenu.Name = req.Name
+	}
+	if req.Component != "" {
+		existMenu.Component = req.Component
+	}
+	if req.Redirect != "" {
+		existMenu.Redirect = req.Redirect
+	}
+	if req.Meta != "" {
+		existMenu.Meta = req.Meta
+	}
+	if req.Icon != "" {
+		existMenu.Icon = req.Icon
+	}
+	if req.Sort != 0 {
+		existMenu.Sort = req.Sort
+	}
+
+	if err := s.repo.Update(ctx, existMenu); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 // Delete /menu 删除菜单

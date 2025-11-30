@@ -56,25 +56,35 @@ func (s *I18nService) Post(ctx context.Context, req *I18nCreateReq) (*I18n, erro
 }
 
 // Put /i18n 更新i18n记录
-func (s *I18nService) Put(ctx context.Context, req *I18nUpdateReq) (*I18n, error) {
+func (s *I18nService) Put(ctx context.Context, req *I18nUpdateReq) (interface{}, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
-	i18n := &I18n{
-		Class: req.Class,
-		Lang:  req.Lang,
-		Value: req.Value,
-		Model: model.Model{
-			ID: req.ID,
-		},
-	}
-
-	if err := s.repo.Update(ctx, i18n); err != nil {
+	// 先查询现有i18n数据
+	existI18n, err := s.repo.FindOne(ctx, &GetI18nReq{ID: req.ID})
+	if err != nil {
 		return nil, err
 	}
 
-	return i18n, nil
+	// 只更新前端发送的非空字段
+	if req.Class != "" {
+		existI18n.Class = req.Class
+	}
+	if req.Lang != "" {
+		existI18n.Lang = req.Lang
+	}
+	if req.Value != "" {
+		existI18n.Value = req.Value
+	}
+
+	existI18n.UpdatedAt = time.Now().Unix()
+
+	if err := s.repo.Update(ctx, existI18n); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 // Delete /i18n 删除i18n记录

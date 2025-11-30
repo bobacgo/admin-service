@@ -56,23 +56,35 @@ func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (*Role, erro
 }
 
 // Put /role 更新角色
-func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (*Role, error) {
+func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (interface{}, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
-	role := &Role{
-		Model:       model.Model{ID: req.ID, UpdatedAt: time.Now().Unix()},
-		Code:        req.Code,
-		Description: req.Description,
-		Status:      req.Status,
-	}
-
-	if err := s.repo.Update(ctx, role); err != nil {
+	// 先查询现有角色数据
+	existRole, err := s.repo.FindOne(ctx, &GetRoleReq{ID: req.ID})
+	if err != nil {
 		return nil, err
 	}
 
-	return role, nil
+	// 只更新前端发送的非空字段
+	if req.Code != "" {
+		existRole.Code = req.Code
+	}
+	if req.Description != "" {
+		existRole.Description = req.Description
+	}
+	if req.Status != 0 {
+		existRole.Status = req.Status
+	}
+
+	existRole.UpdatedAt = time.Now().Unix()
+
+	if err := s.repo.Update(ctx, existRole); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 // Delete /role 删除角色

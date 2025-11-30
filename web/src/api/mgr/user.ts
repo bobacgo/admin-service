@@ -31,7 +31,7 @@ export interface UserAddReq {
   email?: string;
   phone?: string;
   status: number;
-  roleIds?: number[];
+  role_codes?: string;
 }
 
 export interface UserUpdateReq {
@@ -40,7 +40,7 @@ export interface UserUpdateReq {
   email?: string;
   phone?: string;
   status?: number;
-  roleIds?: number[];
+  role_codes?: string;
 }
 
 const Api = {

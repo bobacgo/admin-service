@@ -123,17 +123,18 @@
             <t-option :value="0" label="禁用" />
           </t-select>
         </t-form-item>
-        <t-form-item label="角色" name="roleIds">
+        <t-form-item label="角色编码" name="role_codes">
           <t-select 
-            v-model="formData.roleIds" 
+            v-model="formData.role_codes" 
             multiple
-            placeholder="请选择角色"
+            placeholder="请选择角色，可搜索"
             clearable
+            filterable
           >
             <t-option 
               v-for="role in roleList" 
               :key="role.id" 
-              :value="role.id" 
+              :value="role.code" 
               :label="role.code"
             />
           </t-select>
@@ -205,7 +206,7 @@ const formData = ref({
   email: '',
   status: 1,
   password: '',
-  roleIds: [] as number[]
+  role_codes: [] as string[]
 });
 
 // 表格列定义
@@ -359,7 +360,7 @@ const handleAdd = () => {
     email: '',
     status: 1,
     password: '',
-    roleIds: []
+    role_codes: []
   };
   dialogVisible.value = true;
 };
@@ -367,7 +368,6 @@ const handleAdd = () => {
 // 编辑用户
 const handleEdit = (row: User) => {
   dialogType.value = 'edit';
-  // 将 role_codes 字符串转换为 roleIds 数组（需要通过 API 获取或映射）
   formData.value = {
     id: row.id,
     account: row.account,
@@ -375,7 +375,7 @@ const handleEdit = (row: User) => {
     email: row.email,
     status: row.status,
     password: '',
-    roleIds: []
+    role_codes: row.role_codes ? row.role_codes.split(',').map(code => code.trim()) : []
   };
   dialogVisible.value = true;
 };
@@ -410,7 +410,7 @@ const handleDialogConfirm = async () => {
         email: formData.value.email,
         phone: formData.value.phone,
         status: formData.value.status,
-        roleIds: formData.value.roleIds.length > 0 ? formData.value.roleIds : undefined,
+        role_codes: formData.value.role_codes.length > 0 ? formData.value.role_codes.join(',') : undefined,
       };
       await addUser(addData);
       MessagePlugin.success('添加用户成功');
@@ -422,7 +422,7 @@ const handleDialogConfirm = async () => {
         email: formData.value.email,
         phone: formData.value.phone,
         status: formData.value.status,
-        roleIds: formData.value.roleIds.length > 0 ? formData.value.roleIds : undefined,
+        role_codes: formData.value.role_codes.length > 0 ? formData.value.role_codes.join(',') : undefined,
       };
       await updateUser(updateData);
       MessagePlugin.success('编辑用户成功');

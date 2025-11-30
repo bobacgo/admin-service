@@ -25,6 +25,14 @@ func (r *MenuRepo) Find(ctx context.Context) ([]*Menu, error) {
 	return list, nil
 }
 
+func (r *MenuRepo) FindOne(ctx context.Context, id int64) (*Menu, error) {
+	row := new(Menu)
+	if err := SELECT1(row).FROM(MenuTable).WHERE(M{repo.AND(model.Id): id}).Query(ctx, r.clt.DB); err != nil {
+		return nil, err
+	}
+	return row, nil
+}
+
 func (r *MenuRepo) Create(ctx context.Context, row *Menu) error {
 	id, err := INSERT(row).INTO(MenuTable).Omit(model.Id).Exec(ctx, r.clt.DB)
 	row.ID = id

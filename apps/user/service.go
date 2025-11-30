@@ -56,20 +56,42 @@ func (s *UserService) Post(ctx context.Context, req *User) (*User, error) {
 }
 
 // Put /user 更新用户
-func (s *UserService) Put(ctx context.Context, req *User) (*User, error) {
+func (s *UserService) Put(ctx context.Context, req *User) (interface{}, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
-	now := time.Now().Unix()
-	req.UpdatedAt = now
-
-	if err := s.repo.Update(ctx, req); err != nil {
+	// 先查询现有用户数据，保留未修改的字段
+	existUser, err := s.repo.FindOne(ctx, &GetUserReq{ID: uint(req.ID)})
+	if err != nil {
 		return nil, err
 	}
 
-	req.Password = ""
-	return req, nil
+	// 只更新前端发送的非空字段，保留原有数据
+	if req.Account != "" {
+		existUser.Account = req.Account
+	}
+	if req.Phone != "" {
+		existUser.Phone = req.Phone
+	}
+	if req.Email != "" {
+		existUser.Email = req.Email
+	}
+	if req.Status != 0 {
+		existUser.Status = req.Status
+	}
+	if req.RoleCodes != "" {
+		existUser.RoleCodes = req.RoleCodes
+	}
+
+	now := time.Now().Unix()
+	existUser.UpdatedAt = now
+
+	if err := s.repo.Update(ctx, existUser); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 // Delete /user 删除用户
