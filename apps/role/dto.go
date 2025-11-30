@@ -34,3 +34,11 @@ type SaveRolePermissionsReq struct {
 	RoleId  int64   `json:"role_id" validate:"required"`
 	MenuIds []int64 `json:"menu_ids"`
 }
+
+type GetRolePermissionsReq struct {
+	RoleId int64 `json:"role_id" query:"role_id" validate:"required"`
+}
+
+type GetRolePermissionsResp struct {
+	MenuIds []int64 `json:"menu_ids"`
+}

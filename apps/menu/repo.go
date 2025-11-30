@@ -88,3 +88,21 @@ func (r *MenuRepo) AddRoleToMenus(ctx context.Context, roleCode string, menuIds 
 
 	return nil
 }
+
+// GetMenuIdsByRoleCode 根据角色编码获取菜单ID列表
+func (r *MenuRepo) GetMenuIdsByRoleCode(ctx context.Context, roleCode string) ([]int64, error) {
+	var menus []*Menu
+	where := M{repo.AND_LIKE("role_codes"): "%" + roleCode + "%"}
+	if err := SELECT2(&menus).FROM(MenuTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
+		return nil, err
+	}
+
+	var ids []int64
+	for _, menu := range menus {
+		// 再次确认role_codes中确实包含该角色（因为LIKE可能会匹配到部分字符串）
+		if menu.HasRoleCode(roleCode) {
+			ids = append(ids, menu.ID)
+		}
+	}
+	return ids, nil
+}

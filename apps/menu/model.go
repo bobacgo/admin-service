@@ -81,3 +81,17 @@ func (m *Menu) RemoveRoleCode(roleCode string) {
 
 	m.RoleCodes = strings.Join(result, ",")
 }
+
+// HasRoleCode 检查是否包含指定角色编码
+func (m *Menu) HasRoleCode(roleCode string) bool {
+	if m.RoleCodes == "" {
+		return false
+	}
+	codes := strings.Split(m.RoleCodes, ",")
+	for _, code := range codes {
+		if strings.TrimSpace(code) == roleCode {
+			return true
+		}
+	}
+	return false
+}

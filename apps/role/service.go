@@ -2,6 +2,7 @@ package role
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/bobacgo/admin-service/apps/menu"
@@ -120,4 +121,28 @@ func (s *RoleService) PostPermissions(ctx context.Context, req *SaveRolePermissi
 	}
 
 	return nil, nil
+}
+
+// GetPermissions GET /permissions 获取角色权限（菜单ID列表）
+func (s *RoleService) GetPermissions(ctx context.Context, req *GetRolePermissionsReq) (*GetRolePermissionsResp, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
+
+	// 先查询角色信息
+	role, err := s.repo.FindOne(ctx, &GetRoleReq{ID: req.RoleId})
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return nil, errors.New("角色不存在")
+		}
+		return nil, err
+	}
+
+	// 获取该角色的所有菜单ID
+	ids, err := s.menuRepo.GetMenuIdsByRoleCode(ctx, role.Code)
+	if err != nil {
+		return nil, err
+	}
+
+	return &GetRolePermissionsResp{MenuIds: ids}, nil
 }

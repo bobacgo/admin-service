@@ -79,3 +79,14 @@ export function saveRolePermissions(roleId: number, menuIds: number[]) {
     data: { role_id: roleId, menu_ids: menuIds },
   });
 }
+
+export interface RolePermissionsResp {
+  menu_ids: number[];
+}
+
+export function getRolePermissions(roleId: number) {
+  return request.get<RolePermissionsResp>({
+    url: Api.RolePermissions,
+    params: { role_id: roleId },
+  });
+}

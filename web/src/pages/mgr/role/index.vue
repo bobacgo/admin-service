@@ -124,12 +124,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { SearchIcon, AddIcon, EditIcon, DeleteIcon, SettingIcon } from 'tdesign-icons-vue-next';
+import { ref, computed, onMounted } from 'vue';
 import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol, type FormRules } from 'tdesign-vue-next';
-import dayjs from 'dayjs';
-import { getRoleList, addRole, updateRole, deleteRole, saveRolePermissions, type Role, type RoleCreateReq, type RoleUpdateReq } from '@/api/mgr/role';
+import { AddIcon, DeleteIcon, EditIcon, SearchIcon, SettingIcon } from 'tdesign-icons-vue-next';
+import { getRoleList, addRole, updateRole, deleteRole, saveRolePermissions, getRolePermissions } from '@/api/mgr/role';
 import { getMenuTree, type MenuItem } from '@/api/mgr/menu';
+import type { Role, RoleListReq, RoleCreateReq, RoleUpdateReq } from '@/api/mgr/role';
+import dayjs from 'dayjs';
 
 const roleList = ref<Role[]>([]);
 const dataLoading = ref(false);
@@ -228,6 +229,12 @@ const handlePermission = async (row: Role) => {
     const menus = await getMenuTree();
     menuTreeData.value = Array.isArray(menus) ? menus : (menus as any).list || [];
     
+    // 获取角色已有权限
+    const res = await getRolePermissions(row.id);
+    if (res && res.menu_ids && res.menu_ids.length > 0) {
+      checkedMenuIds.value = res.menu_ids;
+    }
+
     // 展开所有一级菜单
     menuTreeData.value.forEach(menu => {
       expandedKeys.value.push(menu.id);
@@ -235,7 +242,7 @@ const handlePermission = async (row: Role) => {
     
     permissionDialogVisible.value = true;
   } catch (e) {
-    MessagePlugin.error('获取菜单树失败');
+    MessagePlugin.error('获取权限数据失败');
     console.error(e);
   }
 };
