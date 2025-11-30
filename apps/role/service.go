@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/bobacgo/admin-service/apps/menu"
 	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
 	"github.com/go-playground/validator/v10"
@@ -11,11 +12,12 @@ import (
 
 type RoleService struct {
 	repo      *RoleRepo
+	menuRepo  *menu.MenuRepo
 	validator *validator.Validate
 }
 
-func NewRoleService(r *RoleRepo, v *validator.Validate) *RoleService {
-	return &RoleService{repo: r, validator: v}
+func NewRoleService(r *RoleRepo, mr *menu.MenuRepo, v *validator.Validate) *RoleService {
+	return &RoleService{repo: r, menuRepo: mr, validator: v}
 }
 
 // Get /role/one 获取单个角色
@@ -90,4 +92,32 @@ func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (interface{},
 // Delete /role 删除角色
 func (s *RoleService) Delete(ctx context.Context, req *DeleteRoleReq) (interface{}, error) {
 	return nil, s.repo.Delete(ctx, req.IDs)
+}
+
+// PostPermissions POST /permissions 保存角色权限（更新菜单的role_codes字段）
+func (s *RoleService) PostPermissions(ctx context.Context, req *SaveRolePermissionsReq) (interface{}, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
+
+	// 先查询角色信息
+	role, err := s.repo.FindOne(ctx, &GetRoleReq{ID: req.RoleId})
+	if err != nil {
+		// 如果发生错误（通常是角色不存在），直接返回
+		return nil, err
+	}
+
+	// 删除该角色从所有菜单的role_codes中
+	if err := s.menuRepo.RemoveRoleFromAllMenus(ctx, role.Code); err != nil {
+		return nil, err
+	}
+
+	// 如果有选中的菜单，添加到这些菜单的role_codes中
+	if len(req.MenuIds) > 0 {
+		if err := s.menuRepo.AddRoleToMenus(ctx, role.Code, req.MenuIds); err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
 }

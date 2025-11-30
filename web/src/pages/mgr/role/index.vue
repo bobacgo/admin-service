@@ -63,6 +63,10 @@
               <template #icon><edit-icon /></template>
               编辑
             </t-link>
+            <t-link theme="primary" hover="color" @click="handlePermission(row)">
+              <template #icon><setting-icon /></template>
+              权限
+            </t-link>
             <t-link theme="danger" hover="color" @click="handleDelete(row)">
               <template #icon><delete-icon /></template>
               删除
@@ -90,15 +94,42 @@
     </t-dialog>
 
     <t-dialog v-model:visible="confirmVisible" header="确认删除" :body="confirmBody" @confirm="onConfirmDelete" @close="onCancel" />
+
+    <!-- 权限管理弹框 -->
+    <t-dialog 
+      v-model:visible="permissionDialogVisible" 
+      header="权限管理" 
+      :width="600"
+      @confirm="handlePermissionConfirm"
+      @close="handlePermissionClose"
+    >
+      <div class="permission-dialog">
+        <p class="role-name">角色: {{ permissionFormData.code }}</p>
+        <t-tree
+          v-model:expanded="expandedKeys"
+          v-model:checked="checkedMenuIds"
+          :data="menuTreeData"
+          checkable
+          check-strictly
+          :keys="{ value: 'id', label: 'name', children: 'children' }"
+        >
+          <template #label="{ node }">
+            <t-icon v-if="node.data.icon" :name="node.data.icon" style="margin-right: 8px;" />
+            {{ node.data.name }}
+          </template>
+        </t-tree>
+      </div>
+    </t-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { SearchIcon, AddIcon, EditIcon, DeleteIcon } from 'tdesign-icons-vue-next';
+import { SearchIcon, AddIcon, EditIcon, DeleteIcon, SettingIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol, type FormRules } from 'tdesign-vue-next';
 import dayjs from 'dayjs';
-import { getRoleList, addRole, updateRole, deleteRole, type Role, type RoleCreateReq, type RoleUpdateReq } from '@/api/mgr/role';
+import { getRoleList, addRole, updateRole, deleteRole, saveRolePermissions, type Role, type RoleCreateReq, type RoleUpdateReq } from '@/api/mgr/role';
+import { getMenuTree, type MenuItem } from '@/api/mgr/menu';
 
 const roleList = ref<Role[]>([]);
 const dataLoading = ref(false);
@@ -111,6 +142,13 @@ const dialogVisible = ref(false);
 const dialogType = ref<'add'|'edit'>('add');
 const confirmVisible = ref(false);
 const deleteIdx = ref<number | string | null>(null);
+
+// 权限管理相关
+const permissionDialogVisible = ref(false);
+const menuTreeData = ref<MenuItem[]>([]);
+const expandedKeys = ref<(string | number)[]>([]);
+const checkedMenuIds = ref<(string | number)[]>([]);
+const permissionFormData = ref({ id: 0, code: '' });
 
 const formRef = ref<FormInstanceFunctions>();
 const formData = ref<RoleCreateReq | RoleUpdateReq>({ id: 0 as unknown as number, code: '', description: '', status: 1 });
@@ -133,7 +171,7 @@ const formatTimestamp = (timestamp: number): string => {
 const fetchRoleList = async () => {
   dataLoading.value = true;
   try {
-    const resp = await getRoleList({ page: pagination.value.current, page_size: pagination.value.defaultPageSize, keyword: searchValue.value });
+    const resp = await getRoleList({ page: pagination.value.current, page_size: pagination.value.defaultPageSize, code: searchValue.value });
     roleList.value = resp.list || [];
     pagination.value.total = resp.total || 0;
   } catch (e) { MessagePlugin.error('获取角色列表失败'); console.error(e); } finally { dataLoading.value = false; }
@@ -151,8 +189,16 @@ const handleDialogConfirm = async () => {
   try {
     const valid = await formRef.value?.validate();
     if (!valid) return;
-    if (dialogType.value === 'add') { await addRole(formData.value); MessagePlugin.success('添加角色成功'); }
-    else { await updateRole(formData.value); MessagePlugin.success('编辑角色成功'); }
+    if (dialogType.value === 'add') { 
+      const createReq = formData.value as RoleCreateReq;
+      await addRole(createReq); 
+      MessagePlugin.success('添加角色成功'); 
+    }
+    else { 
+      const updateReq = formData.value as RoleUpdateReq;
+      await updateRole(updateReq); 
+      MessagePlugin.success('编辑角色成功'); 
+    }
     dialogVisible.value = false; fetchRoleList();
   } catch (e:any) { const msg = e.response?.data?.message || '操作失败'; MessagePlugin.error(msg); }
 };
@@ -171,6 +217,47 @@ const onConfirmDelete = async () => {
 
 const onCancel = () => { confirmVisible.value=false; deleteIdx.value=null; };
 
+// 权限管理相关函数
+const handlePermission = async (row: Role) => {
+  try {
+    permissionFormData.value = { id: row.id, code: row.code };
+    checkedMenuIds.value = [];
+    expandedKeys.value = [];
+    
+    // 获取菜单树
+    const menus = await getMenuTree();
+    menuTreeData.value = Array.isArray(menus) ? menus : (menus as any).list || [];
+    
+    // 展开所有一级菜单
+    menuTreeData.value.forEach(menu => {
+      expandedKeys.value.push(menu.id);
+    });
+    
+    permissionDialogVisible.value = true;
+  } catch (e) {
+    MessagePlugin.error('获取菜单树失败');
+    console.error(e);
+  }
+};
+
+const handlePermissionConfirm = async () => {
+  try {
+    const menuIds = checkedMenuIds.value.map(id => Number(id));
+    await saveRolePermissions(permissionFormData.value.id, menuIds);
+    MessagePlugin.success('权限设置成功');
+    permissionDialogVisible.value = false;
+  } catch (e: any) {
+    const msg = e.response?.data?.message || '权限设置失败';
+    MessagePlugin.error(msg);
+  }
+};
+
+const handlePermissionClose = () => {
+  permissionFormData.value = { id: 0, code: '' };
+  checkedMenuIds.value = [];
+  expandedKeys.value = [];
+};
+
 onMounted(()=>{ fetchRoleList(); });
 </script>
 
@@ -179,5 +266,21 @@ onMounted(()=>{ fetchRoleList(); });
 .list-card-container { :deep(.t-card__body){ padding:24px; } }
 .operation-row { margin-bottom:16px; .left-operation-container{ display:flex; align-items:center; gap:12px; .selected-count{ color: var(--td-text-color-secondary); font-size:14px; } } .search-input{ width:360px; } }
 :deep(.t-table){ .t-table__content{ border-radius: var(--td-radius-medium); } }
+
+.permission-dialog {
+  padding: 16px 0;
+  
+  .role-name {
+    margin-bottom: 16px;
+    font-weight: 500;
+    color: var(--td-text-color-primary);
+  }
+  
+  :deep(.t-tree) {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
 @media screen and (max-width:768px){ .operation-row{ flex-direction:column; align-items:flex-start; gap:12px; .search-input{ width:100%; } } }
 </style>

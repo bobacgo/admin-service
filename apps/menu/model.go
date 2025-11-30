@@ -1,6 +1,8 @@
 package menu
 
 import (
+	"strings"
+
 	"github.com/bobacgo/admin-service/apps/repo/model"
 	"github.com/bobacgo/orm"
 )
@@ -51,4 +53,31 @@ func (m *Menu) Mapping() []*orm.Mapping {
 		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
 		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}
+}
+
+// AddRoleCode 添加角色编码到role_codes字段
+func (m *Menu) AddRoleCode(roleCode string) {
+	if m.RoleCodes == "" {
+		m.RoleCodes = roleCode
+	} else if !strings.Contains(m.RoleCodes, roleCode) {
+		m.RoleCodes = m.RoleCodes + "," + roleCode
+	}
+}
+
+// RemoveRoleCode 从role_codes字段移除角色编码
+func (m *Menu) RemoveRoleCode(roleCode string) {
+	if m.RoleCodes == "" {
+		return
+	}
+
+	codes := strings.Split(m.RoleCodes, ",")
+	var result []string
+	for _, code := range codes {
+		code = strings.TrimSpace(code)
+		if code != "" && code != roleCode {
+			result = append(result, code)
+		}
+	}
+
+	m.RoleCodes = strings.Join(result, ",")
 }

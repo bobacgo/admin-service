@@ -34,6 +34,7 @@ const Api = {
   RoleCreate: '/role',
   RoleUpdate: '/role',
   RoleDelete: '/role',
+  RolePermissions: '/role/permissions',
 };
 
 export function getRoleList(params: RoleListReq) {
@@ -69,5 +70,12 @@ export function deleteRole(ids: number[]) {
   return request.delete({
     url: Api.RoleDelete,
     params,
+  });
+}
+
+export function saveRolePermissions(roleId: number, menuIds: number[]) {
+  return request.post({
+    url: Api.RolePermissions,
+    data: { role_id: roleId, menu_ids: menuIds },
   });
 }

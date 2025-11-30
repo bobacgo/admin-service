@@ -29,3 +29,8 @@ type RoleUpdateReq struct {
 type DeleteRoleReq struct {
 	IDs string `json:"ids" query:"ids" validate:"required"`
 }
+
+type SaveRolePermissionsReq struct {
+	RoleId  int64   `json:"role_id" validate:"required"`
+	MenuIds []int64 `json:"menu_ids"`
+}

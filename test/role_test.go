@@ -16,7 +16,7 @@ import (
 func setupRoleService(t *testing.T) *http.ServeMux {
 	clt := data.NewData()
 	repo := role.NewRoleRepo(clt)
-	svc := role.NewRoleService(repo, validator.New())
+	svc := role.NewRoleService(repo, nil, validator.New())
 
 	mux := http.NewServeMux()
 	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors)

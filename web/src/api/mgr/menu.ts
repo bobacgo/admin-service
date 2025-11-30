@@ -96,3 +96,10 @@ class MenuApi {
 
 export const menuApi = new MenuApi();
 
+// 简化导出函数
+export const getMenuTree = () => menuApi.tree();
+export const getMenuList = (params?: MenuListReq) => menuApi.list(params);
+export const addMenu = (data: MenuCreateReq) => menuApi.create(data);
+export const updateMenu = (data: MenuUpdateReq) => menuApi.update(data);
+export const deleteMenu = (ids: number[]) => menuApi.delete(ids);
+

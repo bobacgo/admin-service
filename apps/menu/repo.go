@@ -2,6 +2,7 @@ package menu
 
 import (
 	"context"
+	"time"
 
 	"github.com/bobacgo/admin-service/apps/repo"
 	"github.com/bobacgo/admin-service/apps/repo/data"
@@ -47,4 +48,43 @@ func (r *MenuRepo) Update(ctx context.Context, row *Menu) error {
 func (r *MenuRepo) Delete(ctx context.Context, ids string) error {
 	_, err := DELETE().FROM(MenuTable).WHERE(M{repo.AND_IN(model.Id): ids}).Exec(ctx, r.clt.DB)
 	return err
+}
+
+// RemoveRoleFromAllMenus 从所有菜单的role_codes中移除该角色
+func (r *MenuRepo) RemoveRoleFromAllMenus(ctx context.Context, roleCode string) error {
+	// 获取所有包含该角色的菜单
+	var menus []*Menu
+	where := M{repo.AND_LIKE("role_codes"): "%" + roleCode + "%"}
+	if err := SELECT2(&menus).FROM(MenuTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
+		return err
+	}
+
+	// 从每个菜单的role_codes中移除该角色
+	for _, menu := range menus {
+		menu.RemoveRoleCode(roleCode)
+		menu.UpdatedAt = time.Now().Unix()
+		if err := r.Update(ctx, menu); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// AddRoleToMenus 将角色添加到指定菜单的role_codes中
+func (r *MenuRepo) AddRoleToMenus(ctx context.Context, roleCode string, menuIds []int64) error {
+	for _, menuId := range menuIds {
+		menu, err := r.FindOne(ctx, menuId)
+		if err != nil {
+			return err
+		}
+
+		menu.AddRoleCode(roleCode)
+		menu.UpdatedAt = time.Now().Unix()
+		if err := r.Update(ctx, menu); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
