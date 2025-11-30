@@ -88,3 +88,14 @@ func (r *UserRepo) Delete(ctx context.Context, ids string) error {
 	_, err := DELETE().FROM(UsersTable).WHERE(M{repo.AND_IN(model.Id): ids}).Exec(ctx, r.clt.DB)
 	return err
 }
+
+// CountByRoleCode 返回 role code 在 users.role_codes 字段中出现的用户数
+func (r *UserRepo) CountByRoleCode(ctx context.Context, code string) (int64, error) {
+	var cnt int64
+	// 使用 MySQL 的 FIND_IN_SET 来匹配以逗号分隔的 role_codes 字段
+	row := r.clt.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+UsersTable+" WHERE FIND_IN_SET(?, role_codes)", code)
+	if err := row.Scan(&cnt); err != nil {
+		return 0, err
+	}
+	return cnt, nil
+}

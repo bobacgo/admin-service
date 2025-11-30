@@ -9,6 +9,7 @@ import (
 
 	"github.com/bobacgo/admin-service/apps/repo/data"
 	"github.com/bobacgo/admin-service/apps/role"
+	"github.com/bobacgo/admin-service/apps/user"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/go-playground/validator/v10"
 )
@@ -16,7 +17,9 @@ import (
 func setupRoleService(t *testing.T) *http.ServeMux {
 	clt := data.NewData()
 	repo := role.NewRoleRepo(clt)
-	svc := role.NewRoleService(repo, nil, validator.New())
+	// create user repo for tests
+	userRepo := user.NewUserRepo(clt)
+	svc := role.NewRoleService(repo, nil, userRepo, validator.New())
 
 	mux := http.NewServeMux()
 	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors)

@@ -15,6 +15,7 @@ type Role struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
 	Status      int8   `json:"status"`
+	UserCount   int64  `json:"user_count,omitempty"`
 }
 
 const (

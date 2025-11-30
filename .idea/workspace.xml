@@ -6,10 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="menus">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/menu/model.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/menu/model.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/menu/repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/menu/repo.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/role/dto.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/role/dto.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/ioc.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/ioc.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/role/model.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/role/model.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/role/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/role/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/user/repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/user/repo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/role_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/role_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

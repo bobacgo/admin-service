@@ -8,17 +8,19 @@ import (
 	"github.com/bobacgo/admin-service/apps/menu"
 	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/bobacgo/admin-service/apps/user"
 	"github.com/go-playground/validator/v10"
 )
 
 type RoleService struct {
 	repo      *RoleRepo
 	menuRepo  *menu.MenuRepo
+	userRepo  *user.UserRepo
 	validator *validator.Validate
 }
 
-func NewRoleService(r *RoleRepo, mr *menu.MenuRepo, v *validator.Validate) *RoleService {
-	return &RoleService{repo: r, menuRepo: mr, validator: v}
+func NewRoleService(r *RoleRepo, mr *menu.MenuRepo, ur *user.UserRepo, v *validator.Validate) *RoleService {
+	return &RoleService{repo: r, menuRepo: mr, userRepo: ur, validator: v}
 }
 
 // Get /role/one 获取单个角色
@@ -31,6 +33,16 @@ func (s *RoleService) GetList(ctx context.Context, req *RoleListReq) (*dto.PageR
 	list, total, err := s.repo.Find(ctx, req)
 	if err != nil {
 		return nil, err
+	}
+	// 如果注入了 userRepo，则为每个角色附加 user_count
+	if s.userRepo != nil {
+		for _, r := range list {
+			cnt, err := s.userRepo.CountByRoleCode(ctx, r.Code)
+			if err != nil {
+				return nil, err
+			}
+			r.UserCount = cnt
+		}
 	}
 	return dto.NewPageResp(total, list), nil
 }

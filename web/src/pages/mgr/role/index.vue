@@ -53,6 +53,10 @@
           </t-tag>
         </template>
 
+        <template #user_count="{ row }">
+          <span>{{ (row.user_count ?? 0) }}</span>
+        </template>
+
         <template #created_at="{ row }">
           {{ formatTimestamp(row.created_at) }}
         </template>
@@ -160,6 +164,7 @@ const columns: PrimaryTableCol[] = [
   { colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left' },
   { title: '编码', colKey: 'code', width: 180 },
   { title: '描述', colKey: 'description', width: 240 },
+  { title: '用户数', colKey: 'user_count', width: 100, align: 'center' },
   { title: '状态', colKey: 'status', width: 100, align: 'center' },
   { title: '创建时间', colKey: 'created_at', width: 180, align: 'center' },
   { title: '操作', colKey: 'op', width: 140, fixed: 'right', align: 'center' }

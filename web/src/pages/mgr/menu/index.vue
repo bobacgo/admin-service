@@ -15,7 +15,6 @@
               :data="menuTree"
               activatable
               :actived="activedKeys"
-              expand-all
               @click="handleTreeClick"
             >
               <template #label="{ node }">

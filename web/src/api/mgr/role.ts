@@ -5,6 +5,7 @@ export interface Role {
   id: number;
   code: string;
   description?: string;
+  user_count?: number;
   status?: number;
   created_at?: number;
   updated_at?: number;
