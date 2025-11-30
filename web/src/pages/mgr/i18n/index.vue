@@ -87,8 +87,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { SearchIcon, AddIcon, EditIcon, DeleteIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol } from 'tdesign-vue-next';
-import { getI18nList, addI18n, updateI18n, deleteI18n } from '@/api/i18n';
-import type { I18nItem, I18nCreateReq, I18nUpdateReq } from '@/api/model/i18nModel';
+import { getI18nList, addI18n, updateI18n, deleteI18n, type I18nItem, type I18nCreateReq, type I18nUpdateReq } from '@/api/i18n';
 
 const i18nList = ref<I18nItem[]>([]);
 const dataLoading = ref(false);

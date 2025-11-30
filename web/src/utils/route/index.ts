@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep';
 
-import type { RouteItem } from '@/api/model/permissionModel';
+import type { RouteItem } from '@/api/permission';
 import type { RouteMeta } from '@/types/interface';
 import {
   BLANK_LAYOUT,

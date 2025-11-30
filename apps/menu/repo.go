@@ -2,7 +2,6 @@ package menu
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/bobacgo/admin-service/apps/repo"
 	"github.com/bobacgo/admin-service/apps/repo/data"
@@ -18,46 +17,12 @@ func NewMenuRepo(clt *data.Client) *MenuRepo {
 	return &MenuRepo{clt: clt}
 }
 
-func (r *MenuRepo) FindOne(ctx context.Context, req *GetMenuReq) (*Menu, error) {
-	row := new(Menu)
-	where := make(map[string]any)
-	if req.ID > 0 {
-		where[repo.AND(model.Id)] = req.ID
+func (r *MenuRepo) Find(ctx context.Context) ([]*Menu, error) {
+	list := make([]*Menu, 0)
+	if err := SELECT2(&list).FROM(MenuTable).ORDER_BY(repo.DESC(model.Id)).Query(ctx, r.clt.DB); err != nil {
+		return nil, err
 	}
-	if req.Path != "" {
-		where[repo.AND(Path)] = req.Path
-	}
-
-	err := SELECT1(row).FROM(MenuTable).WHERE(where).Query(ctx, r.clt.DB)
-	return row, err
-}
-
-func (r *MenuRepo) Find(ctx context.Context, req *MenuListReq) ([]*Menu, int64, error) {
-	where := map[string]any{}
-	if req.Path != "" {
-		where[repo.AND_LIKE(Path)] = req.Path + "%"
-	}
-	if req.Name != "" {
-		where[repo.AND_LIKE(Name)] = req.Name + "%"
-	}
-
-	var (
-		list  = make([]*Menu, 0)
-		total sql.Null[int64]
-	)
-	if err := SELECT1(COUNT("*", &total)).FROM(MenuTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
-		return nil, 0, err
-	}
-	if !total.Valid {
-		return list, 0, nil
-	}
-
-	offset, limit := req.Limit()
-	if err := SELECT2(&list).FROM(MenuTable).WHERE(where).ORDER_BY(repo.DESC(model.Id)).OFFSET(int64(offset)).LIMIT(int64(limit)).Query(ctx, r.clt.DB); err != nil {
-		return nil, 0, err
-	}
-
-	return list, total.V, nil
+	return list, nil
 }
 
 func (r *MenuRepo) Create(ctx context.Context, row *Menu) error {

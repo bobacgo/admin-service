@@ -138,9 +138,8 @@ import {
   type PrimaryTableCol 
 } from 'tdesign-vue-next';
 import dayjs from 'dayjs';
-import { getUserList, addUser, updateUser, deleteUser } from '@/api/user'
-import type { User, UserAddReq, UserUpdateReq } from '@/api/model/user_model';
-import type { IdsReq } from '@/api/model/model';
+import { getUserList, addUser, updateUser, deleteUser, type User, type UserAddReq, type UserUpdateReq } from '@/api/user'
+import type { IdsReq } from '@/api/model';
 
 // 响应式数据
 const userList = ref<User[]>([]);

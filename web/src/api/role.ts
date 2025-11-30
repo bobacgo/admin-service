@@ -1,6 +1,32 @@
 import { request } from '@/utils/request';
-import type { PageResp } from './model/model';
-import type { Role, RoleListReq, RoleCreateReq, RoleUpdateReq } from './model/roleModel';
+import type { PageResp, PageReq } from './model';
+
+export interface Role {
+  id: number;
+  code: string;
+  description?: string;
+  status?: number;
+  created_at?: number;
+  updated_at?: number;
+}
+
+export interface RoleListReq extends PageReq {
+  code?: string;
+  status?: string; // comma separated
+}
+
+export interface RoleCreateReq {
+  code: string;
+  description?: string;
+  status?: number;
+}
+
+export interface RoleUpdateReq {
+  id: number;
+  code?: string;
+  description?: string;
+  status?: number;
+}
 
 const Api = {
   RoleList: '/role/list',

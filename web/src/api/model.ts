@@ -13,3 +13,7 @@ export interface PageResp<T> {
   list: T[];
   total: number;
 }
+
+export interface ArrayResp<T> {
+  list: T[];
+}

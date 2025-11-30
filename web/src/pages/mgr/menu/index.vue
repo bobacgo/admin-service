@@ -148,7 +148,13 @@
           <t-input v-model="formData.path" placeholder="例如 /mgr/user" />
         </t-form-item>
         <t-form-item label="组件" name="component">
-          <t-input v-model="formData.component" placeholder="组件路径或 LAYOUT" />
+          <t-select
+            v-model="formData.component"
+            :options="componentOptions"
+            placeholder="请选择或输入组件路径"
+            filterable
+            creatable
+          />
         </t-form-item>
         <t-form-item label="图标" name="icon">
           <t-select
@@ -203,8 +209,7 @@ import { SearchIcon, AddIcon, EditIcon, DeleteIcon, manifest, BrowseIcon } from 
 import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol } from 'tdesign-vue-next';
 import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
-import { getMenuList, addMenu, updateMenu, deleteMenu } from '@/api/menu';
-import type { MenuItem, MenuCreateReq, MenuUpdateReq } from '@/api/model/menuModel';
+import { menuApi, type MenuItem } from '@/api/menu';
 import { useLocale } from '@/locales/useLocale';
 
 const router = useRouter();
@@ -214,7 +219,7 @@ const dataLoading = ref(false);
 const selectedRowKeys = ref<(string | number)[]>([]);
 const searchValue = ref('');
 const iconOptions = ref(manifest);
-const viewModules = import.meta.glob('../../**/*.vue');
+const viewModules = import.meta.glob('/src/pages/**/*.{vue,tsx}');
 
 // tree related
 const menuTree = ref<any[]>([]);
@@ -227,6 +232,26 @@ const treeSelectOptions = computed(() => {
     }
   ];
 });
+
+const componentOptions = computed(() => {
+  const options = [
+    { label: 'LAYOUT', value: 'LAYOUT' },
+    { label: 'IFRAME', value: 'IFRAME' },
+    { label: 'BLANK', value: 'BLANK' },
+  ];
+  
+  Object.keys(viewModules).forEach((key) => {
+    // key is like /src/pages/dashboard/index.vue
+    const match = key.match(/^\/src\/pages\/(.*)\.(vue|tsx)$/);
+    if (match) {
+      const path = '/' + match[1];
+      options.push({ label: path, value: path });
+    }
+  });
+  
+  return options;
+});
+
 const treeFilter = ref('');
 const activeNodeId = ref<number | null>(null);
 const activedKeys = computed(() => (activeNodeId.value ? [activeNodeId.value] : []));
@@ -298,7 +323,7 @@ const fetchMenuList = async () => {
   dataLoading.value = true;
   try {
     const isTreeSelected = selectedParentId.value !== null;
-    const resp = await getMenuList({
+    const resp = await menuApi.list({
       page: isTreeSelected ? 1 : pagination.value.current,
       page_size: isTreeSelected ? 1000 : pagination.value.defaultPageSize,
       name: searchValue.value || undefined,
@@ -338,7 +363,7 @@ const buildTree = (items: MenuItem[]) => {
 
 const fetchTree = async () => {
   try {
-    const resp = await getMenuList({ page: 1, page_size: 1000 });
+    const resp = await menuApi.list({ page: 1, page_size: 1000 });
     const list = resp.list || [];
     const filtered = treeFilter.value ? list.filter((i: MenuItem) => i.name.includes(treeFilter.value) || i.path.includes(treeFilter.value)) : list;
     menuTree.value = buildTree(filtered as MenuItem[]);
@@ -397,11 +422,11 @@ const handlePreview = (row: MenuItem) => {
   
   const keys = Object.keys(viewModules);
   const matchKey = keys.find(key => {
-    // Remove ../../ prefix and .vue extension for comparison
-    const normalizedKey = key.replace('../../', '').replace('.vue', '');
+    const match = key.match(/^\/src\/pages\/(.*)\.(vue|tsx)$/);
+    if (!match) return false;
+    const normalizedKey = match[1]; // e.g. dashboard/index
     const normalizedPath = componentPath.startsWith('/') ? componentPath.slice(1) : componentPath;
     
-    // Check exact match or index match
     return normalizedKey === normalizedPath || normalizedKey === `${normalizedPath}/index`;
   });
 
@@ -437,10 +462,10 @@ const handleDialogConfirm = async () => {
     const valid = await formRef.value?.validate();
     if (!valid) return;
     if (dialogType.value === 'add') {
-      await addMenu(formData.value);
+      await menuApi.create(formData.value);
       MessagePlugin.success('添加菜单成功');
     } else {
-      await updateMenu(formData.value);
+      await menuApi.update(formData.value);
       MessagePlugin.success('编辑菜单成功');
     }
     dialogVisible.value = false;
@@ -471,7 +496,7 @@ const onConfirmDelete = async () => {
       ids = [Number(deleteIdx.value)];
     }
 
-    await deleteMenu(ids);
+    await menuApi.delete(ids);
 
     if (selectedParentId.value && ids.includes(Number(selectedParentId.value))) {
       selectedParentId.value = null;

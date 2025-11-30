@@ -93,8 +93,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { SearchIcon, AddIcon, EditIcon, DeleteIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol } from 'tdesign-vue-next';
-import { getRoleList, addRole, updateRole, deleteRole } from '@/api/role';
-import type { Role, RoleCreateReq, RoleUpdateReq } from '@/api/model/roleModel';
+import { getRoleList, addRole, updateRole, deleteRole, type Role, type RoleCreateReq, type RoleUpdateReq } from '@/api/role';
 
 const roleList = ref<Role[]>([]);
 const dataLoading = ref(false);

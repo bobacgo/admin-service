@@ -1,16 +1,9 @@
 package menu
 
-import "github.com/bobacgo/admin-service/apps/repo/dto"
+type MenuListReq struct{}
 
-type GetMenuReq struct {
-	ID   int64  `json:"id"`
-	Path string `json:"path"`
-}
-
-type MenuListReq struct {
-	dto.PageReq
-	Path string `json:"path"`
-	Name string `json:"name"`
+type MenuListResp struct {
+	List []*Menu `json:"list"`
 }
 
 type MenuItem struct {
@@ -29,7 +22,7 @@ type MenuItem struct {
 type MenuCreateReq struct {
 	Path      string `json:"path" validate:"required"`
 	Name      string `json:"name" validate:"required"`
-	Component string `json:"component"`
+	Component string `json:"component" validate:"required"`
 	Redirect  string `json:"redirect"`
 	Meta      string `json:"meta"`
 	Icon      string `json:"icon"`
@@ -46,7 +39,7 @@ type MenuUpdateReq struct {
 }
 
 type DeleteMenuReq struct {
-	IDs string `json:"ids" query:"ids" validate:"required"`
+	IDs string `json:"ids" validate:"required"`
 }
 
 type MenuTreeResp struct {

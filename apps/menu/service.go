@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
 	"github.com/go-playground/validator/v10"
 )
@@ -18,22 +17,17 @@ func NewMenuService(r *MenuRepo, v *validator.Validate) *MenuService {
 	return &MenuService{repo: r, validator: v}
 }
 
-// Get /menu/one 获取单个菜单
-func (s *MenuService) GetOne(ctx context.Context, req *GetMenuReq) (*Menu, error) {
-	return s.repo.FindOne(ctx, req)
-}
-
 // Get /menu/list 获取菜单列表
-func (s *MenuService) GetList(ctx context.Context, req *MenuListReq) (*dto.PageResp[Menu], error) {
-	list, total, err := s.repo.Find(ctx, req)
+func (s *MenuService) GetList(ctx context.Context, req *MenuListReq) (*MenuListResp, error) {
+	list, err := s.repo.Find(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return dto.NewPageResp(total, list), nil
+	return &MenuListResp{List: list}, nil
 }
 
 // Post /menu 创建菜单
-func (s *MenuService) Post(ctx context.Context, req *MenuCreateReq) (*Menu, error) {
+func (s *MenuService) Post(ctx context.Context, req *MenuCreateReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -47,11 +41,8 @@ func (s *MenuService) Post(ctx context.Context, req *MenuCreateReq) (*Menu, erro
 		Icon:      req.Icon,
 	}
 
-	if err := s.repo.Create(ctx, menu); err != nil {
-		return nil, err
-	}
-
-	return menu, nil
+	err := s.repo.Create(ctx, menu)
+	return nil, err
 }
 
 // Put /menu 更新菜单
@@ -79,12 +70,15 @@ func (s *MenuService) Put(ctx context.Context, req *MenuUpdateReq) (*Menu, error
 
 // Delete /menu 删除菜单
 func (s *MenuService) Delete(ctx context.Context, req *DeleteMenuReq) (any, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
 	return nil, s.repo.Delete(ctx, req.IDs)
 }
 
 // Get /menu/tree 获取菜单树
 func (s *MenuService) GetTree(ctx context.Context, _ any) (*MenuTreeResp, error) {
-	menuList, _, err := s.repo.Find(ctx, &MenuListReq{})
+	menuList, err := s.repo.Find(ctx)
 	if err != nil {
 		return nil, err
 	}

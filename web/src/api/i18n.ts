@@ -1,6 +1,35 @@
 import { request } from '@/utils/request';
-import type { PageResp } from './model/model';
-import type { I18nItem, I18nListReq, I18nCreateReq, I18nUpdateReq } from './model/i18nModel';
+import type { PageResp, PageReq } from './model';
+
+export interface I18nItem {
+  id: number;
+  class?: string;
+  lang: string;
+  key: string;
+  value: string;
+  created_at?: number;
+  updated_at?: number;
+}
+
+export interface I18nListReq extends PageReq {
+  class?: string;
+  lang?: string;
+  key?: string;
+}
+
+export interface I18nCreateReq {
+  class?: string;
+  lang: string;
+  key: string;
+  value: string;
+}
+
+export interface I18nUpdateReq {
+  id: number;
+  class?: string;
+  lang?: string;
+  value?: string;
+}
 
 const Api = {
   I18nList: '/i18n/list',
