@@ -107,13 +107,13 @@
         <p class="role-name">角色: {{ permissionFormData.code }}</p>
         <t-tree
           v-model:expanded="expandedKeys"
-          :checked="checkedMenuIds"
+          :value="checkedMenuIds"
           :data="menuTreeData"
           checkable
           :check-strictly="false"
           value-mode="all"
           :keys="{ value: 'id', label: 'name', children: 'children' }"
-          @change="onCheckedChange"
+          @change="(val) => checkedMenuIds = val"
         >
           <template #label="{ node }">
             <t-icon v-if="node.data.icon" :name="node.data.icon" style="margin-right: 8px;" />
@@ -220,12 +220,26 @@ const onConfirmDelete = async () => {
 
 const onCancel = () => { confirmVisible.value=false; deleteIdx.value=null; };
 
+// 获取所有叶子节点ID（用于过滤父节点）
+const getLeafNodeIds = (nodes: MenuItem[]): number[] => {
+  const leafIds: number[] = [];
+  const traverse = (items: MenuItem[]) => {
+    items.forEach(item => {
+      if (!item.children || item.children.length === 0) {
+        leafIds.push(item.id);
+      } else {
+        traverse(item.children);
+      }
+    });
+  };
+  traverse(nodes);
+  return leafIds;
+};
+
 // 权限管理相关函数
 const handlePermission = async (row: Role) => {
   try {
     permissionFormData.value = { id: row.id, code: row.code };
-    checkedMenuIds.value = [];
-    expandedKeys.value = [];
     
     // 获取菜单树
     const menus = await getMenuTree();
@@ -233,24 +247,25 @@ const handlePermission = async (row: Role) => {
     
     // 获取角色已有权限
     const res = await getRolePermissions(row.id);
-    if (res && res.menu_ids && res.menu_ids.length > 0) {
-      checkedMenuIds.value = res.menu_ids;
-    }
-
-    // 展开所有一级菜单
-    menuTreeData.value.forEach(menu => {
-      expandedKeys.value.push(menu.id);
-    });
     
+    // 重置状态
+    checkedMenuIds.value = [];
+    expandedKeys.value = [];
+    
+    if (res && res.menu_ids && res.menu_ids.length > 0) {
+      // 获取所有叶子节点ID
+      const leafIds = getLeafNodeIds(menuTreeData.value);
+      // 只保留叶子节点，过滤掉父节点
+      checkedMenuIds.value = res.menu_ids.filter(id => leafIds.includes(id));
+    }
+    
+    // 不自动展开树，保持默认收起状态
+    // 最后打开弹窗
     permissionDialogVisible.value = true;
   } catch (e) {
     MessagePlugin.error('获取权限数据失败');
     console.error(e);
   }
-};
-
-const onCheckedChange = (val: (string | number)[]) => {
-  checkedMenuIds.value = val;
 };
 
 const handlePermissionConfirm = async () => {
