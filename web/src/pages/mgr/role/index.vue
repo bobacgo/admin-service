@@ -107,11 +107,13 @@
         <p class="role-name">角色: {{ permissionFormData.code }}</p>
         <t-tree
           v-model:expanded="expandedKeys"
-          v-model:checked="checkedMenuIds"
+          :checked="checkedMenuIds"
           :data="menuTreeData"
           checkable
-          check-strictly
+          :check-strictly="false"
+          value-mode="all"
           :keys="{ value: 'id', label: 'name', children: 'children' }"
+          @change="onCheckedChange"
         >
           <template #label="{ node }">
             <t-icon v-if="node.data.icon" :name="node.data.icon" style="margin-right: 8px;" />
@@ -245,6 +247,10 @@ const handlePermission = async (row: Role) => {
     MessagePlugin.error('获取权限数据失败');
     console.error(e);
   }
+};
+
+const onCheckedChange = (val: (string | number)[]) => {
+  checkedMenuIds.value = val;
 };
 
 const handlePermissionConfirm = async () => {
