@@ -209,7 +209,7 @@ import { SearchIcon, AddIcon, EditIcon, DeleteIcon, manifest, BrowseIcon } from 
 import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol } from 'tdesign-vue-next';
 import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
-import { menuApi, type MenuItem } from '@/api/menu';
+import { menuApi, type MenuItem } from '@/api/mgr/menu';
 import { useLocale } from '@/locales/useLocale';
 
 const router = useRouter();
@@ -238,6 +238,7 @@ const componentOptions = computed(() => {
     { label: 'LAYOUT', value: 'LAYOUT' },
     { label: 'IFRAME', value: 'IFRAME' },
     { label: 'BLANK', value: 'BLANK' },
+    { label: '按钮', value: 'BUTTON' }
   ];
   
   Object.keys(viewModules).forEach((key) => {

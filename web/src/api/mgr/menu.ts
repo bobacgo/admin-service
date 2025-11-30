@@ -1,5 +1,5 @@
 import { request } from '@/utils/request';
-import type { PageResp } from './model';
+import type { PageResp } from '../model';
 
 export interface MenuMeta {
   title?: Record<string, string>;

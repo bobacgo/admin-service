@@ -30,17 +30,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_code ON roles(code);
 
 INSERT INTO roles (code, description, status) VALUES ('super_admin', 'all power', 1);
 
--- 用户角色表
-CREATE TABLE IF NOT EXISTS user_roles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    r1_id INTEGER,
-    r2_id INTEGER,
-    created_at INT DEFAULT CURRENT_TIMESTAMP,
-    updated_at INT DEFAULT CURRENT_TIMESTAMP
-);
-CREATE UNIQUE INDEX IF NOT EXISTS uq_r1_r2 ON user_roles(r1_id, r2_id);
-INSERT INTO user_roles (r1_id, r2_id) VALUES (1, 1);
-
 -- 菜单表
 CREATE TABLE IF NOT EXISTS menus (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,16 +43,6 @@ CREATE TABLE IF NOT EXISTS menus (
     updated_at INT DEFAULT CURRENT_TIMESTAMP
 );
 CREATE UNIQUE INDEX IF NOT EXISTS uq_path ON menus(path);
-
--- 菜单角色表
-CREATE TABLE IF NOT EXISTS menu_roles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    r1_id INTEGER,
-    r2_id INTEGER,
-    created_at INT DEFAULT CURRENT_TIMESTAMP,
-    updated_at INT DEFAULT CURRENT_TIMESTAMP
-);
-CREATE UNIQUE INDEX IF NOT EXISTS uq_r1_r2 ON menu_roles(r1_id, r2_id);
 
 -- 多语言翻译表
 CREATE TABLE IF NOT EXISTS i18n (

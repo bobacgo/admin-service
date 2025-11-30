@@ -18,6 +18,7 @@ type User struct {
 	RegisterIp string `json:"register_ip"` // 注册IP
 	LoginAt    int64  `json:"login_at"`    // 登录时间
 	LoginIp    string `json:"login_ip"`    // 登录IP
+	RoleCodes  string `json:"role_codes"`  // 角色编码，多个用逗号隔开
 }
 
 const (
@@ -29,6 +30,7 @@ const (
 	RegisterIp string = "register_ip"
 	LoginAt    string = "login_at"
 	LoginIp    string = "login_ip"
+	RoleCodes  string = "role_codes"
 )
 
 func (m *User) Mapping() []*orm.Mapping {
@@ -43,6 +45,7 @@ func (m *User) Mapping() []*orm.Mapping {
 		{Column: RegisterIp, Result: &m.RegisterIp, Value: m.RegisterIp},
 		{Column: LoginAt, Result: &m.LoginAt, Value: m.LoginAt},
 		{Column: LoginIp, Result: &m.LoginIp, Value: m.LoginIp},
+		{Column: RoleCodes, Result: &m.RoleCodes, Value: m.RoleCodes},
 		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
 		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}

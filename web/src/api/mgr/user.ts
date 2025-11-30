@@ -1,5 +1,5 @@
 import { request } from '@/utils/request';
-import { IdsReq, PageResp, PageReq } from './model';
+import { IdsReq, PageResp, PageReq } from '../model';
 
 export interface LoginResp {
     token: string;
@@ -17,6 +17,7 @@ export interface User {
     register_ip: string;
     login_at: number;
     login_ip: string;
+    role_codes: string;
 }
 
 export interface UserListReq extends PageReq {

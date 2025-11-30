@@ -35,45 +35,61 @@
         </div>
       </t-row>
 
-      <t-table
-        :data="userList"
-        :columns="columns"
-        row-key="id"
-        vertical-align="middle"
-        :hover="true"
-        :pagination="pagination"
-        :selected-row-keys="selectedRowKeys"
-        :loading="dataLoading"
-        @select-change="handleSelectChange"
-        @page-change="handlePageChange"
-      >
-        <template #status="{ row }">
-          <t-tag :theme="row.status === 1 ? 'success' : 'danger'" variant="light">
-            {{ formatStatus(row.status) }}
-          </t-tag>
-        </template>
-        
-        <template #register_at="{ row }">
-          {{ formatTimestamp(row.register_at) }}
-        </template>
-        
-        <template #login_at="{ row }">
-          {{ formatTimestamp(row.login_at) }}
-        </template>
-        
-        <template #op="{ row }">
-          <t-space>
-            <t-link theme="primary" hover="color" @click="handleEdit(row)">
-              <template #icon><edit-icon /></template>
-              编辑
-            </t-link>
-            <t-link theme="danger" hover="color" @click="handleDelete(row)">
-              <template #icon><delete-icon /></template>
-              删除
-            </t-link>
-          </t-space>
-        </template>
-      </t-table>
+      <div class="table-wrapper">
+        <t-table
+          :data="userList"
+          :columns="columns"
+          row-key="id"
+          vertical-align="middle"
+          :hover="true"
+          :pagination="pagination"
+          :selected-row-keys="selectedRowKeys"
+          :loading="dataLoading"
+          @select-change="handleSelectChange"
+          @page-change="handlePageChange"
+        >
+          <template #role_codes="{ row }">
+            <t-space size="4px" break-line v-if="row.role_codes">
+              <t-tag 
+                v-for="code in row.role_codes.split(',')" 
+                :key="code"
+                theme="primary" 
+                variant="light"
+              >
+                {{ code.trim() }}
+              </t-tag>
+            </t-space>
+            <span v-else class="text-secondary">-</span>
+          </template>
+          
+          <template #status="{ row }">
+            <t-tag :theme="row.status === 1 ? 'success' : 'danger'" variant="light">
+              {{ formatStatus(row.status) }}
+            </t-tag>
+          </template>
+          
+          <template #register_at="{ row }">
+            {{ formatTimestamp(row.register_at) }}
+          </template>
+          
+          <template #login_at="{ row }">
+            {{ formatTimestamp(row.login_at) }}
+          </template>
+          
+          <template #op="{ row }">
+            <t-space>
+              <t-link theme="primary" hover="color" @click="handleEdit(row)">
+                <template #icon><edit-icon /></template>
+                编辑
+              </t-link>
+              <t-link theme="danger" hover="color" @click="handleDelete(row)">
+                <template #icon><delete-icon /></template>
+                删除
+              </t-link>
+            </t-space>
+          </template>
+        </t-table>
+      </div>
     </t-card>
 
     <!-- 添加/编辑用户对话框 -->
@@ -107,6 +123,21 @@
             <t-option :value="0" label="禁用" />
           </t-select>
         </t-form-item>
+        <t-form-item label="角色" name="roleIds">
+          <t-select 
+            v-model="formData.roleIds" 
+            multiple
+            placeholder="请选择角色"
+            clearable
+          >
+            <t-option 
+              v-for="role in roleList" 
+              :key="role.id" 
+              :value="role.id" 
+              :label="role.code"
+            />
+          </t-select>
+        </t-form-item>
         <t-form-item v-if="dialogType === 'add'" label="密码" name="password">
           <t-input v-model="formData.password" type="password" placeholder="请输入密码" />
         </t-form-item>
@@ -138,11 +169,13 @@ import {
   type PrimaryTableCol 
 } from 'tdesign-vue-next';
 import dayjs from 'dayjs';
-import { getUserList, addUser, updateUser, deleteUser, type User, type UserAddReq, type UserUpdateReq } from '@/api/user'
+import { getUserList, addUser, updateUser, deleteUser, type User, type UserAddReq, type UserUpdateReq } from '@/api/mgr/user'
+import { getRoleList, type Role } from '@/api/mgr/role'
 import type { IdsReq } from '@/api/model';
 
 // 响应式数据
 const userList = ref<User[]>([]);
+const roleList = ref<Role[]>([]);
 const dataLoading = ref(false);
 const selectedRowKeys = ref<(string | number)[]>([]);
 const searchValue = ref('');
@@ -171,7 +204,8 @@ const formData = ref({
   phone: '',
   email: '',
   status: 1,
-  password: ''
+  password: '',
+  roleIds: [] as number[]
 });
 
 // 表格列定义
@@ -194,6 +228,12 @@ const columns: PrimaryTableCol[] = [
     title: '邮箱',
     colKey: 'email',
     width: 180,
+    ellipsis: true
+  },
+  {
+    title: '角色编码',
+    colKey: 'role_codes',
+    width: 120,
     ellipsis: true
   },
   {
@@ -244,9 +284,6 @@ const formRules = {
   phone: [
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式' }
   ],
-  email: [
-    { type: 'email', message: '请输入正确的邮箱地址' }
-  ],
   password: [
     { required: true, message: '密码不能为空' },
     { min: 6, max: 20, message: '密码长度必须在6-20个字符之间' }
@@ -283,6 +320,19 @@ const fetchUserList = async () => {
   }
 };
 
+// 获取角色列表
+const fetchRoleList = async () => {
+  try {
+    const response = await getRoleList({
+      page: 1,
+      page_size: 100
+    });
+    roleList.value = response.list || [];
+  } catch (error) {
+    console.error('获取角色列表失败:', error);
+  }
+};
+
 // 事件处理函数
 const handleSelectChange = (value: (string | number)[]) => {
   selectedRowKeys.value = value;
@@ -308,7 +358,8 @@ const handleAdd = () => {
     phone: '',
     email: '',
     status: 1,
-    password: ''
+    password: '',
+    roleIds: []
   };
   dialogVisible.value = true;
 };
@@ -316,13 +367,15 @@ const handleAdd = () => {
 // 编辑用户
 const handleEdit = (row: User) => {
   dialogType.value = 'edit';
+  // 将 role_codes 字符串转换为 roleIds 数组（需要通过 API 获取或映射）
   formData.value = {
     id: row.id,
     account: row.account,
     phone: row.phone,
     email: row.email,
     status: row.status,
-    password: ''
+    password: '',
+    roleIds: []
   };
   dialogVisible.value = true;
 };
@@ -357,6 +410,7 @@ const handleDialogConfirm = async () => {
         email: formData.value.email,
         phone: formData.value.phone,
         status: formData.value.status,
+        roleIds: formData.value.roleIds.length > 0 ? formData.value.roleIds : undefined,
       };
       await addUser(addData);
       MessagePlugin.success('添加用户成功');
@@ -368,6 +422,7 @@ const handleDialogConfirm = async () => {
         email: formData.value.email,
         phone: formData.value.phone,
         status: formData.value.status,
+        roleIds: formData.value.roleIds.length > 0 ? formData.value.roleIds : undefined,
       };
       await updateUser(updateData);
       MessagePlugin.success('编辑用户成功');
@@ -425,6 +480,7 @@ const onCancel = () => {
 
 // 生命周期
 onMounted(() => {
+  fetchRoleList();
   fetchUserList();
 });
 </script>
@@ -459,6 +515,24 @@ onMounted(() => {
   .search-input {
     width: 360px;
   }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: var(--td-radius-medium);
+  
+  :deep(.t-table) {
+    min-width: 100%;
+    
+    .t-table__content {
+      border-radius: var(--td-radius-medium);
+    }
+  }
+}
+
+.text-secondary {
+  color: var(--td-text-color-secondary);
 }
 
 :deep(.t-table) {

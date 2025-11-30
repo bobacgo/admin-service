@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 import { usePermissionStore } from '@/store';
 import type { UserInfo } from '@/types/interface';
-import { PostLogin } from '@/api/user';
+import { PostLogin } from '@/api/mgr/user';
 
 const InitUserInfo: UserInfo = {
   name: '', // 用户名，用于展示在页面右上角头像处

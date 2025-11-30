@@ -1,5 +1,5 @@
 import { request } from '@/utils/request';
-import type { PageResp, PageReq } from './model';
+import type { PageResp, PageReq } from '../model';
 
 export interface Role {
   id: number;

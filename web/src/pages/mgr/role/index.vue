@@ -53,6 +53,10 @@
           </t-tag>
         </template>
 
+        <template #created_at="{ row }">
+          {{ formatTimestamp(row.created_at) }}
+        </template>
+
         <template #op="{ row }">
           <t-space>
             <t-link theme="primary" hover="color" @click="handleEdit(row)">
@@ -92,8 +96,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { SearchIcon, AddIcon, EditIcon, DeleteIcon } from 'tdesign-icons-vue-next';
-import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol } from 'tdesign-vue-next';
-import { getRoleList, addRole, updateRole, deleteRole, type Role, type RoleCreateReq, type RoleUpdateReq } from '@/api/role';
+import { MessagePlugin, type FormInstanceFunctions, type PrimaryTableCol, type FormRules } from 'tdesign-vue-next';
+import dayjs from 'dayjs';
+import { getRoleList, addRole, updateRole, deleteRole, type Role, type RoleCreateReq, type RoleUpdateReq } from '@/api/mgr/role';
 
 const roleList = ref<Role[]>([]);
 const dataLoading = ref(false);
@@ -119,7 +124,11 @@ const columns: PrimaryTableCol[] = [
   { title: '操作', colKey: 'op', width: 140, fixed: 'right', align: 'center' }
 ];
 
-const formRules = { code: [{ required: true, message: '编码不能为空' }], description: [] };
+const formRules: FormRules = { code: [{ required: true, message: '编码不能为空' }], description: [] };
+
+const formatTimestamp = (timestamp: number): string => {
+  return timestamp ? dayjs.unix(timestamp).format('YYYY-MM-DD HH:mm:ss') : '-';
+};
 
 const fetchRoleList = async () => {
   dataLoading.value = true;

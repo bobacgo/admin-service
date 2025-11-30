@@ -9,10 +9,11 @@ type LoginReq struct {
 
 type UserListReq struct {
 	dto.PageReq
-	Account string `json:"account"`
-	Phone   string `json:"phone"`
-	Email   string `json:"email"`
-	Status  string `json:"status"` // 逗号分隔
+	Account   string `json:"account"`
+	Phone     string `json:"phone"`
+	Email     string `json:"email"`
+	Status    string `json:"status"`     // 逗号分隔
+	RoleCodes string `json:"role_codes"` // 角色编码，逗号分隔
 }
 
 type GetUserReq struct {

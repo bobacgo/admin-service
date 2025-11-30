@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` VARCHAR(255) NOT NULL COMMENT '用户密码（建议存储哈希值）',
   `phone` VARCHAR(20) DEFAULT NULL COMMENT '手机号码',
   `email` VARCHAR(100) DEFAULT NULL COMMENT '电子邮箱',
+  `role_codes` VARCHAR(500) DEFAULT NULL COMMENT '角色编码，多个用逗号隔开',
   `status` TINYINT NOT NULL DEFAULT 1 COMMENT '用户状态：1=正常 2=禁用',
   `register_at` BIGINT DEFAULT NULL COMMENT '注册时间（Unix时间戳）',
   `register_ip` VARCHAR(50) DEFAULT NULL COMMENT '注册IP地址（支持IPv6）',
@@ -57,25 +58,6 @@ INSERT INTO `roles` (`code`, `description`, `status`, `created_at`, `updated_at`
 ('super_admin', '超级管理员，拥有所有权限', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
 
 -- ====================================================================
--- 用户角色关联表 (user_roles)
--- ====================================================================
-CREATE TABLE IF NOT EXISTS `user_roles` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '关联ID',
-  `user_id` BIGINT NOT NULL COMMENT '用户ID',
-  `role_id` BIGINT NOT NULL COMMENT '角色ID',
-  `created_at` BIGINT NOT NULL DEFAULT 0 COMMENT '创建时间（Unix时间戳）',
-  `updated_at` BIGINT NOT NULL DEFAULT 0 COMMENT '更新时间（Unix时间戳）',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_user_roles` (`user_id`, `role_id`),
-  KEY `idx_user_roles_user_id` (`user_id`),
-  KEY `idx_user_roles_role_id` (`role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户角色关联表';
-
--- 初始化管理员角色关联
-INSERT INTO `user_roles` (`user_id`, `role_id`, `created_at`, `updated_at`) VALUES 
-(1, 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
-
--- ====================================================================
 -- 菜单表 (menus)
 -- ====================================================================
 CREATE TABLE IF NOT EXISTS `menus` (
@@ -88,6 +70,7 @@ CREATE TABLE IF NOT EXISTS `menus` (
   `meta` VARCHAR(1024) DEFAULT NULL COMMENT '菜单元数据（JSON格式）',
   `icon` VARCHAR(50) DEFAULT NULL COMMENT '菜单图标',
   `sort` INT NOT NULL DEFAULT 0 COMMENT '排序号，数字越小越靠前',
+  `role_codes` VARCHAR(500) DEFAULT NULL COMMENT '角色编码，多个用逗号隔开',
   `status` TINYINT NOT NULL DEFAULT 1 COMMENT '菜单状态：1=显示 2=隐藏',
   `created_at` BIGINT NOT NULL DEFAULT 0 COMMENT '创建时间（Unix时间戳）',
   `updated_at` BIGINT NOT NULL DEFAULT 0 COMMENT '更新时间（Unix时间戳）',
@@ -97,21 +80,6 @@ CREATE TABLE IF NOT EXISTS `menus` (
   KEY `idx_menus_name` (`name`),
   KEY `idx_menus_status_sort` (`status`, `sort`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='菜单表';
-
--- ====================================================================
--- 菜单角色关联表 (menu_roles)
--- ====================================================================
-CREATE TABLE IF NOT EXISTS `menu_roles` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '关联ID',
-  `menu_id` BIGINT NOT NULL COMMENT '菜单ID',
-  `role_id` BIGINT NOT NULL COMMENT '角色ID',
-  `created_at` BIGINT NOT NULL DEFAULT 0 COMMENT '创建时间（Unix时间戳）',
-  `updated_at` BIGINT NOT NULL DEFAULT 0 COMMENT '更新时间（Unix时间戳）',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_menu_roles` (`menu_id`, `role_id`),
-  KEY `idx_menu_roles_menu_id` (`menu_id`),
-  KEY `idx_menu_roles_role_id` (`role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='菜单角色关联表';
 
 -- ====================================================================
 -- 国际化表 (i18n)

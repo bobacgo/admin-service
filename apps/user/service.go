@@ -42,6 +42,11 @@ func (s *UserService) Post(ctx context.Context, req *User) (*User, error) {
 		return nil, err
 	}
 
+	now := time.Now().Unix()
+	req.CreatedAt = now
+	req.UpdatedAt = now
+	req.RegisterAt = now
+
 	if err := s.repo.Create(ctx, req); err != nil {
 		return nil, err
 	}
@@ -55,6 +60,9 @@ func (s *UserService) Put(ctx context.Context, req *User) (*User, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
+
+	now := time.Now().Unix()
+	req.UpdatedAt = now
 
 	if err := s.repo.Update(ctx, req); err != nil {
 		return nil, err

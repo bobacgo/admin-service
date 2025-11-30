@@ -2,6 +2,7 @@ package role
 
 import (
 	"context"
+	"time"
 
 	"github.com/bobacgo/admin-service/apps/repo/dto"
 	"github.com/bobacgo/admin-service/apps/repo/model"
@@ -41,6 +42,10 @@ func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (*Role, erro
 		Code:        req.Code,
 		Description: req.Description,
 		Status:      req.Status,
+		Model: model.Model{
+			CreatedAt: time.Now().Unix(),
+			UpdatedAt: time.Now().Unix(),
+		},
 	}
 
 	if err := s.repo.Create(ctx, role); err != nil {
@@ -57,7 +62,7 @@ func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (*Role, error
 	}
 
 	role := &Role{
-		Model:       model.Model{ID: req.ID},
+		Model:       model.Model{ID: req.ID, UpdatedAt: time.Now().Unix()},
 		Code:        req.Code,
 		Description: req.Description,
 		Status:      req.Status,
