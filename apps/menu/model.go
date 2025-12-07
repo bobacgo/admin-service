@@ -15,15 +15,15 @@ const MenuTable = "menus"
 
 type Menu struct {
 	model.Model
-	ParentID  int64  `json:"parent_id"`  // 父ID
-	Path      string `json:"path"`       // 路径
-	Name      string `json:"name"`       // 名称
-	Component string `json:"component"`  // 组件
-	Redirect  string `json:"redirect"`   // 重定向
-	Meta      string `json:"meta"`       // 元数据
-	Icon      string `json:"icon"`       // 图标
-	Sort      int    `json:"sort"`       // 排序
-	RoleCodes string `json:"role_codes"` // 角色编码，多个用逗号隔开
+	ParentID  int64  `json:"parent_id"` // 父ID
+	Path      string `json:"path"`      // 路径
+	Name      string `json:"name"`      // 名称
+	Component string `json:"component"` // 组件
+	Redirect  string `json:"redirect"`  // 重定向
+	Meta      string `json:"meta"`      // 元数据
+	Icon      string `json:"icon"`      // 图标
+	Sort      int    `json:"sort"`      // 排序
+	RoleIds   string `json:"role_ids"`  // 角色ID，多个用逗号隔开
 }
 
 const (
@@ -35,7 +35,7 @@ const (
 	Meta      string = "meta"
 	Icon      string = "icon"
 	Sort      string = "sort" // 排序
-	RoleCodes string = "role_codes"
+	RoleIds   string = "role_ids"
 )
 
 func (m *Menu) Mapping() []*orm.Mapping {
@@ -49,48 +49,48 @@ func (m *Menu) Mapping() []*orm.Mapping {
 		{Column: Meta, Result: &m.Meta, Value: m.Meta},
 		{Column: Icon, Result: &m.Icon, Value: m.Icon},
 		{Column: Sort, Result: &m.Sort, Value: m.Sort},
-		{Column: RoleCodes, Result: &m.RoleCodes, Value: m.RoleCodes},
+		{Column: RoleIds, Result: &m.RoleIds, Value: m.RoleIds},
 		{Column: model.Operator, Result: &m.Operator, Value: m.Operator},
 		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
 		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}
 }
 
-// AddRoleCode 添加角色编码到role_codes字段
-func (m *Menu) AddRoleCode(roleCode string) {
-	if m.RoleCodes == "" {
-		m.RoleCodes = roleCode
-	} else if !strings.Contains(m.RoleCodes, roleCode) {
-		m.RoleCodes = m.RoleCodes + "," + roleCode
+// AddRoleId 添加角色ID到role_ids字段
+func (m *Menu) AddRoleId(roleId string) {
+	if m.RoleIds == "" {
+		m.RoleIds = roleId
+	} else if !strings.Contains(m.RoleIds, roleId) {
+		m.RoleIds = m.RoleIds + "," + roleId
 	}
 }
 
-// RemoveRoleCode 从role_codes字段移除角色编码
-func (m *Menu) RemoveRoleCode(roleCode string) {
-	if m.RoleCodes == "" {
+// RemoveRoleId 从role_ids字段移除角色ID
+func (m *Menu) RemoveRoleId(roleId string) {
+	if m.RoleIds == "" {
 		return
 	}
 
-	codes := strings.Split(m.RoleCodes, ",")
+	ids := strings.Split(m.RoleIds, ",")
 	var result []string
-	for _, code := range codes {
-		code = strings.TrimSpace(code)
-		if code != "" && code != roleCode {
-			result = append(result, code)
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if id != "" && id != roleId {
+			result = append(result, id)
 		}
 	}
 
-	m.RoleCodes = strings.Join(result, ",")
+	m.RoleIds = strings.Join(result, ",")
 }
 
-// HasRoleCode 检查是否包含指定角色编码
-func (m *Menu) HasRoleCode(roleCode string) bool {
-	if m.RoleCodes == "" {
+// HasRoleId 检查是否包含指定角色ID
+func (m *Menu) HasRoleId(roleId string) bool {
+	if m.RoleIds == "" {
 		return false
 	}
-	codes := strings.Split(m.RoleCodes, ",")
-	for _, code := range codes {
-		if strings.TrimSpace(code) == roleCode {
+	ids := strings.Split(m.RoleIds, ",")
+	for _, id := range ids {
+		if strings.TrimSpace(id) == roleId {
 			return true
 		}
 	}

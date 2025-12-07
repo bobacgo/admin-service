@@ -24,8 +24,8 @@ func (r *RoleRepo) FindOne(ctx context.Context, req *GetRoleReq) (*Role, error) 
 	if req.ID > 0 {
 		where[repo.AND(model.Id)] = req.ID
 	}
-	if req.Code != "" {
-		where[repo.AND(Code)] = req.Code
+	if req.RoleName != "" {
+		where[repo.AND(RoleName)] = req.RoleName
 	}
 
 	err := SELECT1(row).FROM(RoleTable).WHERE(where).Query(ctx, r.clt.DB)
@@ -34,8 +34,8 @@ func (r *RoleRepo) FindOne(ctx context.Context, req *GetRoleReq) (*Role, error) 
 
 func (r *RoleRepo) Find(ctx context.Context, req *RoleListReq) ([]*Role, int64, error) {
 	where := map[string]any{}
-	if req.Code != "" {
-		where[repo.AND_LIKE(Code)] = req.Code + "%"
+	if req.RoleName != "" {
+		where[repo.AND_LIKE(RoleName)] = req.RoleName + "%"
 	}
 	if req.Status != "" {
 		where[repo.AND_IN(model.Status)] = req.Status

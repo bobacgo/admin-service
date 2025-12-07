@@ -81,8 +81,8 @@ func (s *UserService) Put(ctx context.Context, req *User) (interface{}, error) {
 	if req.Status != 0 {
 		existUser.Status = req.Status
 	}
-	if req.RoleCodes != "" {
-		existUser.RoleCodes = req.RoleCodes
+	if req.RoleIds != "" {
+		existUser.RoleIds = req.RoleIds
 	}
 	if req.Operator != "" {
 		existUser.Operator = req.Operator

@@ -3,6 +3,7 @@ package role
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/bobacgo/admin-service/apps/menu"
@@ -37,7 +38,7 @@ func (s *RoleService) GetList(ctx context.Context, req *RoleListReq) (*dto.PageR
 	// 如果注入了 userRepo，则为每个角色附加 user_count
 	if s.userRepo != nil {
 		for _, r := range list {
-			cnt, err := s.userRepo.CountByRoleCode(ctx, r.Code)
+			cnt, err := s.userRepo.CountByRoleId(ctx, "")
 			if err != nil {
 				return nil, err
 			}
@@ -54,7 +55,7 @@ func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (*Role, erro
 	}
 
 	role := &Role{
-		Code:        req.Code,
+		RoleName:    req.RoleName,
 		Description: req.Description,
 		Status:      req.Status,
 		Model: model.Model{
@@ -84,8 +85,8 @@ func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (interface{},
 	}
 
 	// 只更新前端发送的非空字段
-	if req.Code != "" {
-		existRole.Code = req.Code
+	if req.RoleName != "" {
+		existRole.RoleName = req.RoleName
 	}
 	if req.Description != "" {
 		existRole.Description = req.Description
@@ -124,14 +125,14 @@ func (s *RoleService) PostPermissions(ctx context.Context, req *SaveRolePermissi
 		return nil, err
 	}
 
-	// 删除该角色从所有菜单的role_codes中
-	if err := s.menuRepo.RemoveRoleFromAllMenus(ctx, role.Code); err != nil {
+	// 删除该角色从所有菜单的role_ids中
+	if err := s.menuRepo.RemoveRoleIdFromAllMenus(ctx, fmt.Sprintf("%d", role.ID)); err != nil {
 		return nil, err
 	}
 
-	// 如果有选中的菜单，添加到这些菜单的role_codes中
+	// 如果有选中的菜单，添加到这些菜单的role_ids中
 	if len(req.MenuIds) > 0 {
-		if err := s.menuRepo.AddRoleToMenus(ctx, role.Code, req.MenuIds); err != nil {
+		if err := s.menuRepo.AddRoleIdToMenus(ctx, fmt.Sprintf("%d", role.ID), req.MenuIds); err != nil {
 			return nil, err
 		}
 	}
@@ -155,7 +156,7 @@ func (s *RoleService) GetPermissions(ctx context.Context, req *GetRolePermission
 	}
 
 	// 获取该角色的所有菜单ID
-	ids, err := s.menuRepo.GetMenuIdsByRoleCode(ctx, role.Code)
+	ids, err := s.menuRepo.GetMenuIdsByRoleId(ctx, fmt.Sprintf("%d", role.ID))
 	if err != nil {
 		return nil, err
 	}

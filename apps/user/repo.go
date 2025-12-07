@@ -89,11 +89,11 @@ func (r *UserRepo) Delete(ctx context.Context, ids string) error {
 	return err
 }
 
-// CountByRoleCode 返回 role code 在 users.role_codes 字段中出现的用户数
-func (r *UserRepo) CountByRoleCode(ctx context.Context, code string) (int64, error) {
+// CountByRoleId 返回 role id 在 users.role_ids 字段中出现的用户数
+func (r *UserRepo) CountByRoleId(ctx context.Context, id string) (int64, error) {
 	var cnt int64
-	// 使用 MySQL 的 FIND_IN_SET 来匹配以逗号分隔的 role_codes 字段
-	row := r.clt.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+UsersTable+" WHERE FIND_IN_SET(?, role_codes)", code)
+	// 使用 MySQL 的 FIND_IN_SET 来匹配以逗号分隔的 role_ids 字段
+	row := r.clt.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+UsersTable+" WHERE FIND_IN_SET(?, role_ids)", id)
 	if err := row.Scan(&cnt); err != nil {
 		return 0, err
 	}

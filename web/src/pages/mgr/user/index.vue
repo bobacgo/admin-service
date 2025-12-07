@@ -48,15 +48,15 @@
           @select-change="handleSelectChange"
           @page-change="handlePageChange"
         >
-          <template #role_codes="{ row }">
-            <t-space size="4px" break-line v-if="row.role_codes">
+          <template #role_ids="{ row }">
+            <t-space size="4px" break-line v-if="row.role_ids">
               <t-tag 
-                v-for="code in row.role_codes.split(',')" 
-                :key="code"
+                v-for="id in row.role_ids.split(',')" 
+                :key="id"
                 theme="primary" 
                 variant="light"
               >
-                {{ code.trim() }}
+                {{ id.trim() }}
               </t-tag>
             </t-space>
             <span v-else class="text-secondary">-</span>
@@ -123,9 +123,9 @@
             <t-option :value="0" label="禁用" />
           </t-select>
         </t-form-item>
-        <t-form-item label="角色编码" name="role_codes">
+        <t-form-item label="角色ID" name="role_ids">
           <t-select 
-            v-model="formData.role_codes" 
+            v-model="formData.role_ids" 
             multiple
             placeholder="请选择角色，可搜索"
             clearable
@@ -134,8 +134,8 @@
             <t-option 
               v-for="role in roleList" 
               :key="role.id" 
-              :value="role.code" 
-              :label="role.code"
+              :value="String(role.id)" 
+              :label="role.role_name"
             />
           </t-select>
         </t-form-item>
@@ -206,7 +206,7 @@ const formData = ref({
   email: '',
   status: 1,
   password: '',
-  role_codes: [] as string[]
+  role_ids: [] as string[]
 });
 
 // 表格列定义
@@ -232,8 +232,8 @@ const columns: PrimaryTableCol[] = [
     ellipsis: true
   },
   {
-    title: '角色编码',
-    colKey: 'role_codes',
+    title: '角色ID',
+    colKey: 'role_ids',
     width: 120,
     ellipsis: true
   },
@@ -366,7 +366,7 @@ const handleAdd = () => {
     email: '',
     status: 1,
     password: '',
-    role_codes: []
+    role_ids: []
   };
   dialogVisible.value = true;
 };
@@ -381,7 +381,7 @@ const handleEdit = (row: User) => {
     email: row.email,
     status: row.status,
     password: '',
-    role_codes: row.role_codes ? row.role_codes.split(',').map(code => code.trim()) : []
+    role_ids: row.role_ids ? row.role_ids.split(',').map(id => id.trim()) : []
   };
   dialogVisible.value = true;
 };
@@ -416,7 +416,7 @@ const handleDialogConfirm = async () => {
         email: formData.value.email,
         phone: formData.value.phone,
         status: formData.value.status,
-        role_codes: formData.value.role_codes.length > 0 ? formData.value.role_codes.join(',') : undefined,
+        role_ids: formData.value.role_ids.length > 0 ? formData.value.role_ids.join(',') : undefined,
       };
       await addUser(addData);
       MessagePlugin.success('添加用户成功');
@@ -428,7 +428,7 @@ const handleDialogConfirm = async () => {
         email: formData.value.email,
         phone: formData.value.phone,
         status: formData.value.status,
-        role_codes: formData.value.role_codes.length > 0 ? formData.value.role_codes.join(',') : undefined,
+        role_ids: formData.value.role_ids.length > 0 ? formData.value.role_ids.join(',') : undefined,
       };
       await updateUser(updateData);
       MessagePlugin.success('编辑用户成功');

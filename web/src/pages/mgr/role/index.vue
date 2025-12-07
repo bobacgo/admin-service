@@ -23,7 +23,7 @@
         <div class="search-input">
           <t-input
             v-model="searchValue"
-            placeholder="搜索角色编码或描述"
+            placeholder="搜索角色名称或描述"
             clearable
             @clear="handleSearch"
             @press-enter="handleSearch"
@@ -82,8 +82,8 @@
 
     <t-dialog v-model:visible="dialogVisible" :header="dialogType==='add'?'添加角色':'编辑角色'" :width="560" @confirm="handleDialogConfirm" @close="handleDialogClose">
       <t-form ref="formRef" :data="formData" :rules="formRules" label-width="100px" @submit="handleDialogConfirm">
-        <t-form-item label="编码" name="code">
-          <t-input v-model="formData.code" placeholder="例如 admin" />
+        <t-form-item label="角色名称" name="role_name">
+          <t-input v-model="formData.role_name" placeholder="例如 admin" />
         </t-form-item>
         <t-form-item label="描述" name="description">
           <t-input v-model="formData.description" placeholder="角色描述" />
@@ -108,7 +108,7 @@
       @close="handlePermissionClose"
     >
       <div class="permission-dialog">
-        <p class="role-name">角色: {{ permissionFormData.code }}</p>
+        <p class="role-name">角色: {{ permissionFormData.role_name }}</p>
         <t-tree
           v-model:expanded="expandedKeys"
           :value="checkedMenuIds"
@@ -155,14 +155,15 @@ const permissionDialogVisible = ref(false);
 const menuTreeData = ref<MenuItem[]>([]);
 const expandedKeys = ref<(string | number)[]>([]);
 const checkedMenuIds = ref<(string | number)[]>([]);
-const permissionFormData = ref({ id: 0, code: '' });
+const permissionFormData = ref({ id: 0, role_name: '' });
 
 const formRef = ref<FormInstanceFunctions>();
-const formData = ref<RoleCreateReq | RoleUpdateReq>({ id: 0 as unknown as number, code: '', description: '', status: 1 });
+const formData = ref<RoleCreateReq | RoleUpdateReq>({ id: 0 as unknown as number, role_name: '', description: '', status: 1 });
 
 const columns: PrimaryTableCol[] = [
   { colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left' },
-  { title: '编码', colKey: 'code', width: 180 },
+  { title: 'ID', colKey: 'id', width: 80 },
+  { title: '角色名称', colKey: 'role_name', width: 180 },
   { title: '描述', colKey: 'description', width: 240 },
   { title: '用户数', colKey: 'user_count', width: 100, align: 'center' },
   { title: '状态', colKey: 'status', width: 100, align: 'center' },
@@ -171,7 +172,7 @@ const columns: PrimaryTableCol[] = [
   { title: '操作', colKey: 'op', width: 140, fixed: 'right', align: 'center' }
 ];
 
-const formRules: FormRules = { code: [{ required: true, message: '编码不能为空' }], description: [] };
+const formRules: FormRules = { role_name: [{ required: true, message: '角色名称不能为空' }], description: [] };
 
 const formatTimestamp = (timestamp: number): string => {
   return timestamp ? dayjs.unix(timestamp).format('YYYY-MM-DD HH:mm:ss') : '-';
@@ -180,7 +181,7 @@ const formatTimestamp = (timestamp: number): string => {
 const fetchRoleList = async () => {
   dataLoading.value = true;
   try {
-    const resp = await getRoleList({ page: pagination.value.current, page_size: pagination.value.defaultPageSize, code: searchValue.value });
+    const resp = await getRoleList({ page: pagination.value.current, page_size: pagination.value.defaultPageSize, role_name: searchValue.value });
     roleList.value = resp.list || [];
     pagination.value.total = resp.total || 0;
   } catch (e) { MessagePlugin.error('获取角色列表失败'); console.error(e); } finally { dataLoading.value = false; }
@@ -189,7 +190,7 @@ const fetchRoleList = async () => {
 const handleSelectChange = (v: (string|number)[]) => selectedRowKeys.value = v;
 const handlePageChange = (pageInfo: { current: number; pageSize: number }) => { pagination.value.current = pageInfo.current; pagination.value.defaultPageSize = pageInfo.pageSize; fetchRoleList(); };
 const handleSearch = () => { pagination.value.current = 1; fetchRoleList(); };
-const handleAdd = () => { dialogType.value = 'add'; formData.value = { id:0, code:'', description:'', status:1 }; dialogVisible.value = true; };
+const handleAdd = () => { dialogType.value = 'add'; formData.value = { id:0, role_name:'', description:'', status:1 }; dialogVisible.value = true; };
 const handleEdit = (row: Role) => { dialogType.value='edit'; formData.value = { ...(row as RoleUpdateReq), id: row.id }; dialogVisible.value = true; };
 const handleDelete = (row: Role) => { deleteIdx.value = row.id; confirmVisible.value = true; };
 const handleBatchDelete = () => { if(!selectedRowKeys.value.length){ MessagePlugin.warning('请选择要删除的角色'); return; } deleteIdx.value = null; confirmVisible.value = true; };
@@ -214,7 +215,7 @@ const handleDialogConfirm = async () => {
 
 const handleDialogClose = () => formRef.value?.clearValidate();
 
-const confirmBody = computed(() => { if (deleteIdx.value === null) return `确定要删除选中的 ${selectedRowKeys.value.length} 个角色吗？`; const r = roleList.value.find(i=>i.id===deleteIdx.value); return r?`确定要删除角色 "${r.code}" 吗？` : ''; });
+const confirmBody = computed(() => { if (deleteIdx.value === null) return `确定要删除选中的 ${selectedRowKeys.value.length} 个角色吗？`; const r = roleList.value.find(i=>i.id===deleteIdx.value); return r?`确定要删除角色 "${r.role_name}" 吗？` : ''; });
 
 const onConfirmDelete = async () => {
   try {
@@ -245,7 +246,7 @@ const getLeafNodeIds = (nodes: MenuItem[]): number[] => {
 // 权限管理相关函数
 const handlePermission = async (row: Role) => {
   try {
-    permissionFormData.value = { id: row.id, code: row.code };
+    permissionFormData.value = { id: row.id, role_name: row.role_name };
     
     // 获取菜单树
     const menus = await getMenuTree();
@@ -287,7 +288,7 @@ const handlePermissionConfirm = async () => {
 };
 
 const handlePermissionClose = () => {
-  permissionFormData.value = { id: 0, code: '' };
+  permissionFormData.value = { id: 0, role_name: '' };
   checkedMenuIds.value = [];
   expandedKeys.value = [];
 };

@@ -3,7 +3,7 @@ import type { PageResp, PageReq } from '../model';
 
 export interface Role {
   id: number;
-  code: string;
+  role_name: string;
   description?: string;
   user_count?: number;
   status?: number;
@@ -13,12 +13,12 @@ export interface Role {
 }
 
 export interface RoleListReq extends PageReq {
-  code?: string;
+  role_name?: string;
   status?: string; // comma separated
 }
 
 export interface RoleCreateReq {
-  code: string;
+  role_name: string;
   description?: string;
   status?: number;
   operator?: string;
@@ -26,7 +26,7 @@ export interface RoleCreateReq {
 
 export interface RoleUpdateReq {
   id: number;
-  code?: string;
+  role_name?: string;
   description?: string;
   status?: number;
   operator?: string;

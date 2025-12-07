@@ -17,7 +17,7 @@ export interface User {
     register_ip: string;
     login_at: number;
     login_ip: string;
-    role_codes: string;
+    role_ids: string;
     operator?: string;
 }
 
@@ -32,7 +32,7 @@ export interface UserAddReq {
   email?: string;
   phone?: string;
   status: number;
-  role_codes?: string;
+  role_ids?: string;
   operator?: string;
 }
 
@@ -42,7 +42,7 @@ export interface UserUpdateReq {
   email?: string;
   phone?: string;
   status?: number;
-  role_codes?: string;
+  role_ids?: string;
   operator?: string;
 }
 

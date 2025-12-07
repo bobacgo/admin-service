@@ -50,18 +50,18 @@ func (r *MenuRepo) Delete(ctx context.Context, ids string) error {
 	return err
 }
 
-// RemoveRoleFromAllMenus 从所有菜单的role_codes中移除该角色
-func (r *MenuRepo) RemoveRoleFromAllMenus(ctx context.Context, roleCode string) error {
+// RemoveRoleIdFromAllMenus 从所有菜单的role_ids中移除该角色
+func (r *MenuRepo) RemoveRoleIdFromAllMenus(ctx context.Context, roleId string) error {
 	// 获取所有包含该角色的菜单
 	var menus []*Menu
-	where := M{repo.AND_LIKE("role_codes"): "%" + roleCode + "%"}
+	where := M{repo.AND_LIKE("role_ids"): "%" + roleId + "%"}
 	if err := SELECT2(&menus).FROM(MenuTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
 		return err
 	}
 
-	// 从每个菜单的role_codes中移除该角色
+	// 从每个菜单的role_ids中移除该角色
 	for _, menu := range menus {
-		menu.RemoveRoleCode(roleCode)
+		menu.RemoveRoleId(roleId)
 		menu.UpdatedAt = time.Now().Unix()
 		if err := r.Update(ctx, menu); err != nil {
 			return err
@@ -71,15 +71,15 @@ func (r *MenuRepo) RemoveRoleFromAllMenus(ctx context.Context, roleCode string) 
 	return nil
 }
 
-// AddRoleToMenus 将角色添加到指定菜单的role_codes中
-func (r *MenuRepo) AddRoleToMenus(ctx context.Context, roleCode string, menuIds []int64) error {
+// AddRoleIdToMenus 将角色添加到指定菜单的role_ids中
+func (r *MenuRepo) AddRoleIdToMenus(ctx context.Context, roleId string, menuIds []int64) error {
 	for _, menuId := range menuIds {
 		menu, err := r.FindOne(ctx, menuId)
 		if err != nil {
 			return err
 		}
 
-		menu.AddRoleCode(roleCode)
+		menu.AddRoleId(roleId)
 		menu.UpdatedAt = time.Now().Unix()
 		if err := r.Update(ctx, menu); err != nil {
 			return err
@@ -89,18 +89,18 @@ func (r *MenuRepo) AddRoleToMenus(ctx context.Context, roleCode string, menuIds 
 	return nil
 }
 
-// GetMenuIdsByRoleCode 根据角色编码获取菜单ID列表
-func (r *MenuRepo) GetMenuIdsByRoleCode(ctx context.Context, roleCode string) ([]int64, error) {
+// GetMenuIdsByRoleId 根据角色ID获取菜单ID列表
+func (r *MenuRepo) GetMenuIdsByRoleId(ctx context.Context, roleId string) ([]int64, error) {
 	var menus []*Menu
-	where := M{repo.AND_LIKE("role_codes"): "%" + roleCode + "%"}
+	where := M{repo.AND_LIKE("role_ids"): "%" + roleId + "%"}
 	if err := SELECT2(&menus).FROM(MenuTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
 		return nil, err
 	}
 
 	var ids []int64
 	for _, menu := range menus {
-		// 再次确认role_codes中确实包含该角色（因为LIKE可能会匹配到部分字符串）
-		if menu.HasRoleCode(roleCode) {
+		// 再次确认role_ids中确实包含该角色（因为LIKE可能会匹配到部分字符串）
+		if menu.HasRoleId(roleId) {
 			ids = append(ids, menu.ID)
 		}
 	}

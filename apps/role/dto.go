@@ -3,18 +3,18 @@ package role
 import "github.com/bobacgo/admin-service/apps/repo/dto"
 
 type GetRoleReq struct {
-	ID   int64  `json:"id"`
-	Code string `json:"code"`
+	ID       int64  `json:"id"`
+	RoleName string `json:"role_name"`
 }
 
 type RoleListReq struct {
 	dto.PageReq
-	Code   string `json:"code"`
-	Status string `json:"status"` // 逗号分隔
+	RoleName string `json:"role_name"`
+	Status   string `json:"status"` // 逗号分隔
 }
 
 type RoleCreateReq struct {
-	Code        string `json:"code" validate:"required"`
+	RoleName    string `json:"role_name" validate:"required"`
 	Description string `json:"description"`
 	Status      int8   `json:"status"`
 	Operator    string `json:"operator"`
@@ -22,7 +22,7 @@ type RoleCreateReq struct {
 
 type RoleUpdateReq struct {
 	ID          int64  `json:"id" validate:"required"`
-	Code        string `json:"code"`
+	RoleName    string `json:"role_name"`
 	Description string `json:"description"`
 	Status      int8   `json:"status"`
 	Operator    string `json:"operator"`

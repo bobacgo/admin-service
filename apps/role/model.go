@@ -6,27 +6,27 @@ import (
 )
 
 const (
-	RoleCodeAdmin string = "admin"
+	RoleNameAdmin string = "admin"
 	RoleTable     string = "roles"
 )
 
 type Role struct {
 	model.Model
-	Code        string `json:"code"`
+	RoleName    string `json:"role_name"`
 	Description string `json:"description"`
 	Status      int8   `json:"status"`
 	UserCount   int64  `json:"user_count,omitempty"`
 }
 
 const (
-	Code        string = "code"
+	RoleName    string = "role_name"
 	Description string = "description"
 )
 
 func (m *Role) Mapping() []*orm.Mapping {
 	return []*orm.Mapping{
 		{Column: model.Id, Result: &m.ID, Value: m.ID},
-		{Column: Code, Result: &m.Code, Value: m.Code},
+		{Column: RoleName, Result: &m.RoleName, Value: m.RoleName},
 		{Column: Description, Result: &m.Description, Value: m.Description},
 		{Column: model.Status, Result: &m.Status, Value: m.Status},
 		{Column: model.Operator, Result: &m.Operator, Value: m.Operator},
