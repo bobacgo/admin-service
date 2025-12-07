@@ -20,6 +20,7 @@ export interface MenuItem {
   children?: MenuItem[];
   created_at?: number;
   updated_at?: number;
+  operator?: string;
 }
 
 export interface MenuListReq {
@@ -36,6 +37,7 @@ export interface MenuCreateReq {
   icon?: string;
   sort?: number;
   meta?: string;
+  operator?: string;
 }
 
 export interface MenuUpdateReq {
@@ -47,6 +49,7 @@ export interface MenuUpdateReq {
   icon?: string;
   sort?: number;
   meta?: string;
+  operator?: string;
 }
 
 const Api = {

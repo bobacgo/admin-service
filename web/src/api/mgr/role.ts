@@ -9,6 +9,7 @@ export interface Role {
   status?: number;
   created_at?: number;
   updated_at?: number;
+  operator?: string;
 }
 
 export interface RoleListReq extends PageReq {
@@ -20,6 +21,7 @@ export interface RoleCreateReq {
   code: string;
   description?: string;
   status?: number;
+  operator?: string;
 }
 
 export interface RoleUpdateReq {
@@ -27,6 +29,7 @@ export interface RoleUpdateReq {
   code?: string;
   description?: string;
   status?: number;
+  operator?: string;
 }
 
 const Api = {

@@ -16,16 +16,17 @@ USE `admin_db`;
 -- ====================================================================
 CREATE TABLE IF NOT EXISTS `users` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '用户ID',
-  `account` VARCHAR(100) NOT NULL COMMENT '用户账号',
-  `password` VARCHAR(255) NOT NULL COMMENT '用户密码（建议存储哈希值）',
+  `account` VARCHAR(100) NOT NULL COLLATE utf8mb4_bin COMMENT '用户账号',
+  `password` VARCHAR(255) NOT NULL COLLATE utf8mb4_bin COMMENT '用户密码（建议存储哈希值）',
   `phone` VARCHAR(20) DEFAULT NULL COMMENT '手机号码',
-  `email` VARCHAR(100) DEFAULT NULL COMMENT '电子邮箱',
+  `email` VARCHAR(100) DEFAULT NULL COLLATE utf8mb4_bin COMMENT '电子邮箱',
   `role_codes` VARCHAR(500) DEFAULT NULL COMMENT '角色编码，多个用逗号隔开',
   `status` TINYINT NOT NULL DEFAULT 1 COMMENT '用户状态：1=正常 2=禁用',
   `register_at` BIGINT DEFAULT NULL COMMENT '注册时间（Unix时间戳）',
   `register_ip` VARCHAR(50) DEFAULT NULL COMMENT '注册IP地址（支持IPv6）',
   `login_at` BIGINT DEFAULT NULL COMMENT '最后登录时间（Unix时间戳）',
   `login_ip` VARCHAR(50) DEFAULT NULL COMMENT '最后登录IP地址',
+  `operator` VARCHAR(100) DEFAULT NULL COLLATE utf8mb4_bin COMMENT '最后操作人',
   `created_at` BIGINT NOT NULL DEFAULT 0 COMMENT '创建时间（Unix时间戳）',
   `updated_at` BIGINT NOT NULL DEFAULT 0 COMMENT '更新时间（Unix时间戳）',
   PRIMARY KEY (`id`),
@@ -43,18 +44,19 @@ INSERT INTO `users` (`account`, `password`, `status`, `created_at`, `updated_at`
 -- ====================================================================
 CREATE TABLE IF NOT EXISTS `roles` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '角色ID',
-  `code` VARCHAR(50) NOT NULL COMMENT '角色编码（唯一标识）',
+  `role_name` VARCHAR(100) NOT NULL COLLATE utf8mb4_bin COMMENT '角色名称',
   `description` VARCHAR(255) DEFAULT NULL COMMENT '角色描述',
   `status` TINYINT NOT NULL DEFAULT 1 COMMENT '角色状态：1=启用 2=禁用',
+  `operator` VARCHAR(100) DEFAULT NULL COLLATE utf8mb4_bin COMMENT '最后操作人',
   `created_at` BIGINT NOT NULL DEFAULT 0 COMMENT '创建时间（Unix时间戳）',
   `updated_at` BIGINT NOT NULL DEFAULT 0 COMMENT '更新时间（Unix时间戳）',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_roles_code` (`code`),
+  UNIQUE KEY `uq_roles_role_name` (`role_name`),
   KEY `idx_roles_status` (`status`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='角色表';
 
 -- 初始化超级管理员角色
-INSERT INTO `roles` (`code`, `description`, `status`, `created_at`, `updated_at`) VALUES
+INSERT INTO `roles` (`role_name`, `description`, `status`, `created_at`, `updated_at`) VALUES
 ('super_admin', '超级管理员，拥有所有权限', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
 
 -- ====================================================================
@@ -63,7 +65,7 @@ INSERT INTO `roles` (`code`, `description`, `status`, `created_at`, `updated_at`
 CREATE TABLE IF NOT EXISTS `menus` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '菜单ID',
   `parent_id` BIGINT NOT NULL DEFAULT 0 COMMENT '父菜单ID，0表示顶级菜单',
-  `path` VARCHAR(255) NOT NULL COMMENT '路由路径',
+  `path` VARCHAR(255) NOT NULL COLLATE utf8mb4_bin COMMENT '路由路径',
   `name` VARCHAR(100) NOT NULL COMMENT '路由名称',
   `component` VARCHAR(255) DEFAULT NULL COMMENT '组件路径',
   `redirect` VARCHAR(255) DEFAULT NULL COMMENT '重定向路径',
@@ -72,6 +74,7 @@ CREATE TABLE IF NOT EXISTS `menus` (
   `sort` INT NOT NULL DEFAULT 0 COMMENT '排序号，数字越小越靠前',
   `role_codes` VARCHAR(500) DEFAULT NULL COMMENT '角色编码，多个用逗号隔开',
   `status` TINYINT NOT NULL DEFAULT 1 COMMENT '菜单状态：1=显示 2=隐藏',
+  `operator` VARCHAR(100) DEFAULT NULL COLLATE utf8mb4_bin COMMENT '最后操作人',
   `created_at` BIGINT NOT NULL DEFAULT 0 COMMENT '创建时间（Unix时间戳）',
   `updated_at` BIGINT NOT NULL DEFAULT 0 COMMENT '更新时间（Unix时间戳）',
   PRIMARY KEY (`id`),
@@ -86,10 +89,11 @@ CREATE TABLE IF NOT EXISTS `menus` (
 -- ====================================================================
 CREATE TABLE IF NOT EXISTS `i18n` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '翻译ID',
-  `class` VARCHAR(100) NOT NULL COMMENT '分类（如：menu, button, message）',
+  `class` VARCHAR(100) NOT NULL COLLATE utf8mb4_bin COMMENT '分类（如：menu, button, message）',
   `lang` VARCHAR(10) NOT NULL COMMENT '语言代码（如：zh_CN, en_US）',
-  `key` VARCHAR(255) NOT NULL COMMENT '翻译键',
+  `key` VARCHAR(255) NOT NULL COLLATE utf8mb4_bin COMMENT '翻译键',
   `value` VARCHAR(1024) NOT NULL COMMENT '翻译值',
+  `operator` VARCHAR(100) DEFAULT NULL COLLATE utf8mb4_bin COMMENT '最后操作人',
   `created_at` BIGINT NOT NULL DEFAULT 0 COMMENT '创建时间（Unix时间戳）',
   `updated_at` BIGINT NOT NULL DEFAULT 0 COMMENT '更新时间（Unix时间戳）',
   PRIMARY KEY (`id`),

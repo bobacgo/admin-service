@@ -46,6 +46,7 @@ func (s *UserService) Post(ctx context.Context, req *User) (*User, error) {
 	req.CreatedAt = now
 	req.UpdatedAt = now
 	req.RegisterAt = now
+	// Operator field should be set by the caller or middleware
 
 	if err := s.repo.Create(ctx, req); err != nil {
 		return nil, err
@@ -82,6 +83,9 @@ func (s *UserService) Put(ctx context.Context, req *User) (interface{}, error) {
 	}
 	if req.RoleCodes != "" {
 		existUser.RoleCodes = req.RoleCodes
+	}
+	if req.Operator != "" {
+		existUser.Operator = req.Operator
 	}
 
 	now := time.Now().Unix()

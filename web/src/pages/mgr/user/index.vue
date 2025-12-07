@@ -268,6 +268,12 @@ const columns: PrimaryTableCol[] = [
     ellipsis: true
   },
   {
+    title: '操作人',
+    colKey: 'operator',
+    width: 120,
+    align: 'center'
+  },
+  {
     title: '操作',
     colKey: 'op',
     width: 120,

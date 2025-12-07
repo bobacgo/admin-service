@@ -58,6 +58,7 @@ func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (*Role, erro
 		Description: req.Description,
 		Status:      req.Status,
 		Model: model.Model{
+			Operator:  req.Operator,
 			CreatedAt: time.Now().Unix(),
 			UpdatedAt: time.Now().Unix(),
 		},
@@ -91,6 +92,9 @@ func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (interface{},
 	}
 	if req.Status != 0 {
 		existRole.Status = req.Status
+	}
+	if req.Operator != "" {
+		existRole.Operator = req.Operator
 	}
 
 	existRole.UpdatedAt = time.Now().Unix()

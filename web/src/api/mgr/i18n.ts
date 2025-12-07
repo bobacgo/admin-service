@@ -9,6 +9,7 @@ export interface I18nItem {
   value: string;
   created_at?: number;
   updated_at?: number;
+  operator?: string;
 }
 
 export interface I18nListReq extends PageReq {
@@ -22,6 +23,7 @@ export interface I18nCreateReq {
   lang: string;
   key: string;
   value: string;
+  operator?: string;
 }
 
 export interface I18nUpdateReq {
@@ -29,6 +31,7 @@ export interface I18nUpdateReq {
   class?: string;
   lang?: string;
   value?: string;
+  operator?: string;
 }
 
 const Api = {

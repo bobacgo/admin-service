@@ -29,6 +29,7 @@ func (m *Role) Mapping() []*orm.Mapping {
 		{Column: Code, Result: &m.Code, Value: m.Code},
 		{Column: Description, Result: &m.Description, Value: m.Description},
 		{Column: model.Status, Result: &m.Status, Value: m.Status},
+		{Column: model.Operator, Result: &m.Operator, Value: m.Operator},
 		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
 		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}

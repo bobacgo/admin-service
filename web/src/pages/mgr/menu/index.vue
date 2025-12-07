@@ -282,6 +282,7 @@ const columns: PrimaryTableCol[] = [
   { title: '路径', colKey: 'path', width: 160 },
   { title: '组件', colKey: 'component', width: 160 },
   { title: '排序', colKey: 'sort', width: 80, align: 'center' },
+  { title: '操作人', colKey: 'operator', width: 120, align: 'center' },
   { title: '创建时间', colKey: 'created_at', width: 180, align: 'center' },
   { title: '操作', colKey: 'op', width: 140, fixed: 'right', align: 'center' }
 ];

@@ -44,6 +44,7 @@ func (s *I18nService) Post(ctx context.Context, req *I18nCreateReq) (*I18n, erro
 		Key:   req.Key,
 		Value: req.Value,
 		Model: model.Model{
+			Operator:  req.Operator,
 			CreatedAt: time.Now().Unix(),
 		},
 	}
@@ -76,6 +77,9 @@ func (s *I18nService) Put(ctx context.Context, req *I18nUpdateReq) (interface{},
 	}
 	if req.Value != "" {
 		existI18n.Value = req.Value
+	}
+	if req.Operator != "" {
+		existI18n.Operator = req.Operator
 	}
 
 	existI18n.UpdatedAt = time.Now().Unix()

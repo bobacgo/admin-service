@@ -39,6 +39,7 @@ func (s *MenuService) Post(ctx context.Context, req *MenuCreateReq) (any, error)
 		Meta:      req.Meta,
 		Icon:      req.Icon,
 	}
+	menu.Operator = req.Operator
 
 	err := s.repo.Create(ctx, menu)
 	return nil, err
@@ -80,6 +81,9 @@ func (s *MenuService) Put(ctx context.Context, req *MenuUpdateReq) (any, error) 
 	}
 	if req.Sort != 0 {
 		existMenu.Sort = req.Sort
+	}
+	if req.Operator != "" {
+		existMenu.Operator = req.Operator
 	}
 
 	if err := s.repo.Update(ctx, existMenu); err != nil {

@@ -18,6 +18,7 @@ export interface User {
     login_at: number;
     login_ip: string;
     role_codes: string;
+    operator?: string;
 }
 
 export interface UserListReq extends PageReq {
@@ -32,6 +33,7 @@ export interface UserAddReq {
   phone?: string;
   status: number;
   role_codes?: string;
+  operator?: string;
 }
 
 export interface UserUpdateReq {
@@ -41,6 +43,7 @@ export interface UserUpdateReq {
   phone?: string;
   status?: number;
   role_codes?: string;
+  operator?: string;
 }
 
 const Api = {

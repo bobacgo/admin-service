@@ -6,17 +6,19 @@ import (
 
 // common columns
 const (
-	Id        string = "id"
-	CreatedAt string = "created_at"
-	UpdatedAt string = "updated_at"
+	Id        string = "id"         // 自增ID
+	Operator  string = "operator"   // 操作人
+	CreatedAt string = "created_at" // 创建时间
+	UpdatedAt string = "updated_at" // 更新时间
 
 	Status string = "status" // 状态 1:正常 2:禁用
 )
 
 type Model struct {
-	ID        int64 `json:"id"`
-	CreatedAt int64 `json:"created_at"` // 时间戳
-	UpdatedAt int64 `json:"updated_at"` // 时间戳
+	ID        int64  `json:"id"`
+	Operator  string `json:"operator"`   // 操作人
+	CreatedAt int64  `json:"created_at"` // 时间戳
+	UpdatedAt int64  `json:"updated_at"` // 时间戳
 }
 
 // 关联关系表

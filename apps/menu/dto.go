@@ -29,6 +29,7 @@ type MenuCreateReq struct {
 	Meta      string `json:"meta"`
 	Icon      string `json:"icon"`
 	Sort      int    `json:"sort"`
+	Operator  string `json:"operator"`
 }
 
 type MenuUpdateReq struct {
@@ -41,6 +42,7 @@ type MenuUpdateReq struct {
 	Meta      string `json:"meta"`
 	Icon      string `json:"icon"`
 	Sort      int    `json:"sort"`
+	Operator  string `json:"operator"`
 }
 
 type DeleteMenuReq struct {

@@ -17,6 +17,7 @@ type RoleCreateReq struct {
 	Code        string `json:"code" validate:"required"`
 	Description string `json:"description"`
 	Status      int8   `json:"status"`
+	Operator    string `json:"operator"`
 }
 
 type RoleUpdateReq struct {
@@ -24,6 +25,7 @@ type RoleUpdateReq struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
 	Status      int8   `json:"status"`
+	Operator    string `json:"operator"`
 }
 
 type DeleteRoleReq struct {

@@ -166,6 +166,7 @@ const columns: PrimaryTableCol[] = [
   { title: '描述', colKey: 'description', width: 240 },
   { title: '用户数', colKey: 'user_count', width: 100, align: 'center' },
   { title: '状态', colKey: 'status', width: 100, align: 'center' },
+  { title: '操作人', colKey: 'operator', width: 120, align: 'center' },
   { title: '创建时间', colKey: 'created_at', width: 180, align: 'center' },
   { title: '操作', colKey: 'op', width: 140, fixed: 'right', align: 'center' }
 ];

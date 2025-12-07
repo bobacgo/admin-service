@@ -46,6 +46,7 @@ func (m *User) Mapping() []*orm.Mapping {
 		{Column: LoginAt, Result: &m.LoginAt, Value: m.LoginAt},
 		{Column: LoginIp, Result: &m.LoginIp, Value: m.LoginIp},
 		{Column: RoleCodes, Result: &m.RoleCodes, Value: m.RoleCodes},
+		{Column: model.Operator, Result: &m.Operator, Value: m.Operator},
 		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
 		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}

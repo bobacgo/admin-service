@@ -50,6 +50,7 @@ func (m *Menu) Mapping() []*orm.Mapping {
 		{Column: Icon, Result: &m.Icon, Value: m.Icon},
 		{Column: Sort, Result: &m.Sort, Value: m.Sort},
 		{Column: RoleCodes, Result: &m.RoleCodes, Value: m.RoleCodes},
+		{Column: model.Operator, Result: &m.Operator, Value: m.Operator},
 		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
 		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}

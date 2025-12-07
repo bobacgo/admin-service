@@ -102,7 +102,7 @@ const confirmVisible = ref(false);
 const deleteIdx = ref<number | string | null>(null);
 
 const formRef = ref<FormInstanceFunctions>();
-const formData = ref<I18nCreateReq | I18nUpdateReq>({ id: 0 as unknown as number, class: '', lang: '', key: '', value: '' });
+const formData = ref<any>({ id: 0, class: '', lang: '', key: '', value: '', operator: '' });
 
 const columns: PrimaryTableCol[] = [
   { colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left' },
@@ -110,6 +110,7 @@ const columns: PrimaryTableCol[] = [
   { title: 'Key', colKey: 'key', width: 200 },
   { title: '语言', colKey: 'lang', width: 120, align: 'center' },
   { title: '文本', colKey: 'value', width: 320 },
+  { title: '操作人', colKey: 'operator', width: 120, align: 'center' },
   { title: '操作', colKey: 'op', width: 140, fixed: 'right', align: 'center' }
 ];
 
@@ -118,7 +119,7 @@ const formRules = { lang: [{ required: true, message: '语言不能为空' }], k
 const fetchI18nList = async () => {
   dataLoading.value = true;
   try {
-    const resp = await getI18nList({ page: pagination.value.current, page_size: pagination.value.defaultPageSize, keyword: searchValue.value });
+    const resp = await getI18nList({ page: pagination.value.current, page_size: pagination.value.defaultPageSize, key: searchValue.value });
     i18nList.value = resp.list || [];
     pagination.value.total = resp.total || 0;
   } catch (e) { console.error(e); MessagePlugin.error('获取多语言列表失败'); } finally { dataLoading.value = false; }
@@ -127,7 +128,7 @@ const fetchI18nList = async () => {
 const handleSelectChange = (v:(string|number)[]) => selectedRowKeys.value = v;
 const handlePageChange = (pageInfo: { current: number; pageSize: number }) => { pagination.value.current = pageInfo.current; pagination.value.defaultPageSize = pageInfo.pageSize; fetchI18nList(); };
 const handleSearch = () => { pagination.value.current = 1; fetchI18nList(); };
-const handleAdd = () => { dialogType.value='add'; formData.value={ id:0, class:'', lang:'', key:'', value:'' }; dialogVisible.value=true; };
+const handleAdd = () => { dialogType.value='add'; formData.value={ id:0, class:'', lang:'', key:'', value:'', operator:'' }; dialogVisible.value=true; };
 const handleEdit = (row: I18nItem) => { dialogType.value='edit'; formData.value={ ...(row as I18nUpdateReq), id: row.id }; dialogVisible.value=true; };
 const handleDelete = (row: I18nItem) => { deleteIdx.value = row.id; confirmVisible.value = true; };
 const handleBatchDelete = () => { if(!selectedRowKeys.value.length){ MessagePlugin.warning('请选择要删除的条目'); return; } deleteIdx.value = null; confirmVisible.value = true; };

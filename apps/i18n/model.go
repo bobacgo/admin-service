@@ -29,6 +29,7 @@ func (m *I18n) Mapping() []*orm.Mapping {
 		{Column: Lang, Result: &m.Lang, Value: m.Lang},
 		{Column: Key, Result: &m.Key, Value: m.Key},
 		{Column: Value, Result: &m.Value, Value: m.Value},
+		{Column: model.Operator, Result: &m.Operator, Value: m.Operator},
 		{Column: model.CreatedAt, Result: &m.CreatedAt, Value: m.CreatedAt},
 		{Column: model.UpdatedAt, Result: &m.UpdatedAt, Value: m.UpdatedAt},
 	}

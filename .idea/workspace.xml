@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="menus">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/ioc.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/ioc.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/role/model.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/role/model.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/role/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/role/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/user/repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/user/repo.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/role_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/role_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,7 +119,7 @@
       <recent name="$PROJECT_DIR$/api" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build github.com/bobacgo/admin-service/cmd/server">
+  <component name="RunManager" selected="npm.dev">
     <configuration name="db.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/db.sql" />
       <script-mode>FILE</script-mode>
@@ -162,8 +158,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build github.com/bobacgo/admin-service/cmd/server" />
         <item itemvalue="npm.dev" />
+        <item itemvalue="Go Build.go build github.com/bobacgo/admin-service/cmd/server" />
         <item itemvalue="Database Script.db.sql" />
         <item itemvalue="Go Test.TestTime in github.com/bobacgo/admin-service/test" />
       </list>
@@ -202,6 +198,9 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/web" />
+    </ignored-roots>
     <MESSAGE value="feat i18n api" />
     <MESSAGE value="orm" />
     <MESSAGE value="orm v2" />
