@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/bobacgo/admin-service/apps/repo"
-	"github.com/bobacgo/admin-service/apps/repo/data"
-	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/bobacgo/admin-service/apps/common/model"
+	"github.com/bobacgo/admin-service/apps/common/repo"
+	"github.com/bobacgo/admin-service/apps/common/repo/data"
 	. "github.com/bobacgo/orm"
 )
 

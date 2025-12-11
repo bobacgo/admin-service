@@ -1,6 +1,6 @@
 package role
 
-import "github.com/bobacgo/admin-service/apps/repo/dto"
+import "github.com/bobacgo/admin-service/apps/common/dto"
 
 type GetRoleReq struct {
 	ID       int64  `json:"id"`

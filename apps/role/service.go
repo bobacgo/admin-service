@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bobacgo/admin-service/apps/common/dto"
+	"github.com/bobacgo/admin-service/apps/common/model"
 	"github.com/bobacgo/admin-service/apps/menu"
-	"github.com/bobacgo/admin-service/apps/repo/dto"
-	"github.com/bobacgo/admin-service/apps/repo/model"
 	"github.com/bobacgo/admin-service/apps/user"
 	"github.com/go-playground/validator/v10"
 )

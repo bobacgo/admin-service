@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bobacgo/admin-service/apps/repo/dto"
+	"github.com/bobacgo/admin-service/apps/common/dto"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -57,49 +57,73 @@ func (s *UserService) Post(ctx context.Context, req *User) (*User, error) {
 }
 
 // Put /user 更新用户
-func (s *UserService) Put(ctx context.Context, req *User) (interface{}, error) {
+func (s *UserService) Put(ctx context.Context, req *UpdateUserReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
-	// 先查询现有用户数据，保留未修改的字段
-	existUser, err := s.repo.FindOne(ctx, &GetUserReq{ID: uint(req.ID)})
-	if err != nil {
+	req.Operator = "system" // 示例值，实际应从上下文获取
+	req.UpdatedAt = time.Now().Unix()
+	if err := s.repo.Update(ctx, req); err != nil {
 		return nil, err
 	}
 
-	// 只更新前端发送的非空字段，保留原有数据
-	if req.Account != "" {
-		existUser.Account = req.Account
-	}
-	if req.Phone != "" {
-		existUser.Phone = req.Phone
-	}
-	if req.Email != "" {
-		existUser.Email = req.Email
-	}
-	if req.Status != 0 {
-		existUser.Status = req.Status
-	}
-	if req.RoleIds != "" {
-		existUser.RoleIds = req.RoleIds
-	}
-	if req.Operator != "" {
-		existUser.Operator = req.Operator
-	}
+	return struct{}{}, nil
+}
 
-	now := time.Now().Unix()
-	existUser.UpdatedAt = now
-
-	if err := s.repo.Update(ctx, existUser); err != nil {
+// Put /user/status 更新用户状态
+func (s *UserService) PutStatus(ctx context.Context, req *UpdateUserStatusReq) (any, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
+	req.Operator = "system" // 示例值，实际应从上下文获取
+	req.UpdatedAt = time.Now().Unix()
+	if err := s.repo.UpdateStatus(ctx, req); err != nil {
 		return nil, err
 	}
 
-	return nil, nil
+	// TODO: 移除用户会话
+
+	return struct{}{}, nil
+}
+
+// Put /user/role 更新用户角色
+func (s *UserService) PutRole(ctx context.Context, req *UpdateUserRoleReq) (any, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
+	req.Operator = "system" // 示例值，实际应从上下文获取
+	req.UpdatedAt = time.Now().Unix()
+	if err := s.repo.UpdateRole(ctx, req); err != nil {
+		return nil, err
+	}
+
+	// TODO: 移除用户会话
+
+	return struct{}{}, nil
+}
+
+// Put /user/password 更新用户密码
+func (s *UserService) PutPassword(ctx context.Context, req *UpdateUserPasswordReq) (any, error) {
+	if err := s.validator.StructCtx(ctx, req); err != nil {
+		return nil, err
+	}
+	req.Operator = "system" // 示例值，实际应从上下文获取
+	req.UpdatedAt = time.Now().Unix()
+	if err := s.repo.UpdatePassword(ctx, req); err != nil {
+		return nil, err
+	}
+
+	// TODO: 移除用户会话
+
+	return struct{}{}, nil
 }
 
 // Delete /user 删除用户
-func (s *UserService) Delete(ctx context.Context, req *DeleteUserReq) (interface{}, error) {
+func (s *UserService) Delete(ctx context.Context, req *DeleteUserReq) (any, error) {
+
+	// TODO: 移除用户会话
+
 	return nil, s.repo.Delete(ctx, req.IDs)
 }
 
@@ -123,15 +147,22 @@ func (s *UserService) Login(ctx context.Context, req *LoginReq) (map[string]stri
 		return nil, errors.New("user disabled")
 	}
 
-	row.LoginAt = time.Now().Unix()
-	if err = s.repo.Update(ctx, row); err != nil {
+	// 更新登录信息
+	if err = s.repo.UpdateLoginInfo(ctx, &UpdateLoginInfoReq{
+		Id:      row.ID,
+		LoginAt: time.Now().Unix(),
+		LoginIp: "127.0.0.1", // TODO: 示例值，实际应从上下文获取
+	}); err != nil {
 		return nil, err
 	}
+
+	// TODO: 生成并返回用户会话 token
+	// TOOD: 记录登录日志
 
 	return map[string]string{"token": "xxxxx"}, nil
 }
 
 // Get /user/logout 用户登出
 func (s *UserService) GetLogout(ctx context.Context, _ any) (any, error) {
-	return nil, nil
+	return struct{}{}, nil
 }

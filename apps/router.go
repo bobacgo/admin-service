@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/bobacgo/admin-service/apps/ecode"
+	"github.com/bobacgo/admin-service/apps/common/ecode"
 	"github.com/bobacgo/admin-service/apps/user"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/bobacgo/admin-service/pkg/kit/hs/response"

@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/bobacgo/admin-service/apps/repo"
-	"github.com/bobacgo/admin-service/apps/repo/data"
-	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/bobacgo/admin-service/apps/common/model"
+	"github.com/bobacgo/admin-service/apps/common/repo"
+	"github.com/bobacgo/admin-service/apps/common/repo/data"
 	. "github.com/bobacgo/orm"
 )
 
@@ -79,8 +79,53 @@ func (r *UserRepo) Find(ctx context.Context, req *UserListReq) ([]*User, int64, 
 	return list, total.V, nil
 }
 
-func (r *UserRepo) Update(ctx context.Context, row *User) error {
-	_, err := UPDATE(UsersTable).SET1(row).WHERE(M{repo.AND(model.Id): row.ID}).Omit(model.Id).Exec(ctx, r.clt.DB)
+func (r *UserRepo) Update(ctx context.Context, req *UpdateUserReq) error {
+	set := M{
+		Phone:           req.Phone,
+		Email:           req.Email,
+		model.UpdatedAt: req.UpdatedAt,
+		model.Operator:  req.Operator,
+	}
+	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
+	return err
+}
+
+func (r *UserRepo) UpdateLoginInfo(ctx context.Context, req *UpdateLoginInfoReq) error {
+	set := M{
+		LoginAt: req.LoginAt,
+		LoginIp: req.LoginIp,
+	}
+	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
+	return err
+}
+
+func (r *UserRepo) UpdateStatus(ctx context.Context, req *UpdateUserStatusReq) error {
+	set := M{
+		model.Status:    req.Status,
+		model.UpdatedAt: req.UpdatedAt,
+		model.Operator:  req.Operator,
+	}
+	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
+	return err
+}
+
+func (r *UserRepo) UpdateRole(ctx context.Context, req *UpdateUserRoleReq) error {
+	set := M{
+		RoleIds:         req.RoleIds,
+		model.UpdatedAt: req.UpdatedAt,
+		model.Operator:  req.Operator,
+	}
+	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
+	return err
+}
+
+func (r *UserRepo) UpdatePassword(ctx context.Context, req *UpdateUserPasswordReq) error {
+	set := M{
+		Password:        req.NewPassword,
+		model.UpdatedAt: req.UpdatedAt,
+		model.Operator:  req.Operator,
+	}
+	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
 	return err
 }
 

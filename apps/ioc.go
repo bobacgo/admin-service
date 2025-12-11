@@ -2,9 +2,9 @@ package apps
 
 import (
 	"github.com/bobacgo/admin-service/apps/basic"
+	"github.com/bobacgo/admin-service/apps/common/repo/data"
 	"github.com/bobacgo/admin-service/apps/i18n"
 	"github.com/bobacgo/admin-service/apps/menu"
-	"github.com/bobacgo/admin-service/apps/repo/data"
 	"github.com/bobacgo/admin-service/apps/role"
 	"github.com/bobacgo/admin-service/apps/user"
 	"github.com/go-playground/validator/v10"

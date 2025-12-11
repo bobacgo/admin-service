@@ -1,8 +1,6 @@
 package i18n
 
-import (
-	"github.com/bobacgo/admin-service/apps/repo/dto"
-)
+import "github.com/bobacgo/admin-service/apps/common/dto"
 
 type GetI18nReq struct {
 	ID    int64  `json:"id"`

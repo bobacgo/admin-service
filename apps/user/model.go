@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/bobacgo/admin-service/apps/common/model"
 	"github.com/bobacgo/orm"
 )
 
@@ -10,7 +10,7 @@ const UsersTable = "users"
 type User struct {
 	model.Model
 	Account    string `json:"account"`     // 账号
-	Password   string `json:"password"`    // 密码
+	Password   string `json:"-"`           // 密码
 	Phone      string `json:"phone"`       // 手机号
 	Email      string `json:"email"`       // 邮箱
 	Status     int8   `json:"status"`      // 状态 1:正常 2:禁用

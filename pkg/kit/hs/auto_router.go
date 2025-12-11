@@ -9,7 +9,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bobacgo/admin-service/apps/ecode"
+	"github.com/bobacgo/admin-service/apps/common/ecode"
 	"github.com/bobacgo/admin-service/pkg/kit/hs/response"
 )
 

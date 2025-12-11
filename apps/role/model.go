@@ -1,7 +1,7 @@
 package role
 
 import (
-	"github.com/bobacgo/admin-service/apps/repo/model"
+	"github.com/bobacgo/admin-service/apps/common/model"
 	"github.com/bobacgo/orm"
 )
 
