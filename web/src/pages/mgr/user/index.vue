@@ -49,23 +49,29 @@
           @page-change="handlePageChange"
         >
           <template #role_ids="{ row }">
-            <t-space size="4px" break-line v-if="row.role_ids">
-              <t-tag 
-                v-for="id in row.role_ids.split(',')" 
-                :key="id"
-                theme="primary" 
-                variant="light"
-              >
-                {{ id.trim() }}
-              </t-tag>
-            </t-space>
-            <span v-else class="text-secondary">-</span>
+            <t-select 
+              :model-value="row.role_ids ? row.role_ids.split(',').map((id: string) => id.trim()) : []" 
+              multiple
+              size="small"
+              placeholder="请选择角色"
+              filterable
+              @change="(val) => handleRoleChange(row, val)"
+              style="min-width: 120px;"
+            >
+              <t-option 
+                v-for="role in roleList" 
+                :key="role.id" 
+                :value="String(role.id)" 
+                :label="role.role_name"
+              />
+            </t-select>
           </template>
           
           <template #status="{ row }">
-            <t-tag :theme="row.status === 1 ? 'success' : 'danger'" variant="light">
-              {{ formatStatus(row.status) }}
-            </t-tag>
+            <t-switch 
+              :model-value="row.status === 1" 
+              @change="(val) => handleStatusChange(row, val)"
+            />
           </template>
           
           <template #register_at="{ row }">
@@ -74,6 +80,10 @@
           
           <template #login_at="{ row }">
             {{ formatTimestamp(row.login_at) }}
+          </template>
+          
+          <template #updated_at="{ row }">
+            {{ formatTimestamp(row.updated_at) }}
           </template>
           
           <template #op="{ row }">
@@ -109,7 +119,7 @@
         @submit="handleDialogConfirm"
       >
         <t-form-item label="账号" name="account">
-          <t-input v-model="formData.account" placeholder="请输入账号" />
+          <t-input v-model="formData.account" placeholder="请输入账号" :disabled="dialogType === 'edit'" />
         </t-form-item>
         <t-form-item label="手机号" name="phone">
           <t-input v-model="formData.phone" placeholder="请输入手机号" />
@@ -117,13 +127,13 @@
         <t-form-item label="邮箱" name="email">
           <t-input v-model="formData.email" placeholder="请输入邮箱" />
         </t-form-item>
-        <t-form-item label="状态" name="status">
+        <t-form-item v-if="dialogType === 'add'" label="状态" name="status">
           <t-select v-model="formData.status" placeholder="请选择状态">
             <t-option :value="1" label="启用" />
-            <t-option :value="0" label="禁用" />
+            <t-option :value="2" label="禁用" />
           </t-select>
         </t-form-item>
-        <t-form-item label="角色ID" name="role_ids">
+        <t-form-item v-if="dialogType === 'add'" label="角色" name="role_ids">
           <t-select 
             v-model="formData.role_ids" 
             multiple
@@ -153,6 +163,15 @@
       @confirm="onConfirmDelete"
       @close="onCancel"
     />
+
+    <!-- 编辑状态/角色确认对话框 -->
+    <t-dialog
+      v-model:visible="editingConfirmVisible"
+      :header="editingConfirmType === 'status' ? '确认修改状态' : '确认修改角色'"
+      :body="getEditingConfirmBody()"
+      @confirm="handleEditingConfirm"
+      @close="handleEditingCancel"
+    />
   </div>
 </template>
 
@@ -170,9 +189,8 @@ import {
   type PrimaryTableCol 
 } from 'tdesign-vue-next';
 import dayjs from 'dayjs';
-import { getUserList, addUser, updateUser, deleteUser, type User, type UserAddReq, type UserUpdateReq } from '@/api/mgr/user'
+import { getUserList, addUser, updateUser, updateUserStatus, updateUserRole, updateUserPassword, deleteUser, type User, type UserAddReq, type UserUpdateReq } from '@/api/mgr/user'
 import { getRoleList, type Role } from '@/api/mgr/role'
-import type { IdsReq } from '@/api/model';
 
 // 响应式数据
 const userList = ref<User[]>([]);
@@ -197,6 +215,13 @@ const dialogType = ref<'add' | 'edit'>('add');
 const confirmVisible = ref(false);
 const deleteIdx = ref<number | string | null>(null);
 
+// 状态/角色编辑确认对话框
+const editingConfirmVisible = ref(false);
+const editingConfirmType = ref<'status' | 'role'>('status');
+const editingUser = ref<User | null>(null);
+const editingValue = ref<any>(null);
+const originalValue = ref<any>(null);
+
 // 表单相关
 const formRef = ref<FormInstanceFunctions>();
 const formData = ref({
@@ -208,82 +233,27 @@ const formData = ref({
   password: '',
   role_ids: [] as string[]
 });
+const originalData = ref<User | null>(null);
 
 // 表格列定义
 const columns: PrimaryTableCol[] = [
   { colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left' },
-  {
-    title: '账号',
-    colKey: 'account',
-    width: 120,
-    fixed: 'left',
-    ellipsis: true
-  },
-  {
-    title: '手机号',
-    colKey: 'phone',
-    width: 120,
-    ellipsis: true
-  },
-  {
-    title: '邮箱',
-    colKey: 'email',
-    width: 180,
-    ellipsis: true
-  },
-  {
-    title: '角色ID',
-    colKey: 'role_ids',
-    width: 120,
-    ellipsis: true
-  },
-  {
-    title: '状态',
-    colKey: 'status',
-    width: 80,
-    align: 'center'
-  },
-  {
-    title: '注册时间',
-    colKey: 'register_at',
-    width: 160,
-    align: 'center'
-  },
-  {
-    title: '注册IP',
-    colKey: 'register_ip',
-    width: 120,
-    ellipsis: true
-  },
-  {
-    title: '最后登录时间',
-    colKey: 'login_at',
-    width: 160,
-    align: 'center'
-  },
-  {
-    title: '登录IP',
-    colKey: 'login_ip',
-    width: 120,
-    ellipsis: true
-  },
-  {
-    title: '操作人',
-    colKey: 'operator',
-    width: 120,
-    align: 'center'
-  },
-  {
-    title: '操作',
-    colKey: 'op',
-    width: 120,
-    fixed: 'right',
-    align: 'center'
-  }
+  { title: '账号', colKey: 'account', width: 120, fixed: 'left', ellipsis: true },
+  { title: '手机号', colKey: 'phone', width: 150, ellipsis: true },
+  { title: '邮箱', colKey: 'email', width: 180, ellipsis: true },
+  { title: '角色', colKey: 'role_ids', width: 200, },
+  { title: '状态', colKey: 'status', width: 80, align: 'center' },
+  { title: '注册时间', colKey: 'register_at', width: 160, align: 'center' },
+  { title: '注册IP', colKey: 'register_ip', width: 120, ellipsis: true },
+  { title: '最后登录时间', colKey: 'login_at', width: 160, align: 'center' },
+  { title: '登录IP', colKey: 'login_ip', width: 120, ellipsis: true },
+  { title: '更新时间', colKey: 'updated_at', width: 160, align: 'center' },
+  { title: '操作人', colKey: 'operator', width: 120, align: 'center' },
+  { title: '操作', colKey: 'op', width: 120, fixed: 'right', align: 'center' }
 ];
 
 // 表单验证规则
-const formRules = {
+const formRules = computed(() => ({
   account: [
     { required: true, message: '账号不能为空' },
     { min: 3, max: 20, message: '账号长度必须在3-20个字符之间' }
@@ -291,11 +261,15 @@ const formRules = {
   phone: [
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式' }
   ],
-  password: [
-    { required: true, message: '密码不能为空' },
-    { min: 6, max: 20, message: '密码长度必须在6-20个字符之间' }
-  ]
-};
+  password: dialogType.value === 'add'
+    ? [
+        { required: true, message: '密码不能为空' },
+        { min: 6, max: 20, message: '密码长度必须在6-20个字符之间' }
+      ]
+    : [
+        { validator: (val: string) => !val || (val.length >= 6 && val.length <= 20), message: '密码长度必须在6-20个字符之间' }
+      ]
+}));
 
 // 格式化函数
 const formatTimestamp = (timestamp: number): string => {
@@ -304,6 +278,12 @@ const formatTimestamp = (timestamp: number): string => {
 
 const formatStatus = (status: number): string => {
   return status === 1 ? '启用' : '禁用';
+};
+
+const normalizeRoleIds = (ids?: string | string[]) => {
+  if (!ids) return '';
+  const list = Array.isArray(ids) ? ids : ids.split(',');
+  return list.map(id => id.trim()).filter(Boolean).join(',');
 };
 
 // 获取用户列表 - 使用新的API接口
@@ -368,12 +348,14 @@ const handleAdd = () => {
     password: '',
     role_ids: []
   };
+  originalData.value = null;
   dialogVisible.value = true;
 };
 
 // 编辑用户
 const handleEdit = (row: User) => {
   dialogType.value = 'edit';
+  originalData.value = { ...row };
   formData.value = {
     id: row.id,
     account: row.account,
@@ -384,6 +366,24 @@ const handleEdit = (row: User) => {
     role_ids: row.role_ids ? row.role_ids.split(',').map(id => id.trim()) : []
   };
   dialogVisible.value = true;
+};
+
+// 处理状态变更
+const handleStatusChange = (row: User, isActive: any) => {
+  originalValue.value = row.status;
+  editingValue.value = isActive ? 1 : 2;
+  editingUser.value = row;
+  editingConfirmType.value = 'status';
+  editingConfirmVisible.value = true;
+};
+
+// 处理角色变更
+const handleRoleChange = (row: User, selectedRoles: any) => {
+  originalValue.value = row.role_ids;
+  editingValue.value = Array.isArray(selectedRoles) ? selectedRoles.join(',') : '';
+  editingUser.value = row;
+  editingConfirmType.value = 'role';
+  editingConfirmVisible.value = true;
 };
 
 // 删除用户
@@ -421,20 +421,47 @@ const handleDialogConfirm = async () => {
       await addUser(addData);
       MessagePlugin.success('添加用户成功');
     } else {
-      // 编辑用户
-      const updateData: UserUpdateReq = {
-        id: formData.value.id,
-        account: formData.value.account,
-        email: formData.value.email,
-        phone: formData.value.phone,
-        status: formData.value.status,
-        role_ids: formData.value.role_ids.length > 0 ? formData.value.role_ids.join(',') : undefined,
-      };
-      await updateUser(updateData);
+      const tasks: Promise<unknown>[] = [];
+      const currentRoleIds = normalizeRoleIds(formData.value.role_ids);
+      const originRoleIds = normalizeRoleIds(originalData.value?.role_ids);
+
+      const baseChanged = originalData.value
+        ? formData.value.phone !== originalData.value.phone || formData.value.email !== originalData.value.email
+        : true;
+      if (baseChanged) {
+        const updateData: UserUpdateReq = {
+          id: formData.value.id,
+          email: formData.value.email,
+          phone: formData.value.phone,
+        };
+        tasks.push(updateUser(updateData));
+      }
+
+      const statusChanged = originalData.value ? formData.value.status !== originalData.value.status : true;
+      if (statusChanged) {
+        tasks.push(updateUserStatus({ id: formData.value.id, status: formData.value.status }));
+      }
+
+      if (currentRoleIds !== originRoleIds) {
+        tasks.push(updateUserRole({ id: formData.value.id, role_ids: currentRoleIds }));
+      }
+
+      if (formData.value.password) {
+        tasks.push(updateUserPassword({ id: formData.value.id, new_password: formData.value.password }));
+      }
+
+      if (!tasks.length) {
+        MessagePlugin.info('未修改任何信息');
+        dialogVisible.value = false;
+        return;
+      }
+
+      await Promise.all(tasks);
       MessagePlugin.success('编辑用户成功');
     }
 
     dialogVisible.value = false;
+    formData.value.password = '';
     fetchUserList();
   } catch (error: any) {
     const message = error.response?.data?.message || '操作失败';
@@ -482,6 +509,64 @@ const onConfirmDelete = async () => {
 const onCancel = () => {
   confirmVisible.value = false;
   deleteIdx.value = null;
+};
+
+const getEditingConfirmBody = () => {
+  if (!editingUser.value) return '';
+  if (editingConfirmType.value === 'status') {
+    return `确定要将用户 "${editingUser.value.account}" 的状态改为 "${editingValue.value === 1 ? '启用' : '禁用'}" 吗？`;
+  }
+  if (editingConfirmType.value === 'role') {
+    const newRoles = editingValue.value || '无';
+    const oldRoles = originalValue.value || '无';
+    return `确定要修改用户 "${editingUser.value.account}" 的角色吗？\n原角色：${oldRoles}\n新角色：${newRoles}`;
+  }
+  return '确定要修改用户角色吗？';
+};
+
+const handleEditingConfirm = async () => {
+  try {
+    if (!editingUser.value) return;
+    
+    if (editingConfirmType.value === 'status') {
+      await updateUserStatus({ 
+        id: editingUser.value.id, 
+        status: editingValue.value 
+      });
+      MessagePlugin.success('状态更新成功');
+    } else if (editingConfirmType.value === 'role') {
+      await updateUserRole({ 
+        id: editingUser.value.id, 
+        role_ids: editingValue.value 
+      });
+      MessagePlugin.success('角色更新成功');
+    }
+    
+    editingConfirmVisible.value = false;
+    fetchUserList();
+  } catch (error: any) {
+    const message = error.response?.data?.message || '更新失败';
+    MessagePlugin.error(message);
+    // 恢复原值
+    if (editingUser.value) {
+      if (editingConfirmType.value === 'status') {
+        editingUser.value.status = originalValue.value;
+      } else if (editingConfirmType.value === 'role') {
+        editingUser.value.role_ids = originalValue.value;
+      }
+    }
+  }
+};
+
+const handleEditingCancel = () => {
+  if (editingUser.value) {
+    if (editingConfirmType.value === 'status') {
+      editingUser.value.status = originalValue.value;
+    } else if (editingConfirmType.value === 'role') {
+      editingUser.value.role_ids = originalValue.value;
+    }
+  }
+  editingConfirmVisible.value = false;
 };
 
 // 生命周期

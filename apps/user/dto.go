@@ -5,8 +5,8 @@ import (
 )
 
 type LoginReq struct {
-	Account  string `json:"account"`
-	Password string `json:"password"`
+	Account  string `json:"account" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type UserListReq struct {
@@ -14,7 +14,7 @@ type UserListReq struct {
 	Account string `json:"account"`
 	Phone   string `json:"phone"`
 	Email   string `json:"email"`
-	Status  string `json:"status"`   // 逗号分隔
+	Status  int8   `json:"status"`   // 1:正常 2:禁用
 	RoleIds string `json:"role_ids"` // 角色ID，逗号分隔
 }
 
@@ -33,8 +33,8 @@ type DeleteUserReq struct {
 // 【更新】用户相关
 type UpdateUserReq struct {
 	dto.AdminUpdate
-	Phone string `json:"phone"` // 手机号
-	Email string `json:"email"` // 邮箱
+	Phone string `json:"phone"`                            // 手机号
+	Email string `json:"email" validate:"omitempty,email"` // 邮箱
 }
 
 // 有关联事件的字段更新
@@ -49,7 +49,7 @@ type UpdateLoginInfoReq struct {
 // 【更新】用户状态
 type UpdateUserStatusReq struct {
 	dto.AdminUpdate
-	Status string `json:"status" validate:"required,oneof=1 2"` // 状态 1:正常 2:禁用
+	Status int8 `json:"status" validate:"required,oneof=1 2"` // 状态 1:正常 2:禁用
 }
 
 // 有关联事件的字段更新
@@ -63,6 +63,6 @@ type UpdateUserRoleReq struct {
 // 【更新】用户密码
 type UpdateUserPasswordReq struct {
 	dto.AdminUpdate
-	OldPassword string `json:"old_password"` // 管理员重置时可不传
+	OldPassword string `json:"old_password" validate:"required"`
 	NewPassword string `json:"new_password" validate:"required"`
 }

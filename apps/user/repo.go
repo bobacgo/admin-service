@@ -57,7 +57,7 @@ func (r *UserRepo) Find(ctx context.Context, req *UserListReq) ([]*User, int64, 
 	if req.Email != "" {
 		where[repo.AND_LIKE(Email)] = req.Email + "%" // 右模糊查询
 	}
-	if req.Status != "" {
+	if req.Status > 0 {
 		where[repo.AND_IN(model.Status)] = req.Status
 	}
 

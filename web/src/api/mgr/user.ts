@@ -1,5 +1,5 @@
 import { request } from '@/utils/request';
-import { IdsReq, PageResp, PageReq } from '../model';
+import { PageResp, PageReq } from '../model';
 
 export interface LoginResp {
     token: string;
@@ -38,84 +38,46 @@ export interface UserAddReq {
 
 export interface UserUpdateReq {
   id: number;
-  account?: string;
   email?: string;
   phone?: string;
-  status?: number;
-  role_ids?: string;
-  operator?: string;
 }
 
-const Api = {
-  Login: '/login',
-  UserInfo: '/user-info',
-  Logout: '/logout',
-  UserList: '/user/list',
-  UserOne: '/user/one',
-  UserCreate: '/user',
-  UserUpdate: '/user',
-  UserDelete: '/user',
-};
+export interface UserStatusUpdateReq {
+  id: number;
+  status: number; // 1:启用 2:禁用
+}
+
+export interface UserRoleUpdateReq {
+  id: number;
+  role_ids: string; // 逗号分隔
+}
+
+export interface UserPasswordUpdateReq {
+  id: number;
+  old_password?: string;
+  new_password: string;
+}
 
 // 用户登录相关接口
-export function PostLogin(req: Record<string, unknown>) {
-  return request.post<LoginResp>({
-    url: Api.Login,
-    data: req,
-  });
-}
-
-export function GetUserInfo() {
-  return request.get<LoginResp>({
-    url: Api.UserInfo,
-  });
-}
-
-export function PostLogout() {
-  return request.post({
-    url: Api.Logout,
-  });
-}
+// 登录
+export function PostLogin(req: Record<string, unknown>) { return request.post<LoginResp>({ url: '/login', data: req}) }
+// 获取用户信息
+export function GetUserInfo() { return request.get<LoginResp>({ url: '/user-info' }); }
+// 退出登录
+export function PostLogout() { return request.post({ url: '/logout' }); }
 
 // 用户管理相关接口
-
 // 获取用户列表
-export function getUserList(params: UserListReq) {
-  return request.get<PageResp<User>>({
-    url: Api.UserList,
-    params,
-  });
-}
-
-// 获取单个用户
-export function getUser(id: number) {
-  return request.get<User>({
-    url: Api.UserOne,
-    params: { id },
-  });
-}
-
+export function getUserList(params: UserListReq) { return request.get<PageResp<User>>({ url: '/user/list', params }); }
 // 添加用户
-export function addUser(data: UserAddReq) {
-  return request.post<User>({
-    url: Api.UserCreate,
-    data,
-  });
-}
-
+export function addUser(data: UserAddReq) { return request.post<User>({ url: '/user', data }); }
 // 更新用户
-export function updateUser(data: UserUpdateReq) {
-  return request.put<User>({
-    url: Api.UserUpdate,
-    data,
-  });
-}
-
+export function updateUser(data: UserUpdateReq) { return request.put<User>({ url: '/user', data }); }
+// 更新状态
+export function updateUserStatus(data: UserStatusUpdateReq) { return request.put({ url: '/user/status', data }); }
+// 更新角色
+export function updateUserRole(data: UserRoleUpdateReq) { return request.put({ url: '/user/role', data }); }
+// 更新密码
+export function updateUserPassword(data: UserPasswordUpdateReq) { return request.put({ url: '/user/password', data }); }
 // 删除用户
-export function deleteUser(ids: number[]) {
-  const params = { ids: ids.join(',') };
-  return request.delete({
-    url: Api.UserDelete,
-    params,
-  });
-}
+export function deleteUser(ids: number[]) { return request.delete({ url: '/user', params: { ids: ids.join(',') } }); }
