@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at` BIGINT NOT NULL DEFAULT 0 COMMENT '更新时间（Unix时间戳）',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_users_account` (`account`),
+  UNIQUE KEY `uq_users_phone` (`phone`),
+  UNIQUE KEY `uq_users_email` (`email`),
   KEY `idx_users_status` (`status`),
   KEY `idx_users_email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户表';

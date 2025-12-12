@@ -35,13 +35,21 @@ func (s *RoleService) GetList(ctx context.Context, req *RoleListReq) (*dto.PageR
 	if err != nil {
 		return nil, err
 	}
-	// 如果注入了 userRepo，则为每个角色附加 user_count
-	if s.userRepo != nil {
-		for _, r := range list {
-			cnt, err := s.userRepo.CountByRoleId(ctx, "")
-			if err != nil {
-				return nil, err
-			}
+	if len(list) == 0 {
+		return dto.NewPageResp(total, list), nil
+	}
+
+	ids := make([]int64, 0, len(list))
+	for _, r := range list {
+		ids = append(ids, r.ID)
+	}
+
+	counts, err := s.userRepo.CountByRoleIds(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range list {
+		if cnt, ok := counts[r.ID]; ok {
 			r.UserCount = cnt
 		}
 	}
@@ -49,7 +57,7 @@ func (s *RoleService) GetList(ctx context.Context, req *RoleListReq) (*dto.PageR
 }
 
 // Post /role 创建角色
-func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (*Role, error) {
+func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -69,11 +77,11 @@ func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (*Role, erro
 		return nil, err
 	}
 
-	return role, nil
+	return struct{}{}, nil
 }
 
 // Put /role 更新角色
-func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (interface{}, error) {
+func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}

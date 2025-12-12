@@ -37,7 +37,7 @@ func (s *UserService) GetList(ctx context.Context, req *UserListReq) (*dto.PageR
 }
 
 // Post /user 创建用户
-func (s *UserService) Post(ctx context.Context, req *User) (*User, error) {
+func (s *UserService) Post(ctx context.Context, req *User) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -52,8 +52,7 @@ func (s *UserService) Post(ctx context.Context, req *User) (*User, error) {
 		return nil, err
 	}
 
-	req.Password = ""
-	return req, nil
+	return struct{}{}, nil
 }
 
 // Put /user 更新用户

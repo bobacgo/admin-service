@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	"github.com/bobacgo/admin-service/apps/common/model"
 	"github.com/bobacgo/admin-service/apps/common/repo"
@@ -135,7 +136,7 @@ func (r *UserRepo) Delete(ctx context.Context, ids string) error {
 }
 
 // CountByRoleId 返回 role id 在 users.role_ids 字段中出现的用户数
-func (r *UserRepo) CountByRoleId(ctx context.Context, id string) (int64, error) {
+func (r *UserRepo) CountByRoleId(ctx context.Context, id int64) (int64, error) {
 	var cnt int64
 	// 使用 MySQL 的 FIND_IN_SET 来匹配以逗号分隔的 role_ids 字段
 	row := r.clt.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+UsersTable+" WHERE FIND_IN_SET(?, role_ids)", id)
@@ -143,4 +144,56 @@ func (r *UserRepo) CountByRoleId(ctx context.Context, id string) (int64, error) 
 		return 0, err
 	}
 	return cnt, nil
+}
+
+// CountByRoleIds 返回多个角色下的用户数量，结果以角色ID为键
+func (r *UserRepo) CountByRoleIds(ctx context.Context, ids []int64) (map[int64]int64, error) {
+	res := make(map[int64]int64)
+	if len(ids) == 0 {
+		return res, nil
+	}
+
+	placeholders := make([]string, 0, len(ids))
+	args := make([]any, 0, len(ids))
+	for _, id := range ids {
+		placeholders = append(placeholders, "?")
+		args = append(args, id)
+	}
+
+	query := "SELECT r.id, COUNT(u.id) AS cnt " +
+		"FROM roles r " +
+		"LEFT JOIN " + UsersTable + " u ON FIND_IN_SET(r.id, u.role_ids) " +
+		"WHERE r.id IN (" + strings.Join(placeholders, ",") + ") " +
+		"GROUP BY r.id"
+
+	rows, err := r.clt.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var roleID int64
+		var cnt sql.NullInt64
+		if err := rows.Scan(&roleID, &cnt); err != nil {
+			return nil, err
+		}
+		if cnt.Valid {
+			res[roleID] = cnt.Int64
+		} else {
+			res[roleID] = 0
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	// 确保所有角色ID都返回结果
+	for _, id := range ids {
+		if _, ok := res[id]; !ok {
+			res[id] = 0
+		}
+	}
+
+	return res, nil
 }

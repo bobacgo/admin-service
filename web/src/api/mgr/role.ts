@@ -32,65 +32,24 @@ export interface RoleUpdateReq {
   operator?: string;
 }
 
-const Api = {
-  RoleList: '/role/list',
-  RoleOne: '/role/one',
-  RoleCreate: '/role',
-  RoleUpdate: '/role',
-  RoleDelete: '/role',
-  RolePermissions: '/role/permissions',
-};
-
-export function getRoleList(params: RoleListReq) {
-  return request.get<PageResp<Role>>({
-    url: Api.RoleList,
-    params,
-  });
-}
-
-export function getRole(id: number) {
-  return request.get<Role>({
-    url: Api.RoleOne,
-    params: { id },
-  });
-}
-
-export function addRole(data: RoleCreateReq) {
-  return request.post<Role>({
-    url: Api.RoleCreate,
-    data,
-  });
-}
-
-export function updateRole(data: RoleUpdateReq) {
-  return request.put<Role>({
-    url: Api.RoleUpdate,
-    data,
-  });
-}
-
-export function deleteRole(ids: number[]) {
-  const params = { ids: ids.join(',') };
-  return request.delete({
-    url: Api.RoleDelete,
-    params,
-  });
-}
-
-export function saveRolePermissions(roleId: number, menuIds: number[]) {
-  return request.post({
-    url: Api.RolePermissions,
-    data: { role_id: roleId, menu_ids: menuIds },
-  });
-}
-
-export interface RolePermissionsResp {
+export interface RolePermissionsResp { 
   menu_ids: number[];
 }
 
-export function getRolePermissions(roleId: number) {
-  return request.get<RolePermissionsResp>({
-    url: Api.RolePermissions,
-    params: { role_id: roleId },
-  });
-}
+
+// 角色管理相关接口
+// 获取角色列表
+export function getRoleList(params: RoleListReq) { return request.get<PageResp<Role>>({ url: '/role/list', params }); }
+// 获取单个角色
+export function getRole(id: number) { return request.get<Role>({ url: '/role/one', params: { id } }); }
+// 创建角色
+export function addRole(data: RoleCreateReq) { return request.post<Role>({ url: '/role', data }); }
+// 更新角色
+export function updateRole(data: RoleUpdateReq) { return request.put<Role>({ url: '/role', data }); }
+// 删除角色
+export function deleteRole(ids: number[]) { return request.delete({ url: '/role', params: { ids: ids.join(',') } }); }
+// 角色权限相关
+export function saveRolePermissions(roleId: number, menuIds: number[]) { return request.post({ url: '/role/permissions', data: { role_id: roleId, menu_ids: menuIds } }); }
+
+// 获取角色权限
+export function getRolePermissions(roleId: number) { return request.get<RolePermissionsResp>({ url: '/role/permissions', params: { role_id: roleId } }); }
