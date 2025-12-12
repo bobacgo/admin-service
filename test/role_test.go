@@ -7,19 +7,20 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/bobacgo/admin-service/apps/mgr/dto"
+	"github.com/bobacgo/admin-service/apps/mgr/repo"
+	"github.com/bobacgo/admin-service/apps/mgr/service"
 	"github.com/bobacgo/admin-service/apps/repo/data"
-	"github.com/bobacgo/admin-service/apps/role"
-	"github.com/bobacgo/admin-service/apps/user"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/go-playground/validator/v10"
 )
 
 func setupRoleService(t *testing.T) *http.ServeMux {
 	clt := data.NewData()
-	repo := role.NewRoleRepo(clt)
+	repo := repo.NewRoleRepo(clt)
 	// create user repo for tests
-	userRepo := user.NewUserRepo(clt)
-	svc := role.NewRoleService(repo, nil, userRepo, validator.New())
+	userRepo := repo.NewUserRepo(clt)
+	svc := service.NewRoleService(repo, nil, userRepo, validator.New())
 
 	mux := http.NewServeMux()
 	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors)
@@ -52,7 +53,7 @@ func TestRoleGetList(t *testing.T) {
 func TestRolePost(t *testing.T) {
 	mux := setupRoleService(t)
 
-	newRole := &role.RoleCreateReq{Code: "guest", Description: "Guest Role", Status: 1}
+	newRole := &dto.RoleCreateReq{Code: "guest", Description: "Guest Role", Status: 1}
 	body, _ := json.Marshal(newRole)
 
 	req := httptest.NewRequest("POST", "/api/role", bytes.NewReader(body))
@@ -66,7 +67,7 @@ func TestRolePost(t *testing.T) {
 func TestRolePut(t *testing.T) {
 	mux := setupRoleService(t)
 
-	updateRole := &role.RoleUpdateReq{ID: 1, Code: "admin_updated", Description: "Updated Administrator", Status: 1}
+	updateRole := &dto.RoleUpdateReq{ID: 1, Code: "admin_updated", Description: "Updated Administrator", Status: 1}
 	body, _ := json.Marshal(updateRole)
 
 	req := httptest.NewRequest("PUT", "/api/role", bytes.NewReader(body))

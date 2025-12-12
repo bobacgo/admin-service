@@ -1,4 +1,4 @@
-package user
+package repo
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"github.com/bobacgo/admin-service/apps/common/model"
 	"github.com/bobacgo/admin-service/apps/common/repo"
 	"github.com/bobacgo/admin-service/apps/common/repo/data"
+	"github.com/bobacgo/admin-service/apps/mgr/dto"
+	model2 "github.com/bobacgo/admin-service/apps/mgr/repo/model"
 	. "github.com/bobacgo/orm"
 )
 
@@ -20,118 +22,118 @@ func NewUserRepo(data *data.Client) *UserRepo {
 }
 
 // 创建
-func (r *UserRepo) Create(ctx context.Context, row *User) error {
-	id, err := INSERT(row).INTO(UsersTable).Omit(model.Id).Exec(ctx, r.clt.DB)
+func (r *UserRepo) Create(ctx context.Context, row *model2.User) error {
+	id, err := INSERT(row).INTO(model2.UsersTable).Omit(model.Id).Exec(ctx, r.clt.DB)
 	row.ID = id
 	return err
 }
 
-func (r *UserRepo) FindOne(ctx context.Context, req *GetUserReq) (*User, error) {
-	row := new(User)
+func (r *UserRepo) FindOne(ctx context.Context, req *dto.GetUserReq) (*model2.User, error) {
+	row := new(model2.User)
 
 	where := make(map[string]any)
 	if req.ID > 0 {
 		where[repo.AND(model.Id)] = req.ID
 	}
 	if req.Account != "" {
-		where[repo.AND(Account)] = req.Account
+		where[repo.AND(model2.Account)] = req.Account
 	}
 	if req.Phone != "" {
-		where[repo.AND(Phone)] = req.Phone
+		where[repo.AND(model2.Phone)] = req.Phone
 	}
 	if req.Email != "" {
-		where[repo.AND(Email)] = req.Email
+		where[repo.AND(model2.Email)] = req.Email
 	}
 
-	err := SELECT1(row).FROM(UsersTable).WHERE(where).Query(ctx, r.clt.DB)
+	err := SELECT1(row).FROM(model2.UsersTable).WHERE(where).Query(ctx, r.clt.DB)
 	return row, err
 }
 
-func (r *UserRepo) Find(ctx context.Context, req *UserListReq) ([]*User, int64, error) {
+func (r *UserRepo) Find(ctx context.Context, req *dto.UserListReq) ([]*model2.User, int64, error) {
 	where := map[string]any{}
 	if req.Account != "" {
-		where[repo.AND_LIKE(Account)] = req.Account + "%" // 右模糊查询
+		where[repo.AND_LIKE(model2.Account)] = req.Account + "%" // 右模糊查询
 	}
 	if req.Phone != "" {
-		where[repo.AND_LIKE(Phone)] = req.Phone + "%" // 右模糊查询
+		where[repo.AND_LIKE(model2.Phone)] = req.Phone + "%" // 右模糊查询
 	}
 	if req.Email != "" {
-		where[repo.AND_LIKE(Email)] = req.Email + "%" // 右模糊查询
+		where[repo.AND_LIKE(model2.Email)] = req.Email + "%" // 右模糊查询
 	}
 	if req.Status > 0 {
 		where[repo.AND_IN(model.Status)] = req.Status
 	}
 
 	var (
-		list  = make([]*User, 0)
+		list  = make([]*model2.User, 0)
 		total sql.Null[int64]
 	)
-	if err := SELECT1(COUNT("*", &total)).FROM(UsersTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
+	if err := SELECT1(COUNT("*", &total)).FROM(model2.UsersTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
 		return nil, 0, err
 	}
 	if !total.Valid {
 		return list, 0, nil
 	}
 	offset, limit := req.Limit()
-	if err := SELECT2(&list).FROM(UsersTable).WHERE(where).ORDER_BY(repo.DESC(model.Id)).OFFSET(int64(offset)).LIMIT(int64(limit)).Query(ctx, r.clt.DB); err != nil {
+	if err := SELECT2(&list).FROM(model2.UsersTable).WHERE(where).ORDER_BY(repo.DESC(model.Id)).OFFSET(int64(offset)).LIMIT(int64(limit)).Query(ctx, r.clt.DB); err != nil {
 		return nil, 0, err
 	}
 
 	return list, total.V, nil
 }
 
-func (r *UserRepo) Update(ctx context.Context, req *UpdateUserReq) error {
+func (r *UserRepo) Update(ctx context.Context, req *dto.UpdateUserReq) error {
 	set := M{
-		Phone:           req.Phone,
-		Email:           req.Email,
+		model2.Phone:    req.Phone,
+		model2.Email:    req.Email,
 		model.UpdatedAt: req.UpdatedAt,
 		model.Operator:  req.Operator,
 	}
-	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
+	_, err := UPDATE(model2.UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
 	return err
 }
 
-func (r *UserRepo) UpdateLoginInfo(ctx context.Context, req *UpdateLoginInfoReq) error {
+func (r *UserRepo) UpdateLoginInfo(ctx context.Context, req *dto.UpdateLoginInfoReq) error {
 	set := M{
-		LoginAt: req.LoginAt,
-		LoginIp: req.LoginIp,
+		model2.LoginAt: req.LoginAt,
+		model2.LoginIp: req.LoginIp,
 	}
-	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
+	_, err := UPDATE(model2.UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
 	return err
 }
 
-func (r *UserRepo) UpdateStatus(ctx context.Context, req *UpdateUserStatusReq) error {
+func (r *UserRepo) UpdateStatus(ctx context.Context, req *dto.UpdateUserStatusReq) error {
 	set := M{
 		model.Status:    req.Status,
 		model.UpdatedAt: req.UpdatedAt,
 		model.Operator:  req.Operator,
 	}
-	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
+	_, err := UPDATE(model2.UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
 	return err
 }
 
-func (r *UserRepo) UpdateRole(ctx context.Context, req *UpdateUserRoleReq) error {
+func (r *UserRepo) UpdateRole(ctx context.Context, req *dto.UpdateUserRoleReq) error {
 	set := M{
-		RoleIds:         req.RoleIds,
+		model2.RoleIds:  req.RoleIds,
 		model.UpdatedAt: req.UpdatedAt,
 		model.Operator:  req.Operator,
 	}
-	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
+	_, err := UPDATE(model2.UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
 	return err
 }
 
-func (r *UserRepo) UpdatePassword(ctx context.Context, req *UpdateUserPasswordReq) error {
+func (r *UserRepo) UpdatePassword(ctx context.Context, req *dto.UpdateUserPasswordReq) error {
 	set := M{
-		Password:        req.NewPassword,
+		model2.Password: req.NewPassword,
 		model.UpdatedAt: req.UpdatedAt,
 		model.Operator:  req.Operator,
 	}
-	_, err := UPDATE(UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
+	_, err := UPDATE(model2.UsersTable).SET(set).WHERE(M{repo.AND(model.Id): req.Id}).Exec(ctx, r.clt.DB)
 	return err
 }
 
 func (r *UserRepo) Delete(ctx context.Context, ids string) error {
-	_, err := DELETE().FROM(UsersTable).WHERE(M{repo.AND_IN(model.Id): ids}).Exec(ctx, r.clt.DB)
+	_, err := DELETE().FROM(model2.UsersTable).WHERE(M{repo.AND_IN(model.Id): ids}).Exec(ctx, r.clt.DB)
 	return err
 }
 
@@ -139,7 +141,7 @@ func (r *UserRepo) Delete(ctx context.Context, ids string) error {
 func (r *UserRepo) CountByRoleId(ctx context.Context, id int64) (int64, error) {
 	var cnt int64
 	// 使用 MySQL 的 FIND_IN_SET 来匹配以逗号分隔的 role_ids 字段
-	row := r.clt.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+UsersTable+" WHERE FIND_IN_SET(?, role_ids)", id)
+	row := r.clt.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+model2.UsersTable+" WHERE FIND_IN_SET(?, role_ids)", id)
 	if err := row.Scan(&cnt); err != nil {
 		return 0, err
 	}
@@ -162,7 +164,7 @@ func (r *UserRepo) CountByRoleIds(ctx context.Context, ids []int64) (map[int64]i
 
 	query := "SELECT r.id, COUNT(u.id) AS cnt " +
 		"FROM roles r " +
-		"LEFT JOIN " + UsersTable + " u ON FIND_IN_SET(r.id, u.role_ids) " +
+		"LEFT JOIN " + model2.UsersTable + " u ON FIND_IN_SET(r.id, u.role_ids) " +
 		"WHERE r.id IN (" + strings.Join(placeholders, ",") + ") " +
 		"GROUP BY r.id"
 
@@ -186,13 +188,6 @@ func (r *UserRepo) CountByRoleIds(ctx context.Context, ids []int64) (map[int64]i
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
-	}
-
-	// 确保所有角色ID都返回结果
-	for _, id := range ids {
-		if _, ok := res[id]; !ok {
-			res[id] = 0
-		}
 	}
 
 	return res, nil

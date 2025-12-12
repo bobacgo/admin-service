@@ -1,4 +1,4 @@
-package user
+package service
 
 import (
 	"context"
@@ -7,25 +7,28 @@ import (
 	"time"
 
 	"github.com/bobacgo/admin-service/apps/common/dto"
+	dto2 "github.com/bobacgo/admin-service/apps/mgr/dto"
+	repo2 "github.com/bobacgo/admin-service/apps/mgr/repo"
+	"github.com/bobacgo/admin-service/apps/mgr/repo/model"
 	"github.com/go-playground/validator/v10"
 )
 
 type UserService struct {
-	repo      *UserRepo
+	repo      *repo2.UserRepo
 	validator *validator.Validate
 }
 
-func NewUserService(r *UserRepo, v *validator.Validate) *UserService {
+func NewUserService(r *repo2.UserRepo, v *validator.Validate) *UserService {
 	return &UserService{repo: r, validator: v}
 }
 
 // Get /user/one 获取单个用户
-func (s *UserService) GetOne(ctx context.Context, req *GetUserReq) (*User, error) {
+func (s *UserService) GetOne(ctx context.Context, req *dto2.GetUserReq) (*model.User, error) {
 	return s.repo.FindOne(ctx, req)
 }
 
 // Get /user/list 获取用户列表
-func (s *UserService) GetList(ctx context.Context, req *UserListReq) (*dto.PageResp[User], error) {
+func (s *UserService) GetList(ctx context.Context, req *dto2.UserListReq) (*dto.PageResp[model.User], error) {
 	rows, total, err := s.repo.Find(ctx, req)
 	if err != nil {
 		return nil, err
@@ -37,7 +40,7 @@ func (s *UserService) GetList(ctx context.Context, req *UserListReq) (*dto.PageR
 }
 
 // Post /user 创建用户
-func (s *UserService) Post(ctx context.Context, req *User) (any, error) {
+func (s *UserService) Post(ctx context.Context, req *model.User) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -56,7 +59,7 @@ func (s *UserService) Post(ctx context.Context, req *User) (any, error) {
 }
 
 // Put /user 更新用户
-func (s *UserService) Put(ctx context.Context, req *UpdateUserReq) (any, error) {
+func (s *UserService) Put(ctx context.Context, req *dto2.UpdateUserReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -71,7 +74,7 @@ func (s *UserService) Put(ctx context.Context, req *UpdateUserReq) (any, error) 
 }
 
 // Put /user/status 更新用户状态
-func (s *UserService) PutStatus(ctx context.Context, req *UpdateUserStatusReq) (any, error) {
+func (s *UserService) PutStatus(ctx context.Context, req *dto2.UpdateUserStatusReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -87,7 +90,7 @@ func (s *UserService) PutStatus(ctx context.Context, req *UpdateUserStatusReq) (
 }
 
 // Put /user/role 更新用户角色
-func (s *UserService) PutRole(ctx context.Context, req *UpdateUserRoleReq) (any, error) {
+func (s *UserService) PutRole(ctx context.Context, req *dto2.UpdateUserRoleReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -103,7 +106,7 @@ func (s *UserService) PutRole(ctx context.Context, req *UpdateUserRoleReq) (any,
 }
 
 // Put /user/password 更新用户密码
-func (s *UserService) PutPassword(ctx context.Context, req *UpdateUserPasswordReq) (any, error) {
+func (s *UserService) PutPassword(ctx context.Context, req *dto2.UpdateUserPasswordReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -119,7 +122,7 @@ func (s *UserService) PutPassword(ctx context.Context, req *UpdateUserPasswordRe
 }
 
 // Delete /user 删除用户
-func (s *UserService) Delete(ctx context.Context, req *DeleteUserReq) (any, error) {
+func (s *UserService) Delete(ctx context.Context, req *dto2.DeleteUserReq) (any, error) {
 
 	// TODO: 移除用户会话
 
@@ -127,8 +130,8 @@ func (s *UserService) Delete(ctx context.Context, req *DeleteUserReq) (any, erro
 }
 
 // Login 用户登录（特殊方法，不参与自动路由）
-func (s *UserService) Login(ctx context.Context, req *LoginReq) (map[string]string, error) {
-	row, err := s.repo.FindOne(ctx, &GetUserReq{
+func (s *UserService) Login(ctx context.Context, req *dto2.LoginReq) (map[string]string, error) {
+	row, err := s.repo.FindOne(ctx, &dto2.GetUserReq{
 		Account: req.Account,
 	})
 	if err != nil {
@@ -147,7 +150,7 @@ func (s *UserService) Login(ctx context.Context, req *LoginReq) (map[string]stri
 	}
 
 	// 更新登录信息
-	if err = s.repo.UpdateLoginInfo(ctx, &UpdateLoginInfoReq{
+	if err = s.repo.UpdateLoginInfo(ctx, &dto2.UpdateLoginInfoReq{
 		Id:      row.ID,
 		LoginAt: time.Now().Unix(),
 		LoginIp: "127.0.0.1", // TODO: 示例值，实际应从上下文获取

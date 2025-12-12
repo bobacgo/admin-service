@@ -6,7 +6,8 @@ import (
 	"net/http"
 
 	"github.com/bobacgo/admin-service/apps/common/ecode"
-	"github.com/bobacgo/admin-service/apps/user"
+	"github.com/bobacgo/admin-service/apps/mgr/dto"
+	"github.com/bobacgo/admin-service/apps/mgr/service"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/bobacgo/admin-service/pkg/kit/hs/response"
 )
@@ -25,9 +26,9 @@ func OptionsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func makeLoginHandler(svc *user.UserService) http.HandlerFunc {
+func makeLoginHandler(svc *service.UserService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req = new(user.LoginReq)
+		var req = new(dto.LoginReq)
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 			response.JSON(w, response.Resp{
 				Code: ecode.ErrCodeParam,

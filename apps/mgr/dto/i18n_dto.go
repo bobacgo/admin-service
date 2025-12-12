@@ -1,4 +1,4 @@
-package i18n
+package dto
 
 import "github.com/bobacgo/admin-service/apps/common/dto"
 

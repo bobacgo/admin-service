@@ -1,4 +1,4 @@
-package menu
+package repo
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"github.com/bobacgo/admin-service/apps/common/model"
 	"github.com/bobacgo/admin-service/apps/common/repo"
 	"github.com/bobacgo/admin-service/apps/common/repo/data"
+	model2 "github.com/bobacgo/admin-service/apps/mgr/repo/model"
 	. "github.com/bobacgo/orm"
 )
 
@@ -18,44 +19,44 @@ func NewMenuRepo(clt *data.Client) *MenuRepo {
 	return &MenuRepo{clt: clt}
 }
 
-func (r *MenuRepo) Find(ctx context.Context) ([]*Menu, error) {
-	list := make([]*Menu, 0)
-	if err := SELECT2(&list).FROM(MenuTable).ORDER_BY(repo.DESC(model.Id)).Query(ctx, r.clt.DB); err != nil {
+func (r *MenuRepo) Find(ctx context.Context) ([]*model2.Menu, error) {
+	list := make([]*model2.Menu, 0)
+	if err := SELECT2(&list).FROM(model2.MenuTable).ORDER_BY(repo.DESC(model.Id)).Query(ctx, r.clt.DB); err != nil {
 		return nil, err
 	}
 	return list, nil
 }
 
-func (r *MenuRepo) FindOne(ctx context.Context, id int64) (*Menu, error) {
-	row := new(Menu)
-	if err := SELECT1(row).FROM(MenuTable).WHERE(M{repo.AND(model.Id): id}).Query(ctx, r.clt.DB); err != nil {
+func (r *MenuRepo) FindOne(ctx context.Context, id int64) (*model2.Menu, error) {
+	row := new(model2.Menu)
+	if err := SELECT1(row).FROM(model2.MenuTable).WHERE(M{repo.AND(model.Id): id}).Query(ctx, r.clt.DB); err != nil {
 		return nil, err
 	}
 	return row, nil
 }
 
-func (r *MenuRepo) Create(ctx context.Context, row *Menu) error {
-	id, err := INSERT(row).INTO(MenuTable).Omit(model.Id).Exec(ctx, r.clt.DB)
+func (r *MenuRepo) Create(ctx context.Context, row *model2.Menu) error {
+	id, err := INSERT(row).INTO(model2.MenuTable).Omit(model.Id).Exec(ctx, r.clt.DB)
 	row.ID = id
 	return err
 }
 
-func (r *MenuRepo) Update(ctx context.Context, row *Menu) error {
-	_, err := UPDATE(MenuTable).SET1(row).WHERE(M{repo.AND(model.Id): row.ID}).Omit(model.Id).Exec(ctx, r.clt.DB)
+func (r *MenuRepo) Update(ctx context.Context, row *model2.Menu) error {
+	_, err := UPDATE(model2.MenuTable).SET1(row).WHERE(M{repo.AND(model.Id): row.ID}).Omit(model.Id).Exec(ctx, r.clt.DB)
 	return err
 }
 
 func (r *MenuRepo) Delete(ctx context.Context, ids string) error {
-	_, err := DELETE().FROM(MenuTable).WHERE(M{repo.AND_IN(model.Id): ids}).Exec(ctx, r.clt.DB)
+	_, err := DELETE().FROM(model2.MenuTable).WHERE(M{repo.AND_IN(model.Id): ids}).Exec(ctx, r.clt.DB)
 	return err
 }
 
 // RemoveRoleIdFromAllMenus 从所有菜单的role_ids中移除该角色
 func (r *MenuRepo) RemoveRoleIdFromAllMenus(ctx context.Context, roleId string) error {
 	// 获取所有包含该角色的菜单
-	var menus []*Menu
+	var menus []*model2.Menu
 	where := M{repo.AND_LIKE("role_ids"): "%" + roleId + "%"}
-	if err := SELECT2(&menus).FROM(MenuTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
+	if err := SELECT2(&menus).FROM(model2.MenuTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
 		return err
 	}
 
@@ -91,9 +92,9 @@ func (r *MenuRepo) AddRoleIdToMenus(ctx context.Context, roleId string, menuIds 
 
 // GetMenuIdsByRoleId 根据角色ID获取菜单ID列表
 func (r *MenuRepo) GetMenuIdsByRoleId(ctx context.Context, roleId string) ([]int64, error) {
-	var menus []*Menu
+	var menus []*model2.Menu
 	where := M{repo.AND_LIKE("role_ids"): "%" + roleId + "%"}
-	if err := SELECT2(&menus).FROM(MenuTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
+	if err := SELECT2(&menus).FROM(model2.MenuTable).WHERE(where).Query(ctx, r.clt.DB); err != nil {
 		return nil, err
 	}
 

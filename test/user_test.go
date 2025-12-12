@@ -7,8 +7,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/bobacgo/admin-service/apps/mgr/repo"
+	"github.com/bobacgo/admin-service/apps/mgr/repo/model"
+	"github.com/bobacgo/admin-service/apps/mgr/service"
 	"github.com/bobacgo/admin-service/apps/repo/data"
-	"github.com/bobacgo/admin-service/apps/user"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/go-playground/validator/v10"
 )
@@ -17,8 +19,8 @@ import (
 func setupUserService(t *testing.T) *http.ServeMux {
 	// 初始化数据源
 	clt := data.NewData()
-	repo := user.NewUserRepo(clt)
-	svc := user.NewUserService(repo, validator.New())
+	repo := repo.NewUserRepo(clt)
+	svc := service.NewUserService(repo, validator.New())
 
 	// 创建路由
 	mux := http.NewServeMux()
@@ -53,7 +55,7 @@ func TestUserPost(t *testing.T) {
 	mux := setupUserService(t)
 
 	// 测试 POST /api/user
-	newUser := &user.User{Account: "admin", Password: "admin", Status: 1}
+	newUser := &model.User{Account: "admin", Password: "admin", Status: 1}
 	body, _ := json.Marshal(newUser)
 
 	req := httptest.NewRequest("POST", "/api/user", bytes.NewReader(body))
@@ -68,7 +70,7 @@ func TestUserPut(t *testing.T) {
 	mux := setupUserService(t)
 
 	// 测试 PUT /api/user
-	updateUser := &user.User{Account: "user1_updated", Status: 1}
+	updateUser := &model.User{Account: "user1_updated", Status: 1}
 	body, _ := json.Marshal(updateUser)
 
 	req := httptest.NewRequest("PUT", "/api/user", bytes.NewReader(body))

@@ -1,9 +1,13 @@
-package menu
+package dto
+
+import (
+	"github.com/bobacgo/admin-service/apps/mgr/repo/model"
+)
 
 type MenuListReq struct{}
 
 type MenuListResp struct {
-	List []*Menu `json:"list"`
+	List []*model.Menu `json:"list"`
 }
 
 type MenuItem struct {

@@ -1,37 +1,40 @@
-package menu
+package service
 
 import (
 	"context"
 	"encoding/json"
 
+	"github.com/bobacgo/admin-service/apps/mgr/dto"
+	repo2 "github.com/bobacgo/admin-service/apps/mgr/repo"
+	"github.com/bobacgo/admin-service/apps/mgr/repo/model"
 	"github.com/go-playground/validator/v10"
 )
 
 type MenuService struct {
-	repo      *MenuRepo
+	repo      *repo2.MenuRepo
 	validator *validator.Validate
 }
 
-func NewMenuService(r *MenuRepo, v *validator.Validate) *MenuService {
+func NewMenuService(r *repo2.MenuRepo, v *validator.Validate) *MenuService {
 	return &MenuService{repo: r, validator: v}
 }
 
 // Get /menu/list 获取菜单列表
-func (s *MenuService) GetList(ctx context.Context, req *MenuListReq) (*MenuListResp, error) {
+func (s *MenuService) GetList(ctx context.Context, req *dto.MenuListReq) (*dto.MenuListResp, error) {
 	list, err := s.repo.Find(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &MenuListResp{List: list}, nil
+	return &dto.MenuListResp{List: list}, nil
 }
 
 // Post /menu 创建菜单
-func (s *MenuService) Post(ctx context.Context, req *MenuCreateReq) (any, error) {
+func (s *MenuService) Post(ctx context.Context, req *dto.MenuCreateReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
-	menu := &Menu{
+	menu := &model.Menu{
 		Path:      req.Path,
 		Name:      req.Name,
 		Component: req.Component,
@@ -46,7 +49,7 @@ func (s *MenuService) Post(ctx context.Context, req *MenuCreateReq) (any, error)
 }
 
 // Put /menu 更新菜单
-func (s *MenuService) Put(ctx context.Context, req *MenuUpdateReq) (any, error) {
+func (s *MenuService) Put(ctx context.Context, req *dto.MenuUpdateReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -94,7 +97,7 @@ func (s *MenuService) Put(ctx context.Context, req *MenuUpdateReq) (any, error) 
 }
 
 // Delete /menu 删除菜单
-func (s *MenuService) Delete(ctx context.Context, req *DeleteMenuReq) (any, error) {
+func (s *MenuService) Delete(ctx context.Context, req *dto.DeleteMenuReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
@@ -102,23 +105,23 @@ func (s *MenuService) Delete(ctx context.Context, req *DeleteMenuReq) (any, erro
 }
 
 // Get /menu/tree 获取菜单树
-func (s *MenuService) GetTree(ctx context.Context, _ any) (*MenuTreeResp, error) {
+func (s *MenuService) GetTree(ctx context.Context, _ any) (*dto.MenuTreeResp, error) {
 	menuList, err := s.repo.Find(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &MenuTreeResp{List: s.buildTree(menuList)}, nil
+	return &dto.MenuTreeResp{List: s.buildTree(menuList)}, nil
 }
 
-func (s *MenuService) buildTree(menuList []*Menu) []*MenuItem {
-	var tree []*MenuItem
+func (s *MenuService) buildTree(menuList []*model.Menu) []*dto.MenuItem {
+	var tree []*dto.MenuItem
 	for _, menu := range menuList {
 		if menu.ParentID == 0 {
 			meta := make(map[string]any)
 			if menu.Meta != "" {
 				_ = json.Unmarshal([]byte(menu.Meta), &meta)
 			}
-			tree = append(tree, &MenuItem{
+			tree = append(tree, &dto.MenuItem{
 				ID:        menu.ID,
 				ParentID:  menu.ParentID,
 				Path:      menu.Path,
@@ -128,7 +131,7 @@ func (s *MenuService) buildTree(menuList []*Menu) []*MenuItem {
 				Meta:      meta,
 				Icon:      menu.Icon,
 				Sort:      menu.Sort,
-				Children:  make([]*MenuItem, 0),
+				Children:  make([]*dto.MenuItem, 0),
 			})
 		}
 	}
@@ -140,7 +143,7 @@ func (s *MenuService) buildTree(menuList []*Menu) []*MenuItem {
 					if menu.Meta != "" {
 						_ = json.Unmarshal([]byte(menu.Meta), &meta)
 					}
-					item.Children = append(item.Children, &MenuItem{
+					item.Children = append(item.Children, &dto.MenuItem{
 						ID:        menu.ID,
 						ParentID:  menu.ParentID,
 						Path:      menu.Path,
@@ -150,7 +153,7 @@ func (s *MenuService) buildTree(menuList []*Menu) []*MenuItem {
 						Meta:      meta,
 						Icon:      menu.Icon,
 						Sort:      menu.Sort,
-						Children:  make([]*MenuItem, 0),
+						Children:  make([]*dto.MenuItem, 0),
 					})
 				}
 			}

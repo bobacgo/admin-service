@@ -7,7 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bobacgo/admin-service/apps/i18n"
+	"github.com/bobacgo/admin-service/apps/mgr/dto"
+	"github.com/bobacgo/admin-service/apps/mgr/repo"
+	"github.com/bobacgo/admin-service/apps/mgr/service"
 	"github.com/bobacgo/admin-service/apps/repo/data"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/go-playground/validator/v10"
@@ -15,8 +17,8 @@ import (
 
 func setupI18nService() *http.ServeMux {
 	clt := data.NewData()
-	repo := i18n.NewI18nRepo(clt)
-	svc := i18n.NewI18nService(repo, validator.New())
+	repo := repo.NewI18nRepo(clt)
+	svc := service.NewI18nService(repo, validator.New())
 
 	mux := http.NewServeMux()
 	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors)
@@ -49,7 +51,7 @@ func TestI18nGetList(t *testing.T) {
 func TestI18nPost(t *testing.T) {
 	mux := setupI18nService()
 
-	newI18n := &i18n.I18nCreateReq{Lang: "en", Key: "goodbye", Value: "Goodbye"}
+	newI18n := &dto.I18nCreateReq{Lang: "en", Key: "goodbye", Value: "Goodbye"}
 	body, _ := json.Marshal(newI18n)
 
 	req := httptest.NewRequest("POST", "/api/i18n", bytes.NewReader(body))
@@ -63,7 +65,7 @@ func TestI18nPost(t *testing.T) {
 func TestI18nPut(t *testing.T) {
 	mux := setupI18nService()
 
-	updateI18n := &i18n.I18nUpdateReq{ID: 1, Lang: "en", Value: "Hello World"}
+	updateI18n := &dto.I18nUpdateReq{ID: 1, Lang: "en", Value: "Hello World"}
 	body, _ := json.Marshal(updateI18n)
 
 	req := httptest.NewRequest("PUT", "/api/i18n", bytes.NewReader(body))

@@ -1,4 +1,4 @@
-package role
+package service
 
 import (
 	"context"
@@ -8,29 +8,30 @@ import (
 
 	"github.com/bobacgo/admin-service/apps/common/dto"
 	"github.com/bobacgo/admin-service/apps/common/model"
-	"github.com/bobacgo/admin-service/apps/menu"
-	"github.com/bobacgo/admin-service/apps/user"
+	dto2 "github.com/bobacgo/admin-service/apps/mgr/dto"
+	"github.com/bobacgo/admin-service/apps/mgr/repo"
+	model2 "github.com/bobacgo/admin-service/apps/mgr/repo/model"
 	"github.com/go-playground/validator/v10"
 )
 
 type RoleService struct {
-	repo      *RoleRepo
-	menuRepo  *menu.MenuRepo
-	userRepo  *user.UserRepo
+	repo      *repo.RoleRepo
+	menuRepo  *repo.MenuRepo
+	userRepo  *repo.UserRepo
 	validator *validator.Validate
 }
 
-func NewRoleService(r *RoleRepo, mr *menu.MenuRepo, ur *user.UserRepo, v *validator.Validate) *RoleService {
+func NewRoleService(r *repo.RoleRepo, mr *repo.MenuRepo, ur *repo.UserRepo, v *validator.Validate) *RoleService {
 	return &RoleService{repo: r, menuRepo: mr, userRepo: ur, validator: v}
 }
 
 // Get /role/one 获取单个角色
-func (s *RoleService) GetOne(ctx context.Context, req *GetRoleReq) (*Role, error) {
+func (s *RoleService) GetOne(ctx context.Context, req *dto2.GetRoleReq) (*model2.Role, error) {
 	return s.repo.FindOne(ctx, req)
 }
 
 // Get /role/list 获取角色列表
-func (s *RoleService) GetList(ctx context.Context, req *RoleListReq) (*dto.PageResp[Role], error) {
+func (s *RoleService) GetList(ctx context.Context, req *dto2.RoleListReq) (*dto.PageResp[model2.Role], error) {
 	list, total, err := s.repo.Find(ctx, req)
 	if err != nil {
 		return nil, err
@@ -57,12 +58,12 @@ func (s *RoleService) GetList(ctx context.Context, req *RoleListReq) (*dto.PageR
 }
 
 // Post /role 创建角色
-func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (any, error) {
+func (s *RoleService) Post(ctx context.Context, req *dto2.RoleCreateReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
-	role := &Role{
+	role := &model2.Role{
 		RoleName:    req.RoleName,
 		Description: req.Description,
 		Status:      req.Status,
@@ -81,13 +82,13 @@ func (s *RoleService) Post(ctx context.Context, req *RoleCreateReq) (any, error)
 }
 
 // Put /role 更新角色
-func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (any, error) {
+func (s *RoleService) Put(ctx context.Context, req *dto2.RoleUpdateReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
 	// 先查询现有角色数据
-	existRole, err := s.repo.FindOne(ctx, &GetRoleReq{ID: req.ID})
+	existRole, err := s.repo.FindOne(ctx, &dto2.GetRoleReq{ID: req.ID})
 	if err != nil {
 		return nil, err
 	}
@@ -116,18 +117,18 @@ func (s *RoleService) Put(ctx context.Context, req *RoleUpdateReq) (any, error) 
 }
 
 // Delete /role 删除角色
-func (s *RoleService) Delete(ctx context.Context, req *DeleteRoleReq) (interface{}, error) {
+func (s *RoleService) Delete(ctx context.Context, req *dto2.DeleteRoleReq) (interface{}, error) {
 	return nil, s.repo.Delete(ctx, req.IDs)
 }
 
 // PostPermissions POST /permissions 保存角色权限（更新菜单的role_codes字段）
-func (s *RoleService) PostPermissions(ctx context.Context, req *SaveRolePermissionsReq) (interface{}, error) {
+func (s *RoleService) PostPermissions(ctx context.Context, req *dto2.SaveRolePermissionsReq) (interface{}, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
 	// 先查询角色信息
-	role, err := s.repo.FindOne(ctx, &GetRoleReq{ID: req.RoleId})
+	role, err := s.repo.FindOne(ctx, &dto2.GetRoleReq{ID: req.RoleId})
 	if err != nil {
 		// 如果发生错误（通常是角色不存在），直接返回
 		return nil, err
@@ -149,13 +150,13 @@ func (s *RoleService) PostPermissions(ctx context.Context, req *SaveRolePermissi
 }
 
 // GetPermissions GET /permissions 获取角色权限（菜单ID列表）
-func (s *RoleService) GetPermissions(ctx context.Context, req *GetRolePermissionsReq) (*GetRolePermissionsResp, error) {
+func (s *RoleService) GetPermissions(ctx context.Context, req *dto2.GetRolePermissionsReq) (*dto2.GetRolePermissionsResp, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
 
 	// 先查询角色信息
-	role, err := s.repo.FindOne(ctx, &GetRoleReq{ID: req.RoleId})
+	role, err := s.repo.FindOne(ctx, &dto2.GetRoleReq{ID: req.RoleId})
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return nil, errors.New("角色不存在")
@@ -169,5 +170,5 @@ func (s *RoleService) GetPermissions(ctx context.Context, req *GetRolePermission
 		return nil, err
 	}
 
-	return &GetRolePermissionsResp{MenuIds: ids}, nil
+	return &dto2.GetRolePermissionsResp{MenuIds: ids}, nil
 }

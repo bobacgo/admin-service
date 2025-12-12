@@ -1,4 +1,4 @@
-package menu
+package model
 
 import (
 	"strings"
@@ -35,7 +35,6 @@ const (
 	Meta      string = "meta"
 	Icon      string = "icon"
 	Sort      string = "sort" // 排序
-	RoleIds   string = "role_ids"
 )
 
 func (m *Menu) Mapping() []*orm.Mapping {

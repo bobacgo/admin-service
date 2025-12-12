@@ -1,4 +1,4 @@
-package user
+package dto
 
 import (
 	"github.com/bobacgo/admin-service/apps/common/dto"

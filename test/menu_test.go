@@ -7,7 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bobacgo/admin-service/apps/menu"
+	"github.com/bobacgo/admin-service/apps/mgr/dto"
+	"github.com/bobacgo/admin-service/apps/mgr/repo"
+	"github.com/bobacgo/admin-service/apps/mgr/service"
 	"github.com/bobacgo/admin-service/apps/repo/data"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/go-playground/validator/v10"
@@ -15,8 +17,8 @@ import (
 
 func setupMenuService(t *testing.T) *http.ServeMux {
 	clt := data.NewData()
-	repo := menu.NewMenuRepo(clt)
-	svc := menu.NewMenuService(repo, validator.New())
+	repo := repo.NewMenuRepo(clt)
+	svc := service.NewMenuService(repo, validator.New())
 
 	mux := http.NewServeMux()
 	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors)
@@ -49,7 +51,7 @@ func TestMenuGetList(t *testing.T) {
 func TestMenuPost(t *testing.T) {
 	mux := setupMenuService(t)
 
-	newMenu := &menu.MenuCreateReq{Path: "/newmenu", Name: "New Menu", Component: "NewMenu"}
+	newMenu := &dto.MenuCreateReq{Path: "/newmenu", Name: "New Menu", Component: "NewMenu"}
 	body, _ := json.Marshal(newMenu)
 
 	req := httptest.NewRequest("POST", "/api/menu", bytes.NewReader(body))
@@ -63,7 +65,7 @@ func TestMenuPost(t *testing.T) {
 func TestMenuPut(t *testing.T) {
 	mux := setupMenuService(t)
 
-	updateMenu := &menu.MenuUpdateReq{Path: "/menu1_updated", Name: "Menu1 Updated"}
+	updateMenu := &dto.MenuUpdateReq{Path: "/menu1_updated", Name: "Menu1 Updated"}
 	body, _ := json.Marshal(updateMenu)
 
 	req := httptest.NewRequest("PUT", "/api/menu", bytes.NewReader(body))
