@@ -25,11 +25,6 @@ func NewRoleService(r *repo.RoleRepo, mr *repo.MenuRepo, ur *repo.UserRepo, v *v
 	return &RoleService{repo: r, menuRepo: mr, userRepo: ur, validator: v}
 }
 
-// Get /role/one 获取单个角色
-func (s *RoleService) GetOne(ctx context.Context, req *dto2.GetRoleReq) (*model2.Role, error) {
-	return s.repo.FindOne(ctx, req)
-}
-
 // Get /role/list 获取角色列表
 func (s *RoleService) GetList(ctx context.Context, req *dto2.RoleListReq) (*dto.PageResp[model2.Role], error) {
 	list, total, err := s.repo.Find(ctx, req)
@@ -122,7 +117,7 @@ func (s *RoleService) Delete(ctx context.Context, req *dto2.DeleteRoleReq) (inte
 }
 
 // PostPermissions POST /permissions 保存角色权限（更新菜单的role_codes字段）
-func (s *RoleService) PostPermissions(ctx context.Context, req *dto2.SaveRolePermissionsReq) (interface{}, error) {
+func (s *RoleService) PostPermissions(ctx context.Context, req *dto2.SaveRolePermissionsReq) (any, error) {
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}

@@ -60,7 +60,7 @@ export interface UserPasswordUpdateReq {
 
 // 用户登录相关接口
 // 登录
-export function PostLogin(req: Record<string, unknown>) { return request.post<LoginResp>({ url: '/login', data: req}) }
+export function PostLogin(req: Record<string, unknown>) { return request.post<LoginResp>({ url: '/user/login', data: req}) }
 // 获取用户信息
 export function GetUserInfo() { return request.get<LoginResp>({ url: '/user-info' }); }
 // 退出登录

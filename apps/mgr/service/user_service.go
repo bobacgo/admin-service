@@ -10,6 +10,7 @@ import (
 	dto2 "github.com/bobacgo/admin-service/apps/mgr/dto"
 	repo2 "github.com/bobacgo/admin-service/apps/mgr/repo"
 	"github.com/bobacgo/admin-service/apps/mgr/repo/model"
+	"github.com/bobacgo/admin-service/pkg/util"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -129,8 +130,8 @@ func (s *UserService) Delete(ctx context.Context, req *dto2.DeleteUserReq) (any,
 	return nil, s.repo.Delete(ctx, req.IDs)
 }
 
-// Login 用户登录（特殊方法，不参与自动路由）
-func (s *UserService) Login(ctx context.Context, req *dto2.LoginReq) (map[string]string, error) {
+// Post /Login 用户登录
+func (s *UserService) PostLogin(ctx context.Context, req *dto2.LoginReq) (*dto2.LoginResp, error) {
 	row, err := s.repo.FindOne(ctx, &dto2.GetUserReq{
 		Account: req.Account,
 	})
@@ -158,10 +159,14 @@ func (s *UserService) Login(ctx context.Context, req *dto2.LoginReq) (map[string
 		return nil, err
 	}
 
-	// TODO: 生成并返回用户会话 token
-	// TOOD: 记录登录日志
+	// 生成并返回用户会话 token
+	token, err := util.GenerateJWT(row.ID, row.Account, 12*time.Hour)
+	if err != nil {
+		return nil, err
+	}
+	// TODO: 记录登录日志
 
-	return map[string]string{"token": "xxxxx"}, nil
+	return &dto2.LoginResp{Token: token}, nil
 }
 
 // Get /user/logout 用户登出

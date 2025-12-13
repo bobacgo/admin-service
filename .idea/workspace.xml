@@ -6,11 +6,20 @@
   <component name="ChangeListManager">
     <list default="true" id="3d26bf0c-f384-499a-a493-322d1fe8c0d8" name="Changes" comment="menus">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/role/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/role/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/user/model.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/user/model.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/user/repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/user/repo.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/user/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/user/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mgr/dto/user_dto.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/mgr/dto/user_dto.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mgr/service/role_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/mgr/service/role_service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/mgr/service/user_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/mgr/service/user_service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/apps/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kit/hs/AUTO_ROUTER_USAGE.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kit/hs/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kit/hs/middleware.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/util/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/util/util.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/i18n_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/i18n_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/menu_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/menu_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/role_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/role_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/user_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/user_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/api/mgr/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/api/mgr/user.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,11 +125,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/apps/mgr/service" />
+      <recent name="$PROJECT_DIR$/apps/mgr/repo" />
+      <recent name="$PROJECT_DIR$/apps/mgr/repo/model" />
+      <recent name="$PROJECT_DIR$/apps/mgr/dto" />
       <recent name="$PROJECT_DIR$/cmd/server" />
-      <recent name="$PROJECT_DIR$/pkg/kit" />
-      <recent name="$PROJECT_DIR$/app" />
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/api" />
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build github.com/bobacgo/admin-service/cmd/server">

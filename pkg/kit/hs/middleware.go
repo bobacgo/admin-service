@@ -49,18 +49,3 @@ func Cors(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-
-// curl -H "Authorization: 123" localhost:8080/user/123
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		// check auth
-		if auth == "" {
-			slog.Error("AuthMiddleware", slog.String("error", "no auth"))
-			http.Error(w, "no auth", http.StatusUnauthorized)
-			return
-		}
-		slog.Debug("AuthMiddleware", slog.String("auth", auth))
-		next.ServeHTTP(w, r)
-	})
-}

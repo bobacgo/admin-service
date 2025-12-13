@@ -1,5 +1,3 @@
-github.com/bobacgo/orm v0.0.0-20251129135159-5d81b7036550 h1:XwPD1Xho4UbRXRewmQLS9dWDEPcmDiWQZX+v/bS6fYk=
-github.com/bobacgo/orm v0.0.0-20251129135159-5d81b7036550/go.mod h1:qEEj8WpgIaiyNk2wKicyRXy7a8jbWu7vHbf9mye/0KQ=
 github.com/bobacgo/orm v0.0.1 h1:azdq7hNyPgVcr2zIM0Urz82Z6v3NJLSlc8qgyV7Arq4=
 github.com/bobacgo/orm v0.0.1/go.mod h1:qEEj8WpgIaiyNk2wKicyRXy7a8jbWu7vHbf9mye/0KQ=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -16,6 +14,8 @@ github.com/go-playground/validator/v10 v10.27.0 h1:w8+XrWVMhGkxOaaowyKH35gFydVHO
 github.com/go-playground/validator/v10 v10.27.0/go.mod h1:I5QpIEbmr8On7W0TktmJAumgzX4CA1XNl4ZmDuVHKKo=
 github.com/go-sql-driver/mysql v1.7.0 h1:ueSltNNllEqE3qcWBTD0iQd3IpL/6U+mJxLkazJ7YPc=
 github.com/go-sql-driver/mysql v1.7.0/go.mod h1:OXbVy3sEdcQ2Doequ6Z5BW6fXNQTmx+9S1MCJN5yJMI=
+github.com/golang-jwt/jwt/v5 v5.2.1 h1:OuVbFODueb089Lh128TAcimifWaLhJwVflnrgM17wHk=
+github.com/golang-jwt/jwt/v5 v5.2.1/go.mod h1:pqrtFR0X4osieyHYxtmOUWsAWrfe1Q5UVIyoH402zdk=
 github.com/leodido/go-urn v1.4.0 h1:WT9HwE9SGECu3lg4d/dIA+jxlljEa1/ffXKmRjqdmIQ=
 github.com/leodido/go-urn v1.4.0/go.mod h1:bvxc+MVxLKB4z00jd1z+Dvzr47oO32F/QSNjSBOlFxI=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

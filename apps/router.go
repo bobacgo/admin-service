@@ -1,15 +1,10 @@
 package apps
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 
-	"github.com/bobacgo/admin-service/apps/common/ecode"
-	"github.com/bobacgo/admin-service/apps/mgr/dto"
-	"github.com/bobacgo/admin-service/apps/mgr/service"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
-	"github.com/bobacgo/admin-service/pkg/kit/hs/response"
 )
 
 // OptionsMiddleware 处理所有OPTIONS请求，确保跨域预检请求能够正确响应
@@ -26,34 +21,6 @@ func OptionsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func makeLoginHandler(svc *service.UserService) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var req = new(dto.LoginReq)
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			response.JSON(w, response.Resp{
-				Code: ecode.ErrCodeParam,
-				Msg:  err.Error(),
-			})
-			return
-		}
-
-		data, err := svc.Login(r.Context(), req)
-		if err != nil {
-			response.JSON(w, response.Resp{
-				Code: ecode.ErrCodeUsernameOrPassword,
-				Msg:  err.Error(),
-			})
-			return
-		}
-
-		response.JSON(w, response.Resp{
-			Code: ecode.OK,
-			Msg:  "ok",
-			Data: data,
-		})
-	}
-}
-
 func RegisterRoutes(container *Container) http.Handler {
 	mux := http.NewServeMux()
 
@@ -61,8 +28,7 @@ func RegisterRoutes(container *Container) http.Handler {
 	public := hs.NewGroup("/", mux, hs.Logger, hs.Cors)
 	hs.RegisterService(public, "/", container.svc.Basic)
 
-	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors)
-	api.HandleFunc("POST /login", makeLoginHandler(container.svc.User))
+	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors, AuthMiddleware)
 
 	hs.RegisterService(api, "/user", container.svc.User)
 	hs.RegisterService(api, "/menu", container.svc.Menu)

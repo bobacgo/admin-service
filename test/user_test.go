@@ -7,10 +7,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/bobacgo/admin-service/apps/common/repo/data"
 	"github.com/bobacgo/admin-service/apps/mgr/repo"
 	"github.com/bobacgo/admin-service/apps/mgr/repo/model"
 	"github.com/bobacgo/admin-service/apps/mgr/service"
-	"github.com/bobacgo/admin-service/apps/repo/data"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/go-playground/validator/v10"
 )

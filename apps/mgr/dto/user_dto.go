@@ -9,6 +9,10 @@ type LoginReq struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type LoginResp struct {
+	Token string `json:"token"`
+}
+
 type UserListReq struct {
 	dto.PageReq
 	Account string `json:"account"`
