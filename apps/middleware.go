@@ -6,7 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bobacgo/admin-service/pkg/util"
+	"github.com/bobacgo/admin-service/apps/common/contextx"
+	"github.com/bobacgo/admin-service/pkg/kit/hs"
 )
 
 // 白名单路径，不需要认证
@@ -38,16 +39,28 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		claims, err := util.ParseJWT(parts[1])
+		claims, err := hs.ParseJWT[contextx.User](parts[1])
 		if err != nil {
 			slog.Error("AuthMiddleware", slog.String("error", err.Error()))
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-		// Optionally attach user info to context for downstream handlers
+
+		ctx := contextx.WithUserContext(r.Context(), contextx.User{
+			Account: claims.User.Account,
+			RoleIds: claims.User.RoleIds,
+		})
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func SetCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		ctx = WithUserContext(ctx, claims.UserID, claims.Account)
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
+
+		// 这里可以设置一些公共的上下文值
+		ctx = contextx.WithIPContext(ctx, r.RemoteAddr)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

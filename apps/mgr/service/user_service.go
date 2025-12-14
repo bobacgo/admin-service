@@ -4,13 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/bobacgo/admin-service/apps/common/contextx"
 	"github.com/bobacgo/admin-service/apps/common/dto"
 	dto2 "github.com/bobacgo/admin-service/apps/mgr/dto"
 	repo2 "github.com/bobacgo/admin-service/apps/mgr/repo"
 	"github.com/bobacgo/admin-service/apps/mgr/repo/model"
-	"github.com/bobacgo/admin-service/pkg/util"
+	"github.com/bobacgo/admin-service/pkg/kit/hs"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -50,7 +53,7 @@ func (s *UserService) Post(ctx context.Context, req *model.User) (any, error) {
 	req.CreatedAt = now
 	req.UpdatedAt = now
 	req.RegisterAt = now
-	// Operator field should be set by the caller or middleware
+	req.Operator = contextx.Account(ctx)
 
 	if err := s.repo.Create(ctx, req); err != nil {
 		return nil, err
@@ -65,7 +68,7 @@ func (s *UserService) Put(ctx context.Context, req *dto2.UpdateUserReq) (any, er
 		return nil, err
 	}
 
-	req.Operator = "system" // 示例值，实际应从上下文获取
+	req.Operator = contextx.Account(ctx)
 	req.UpdatedAt = time.Now().Unix()
 	if err := s.repo.Update(ctx, req); err != nil {
 		return nil, err
@@ -79,7 +82,7 @@ func (s *UserService) PutStatus(ctx context.Context, req *dto2.UpdateUserStatusR
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
-	req.Operator = "system" // 示例值，实际应从上下文获取
+	req.Operator = contextx.Account(ctx)
 	req.UpdatedAt = time.Now().Unix()
 	if err := s.repo.UpdateStatus(ctx, req); err != nil {
 		return nil, err
@@ -95,7 +98,7 @@ func (s *UserService) PutRole(ctx context.Context, req *dto2.UpdateUserRoleReq) 
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
-	req.Operator = "system" // 示例值，实际应从上下文获取
+	req.Operator = contextx.Account(ctx)
 	req.UpdatedAt = time.Now().Unix()
 	if err := s.repo.UpdateRole(ctx, req); err != nil {
 		return nil, err
@@ -111,7 +114,7 @@ func (s *UserService) PutPassword(ctx context.Context, req *dto2.UpdateUserPassw
 	if err := s.validator.StructCtx(ctx, req); err != nil {
 		return nil, err
 	}
-	req.Operator = "system" // 示例值，实际应从上下文获取
+	req.Operator = contextx.Account(ctx)
 	req.UpdatedAt = time.Now().Unix()
 	if err := s.repo.UpdatePassword(ctx, req); err != nil {
 		return nil, err
@@ -154,13 +157,24 @@ func (s *UserService) PostLogin(ctx context.Context, req *dto2.LoginReq) (*dto2.
 	if err = s.repo.UpdateLoginInfo(ctx, &dto2.UpdateLoginInfoReq{
 		Id:      row.ID,
 		LoginAt: time.Now().Unix(),
-		LoginIp: "127.0.0.1", // TODO: 示例值，实际应从上下文获取
+		LoginIp: contextx.IP(ctx),
 	}); err != nil {
 		return nil, err
 	}
 
+	roleIds := []int64{}
+	if row.RoleIds != "" {
+		for _, ridStr := range strings.Split(row.RoleIds, ",") {
+			rid, err := strconv.ParseInt(ridStr, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			roleIds = append(roleIds, rid)
+		}
+	}
+
 	// 生成并返回用户会话 token
-	token, err := util.GenerateJWT(row.ID, row.Account, 12*time.Hour)
+	token, err := hs.GenerateJWT(&contextx.User{Account: row.Account, RoleIds: roleIds}, 12*time.Hour)
 	if err != nil {
 		return nil, err
 	}
