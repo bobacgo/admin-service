@@ -290,7 +290,11 @@ func (h *consoleHandler) Handle(_ context.Context, r slog.Record) error {
 		}
 	}
 
-	buf.WriteString(r.Message)
+	msg := r.Message
+	if h.color {
+		msg = colorize(r.Level, msg)
+	}
+	buf.WriteString(msg)
 
 	attrs := make([]slog.Attr, 0, len(h.attrs)+r.NumAttrs())
 	for _, a := range h.attrs {
