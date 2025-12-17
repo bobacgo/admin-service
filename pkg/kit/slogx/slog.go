@@ -77,6 +77,16 @@ func WithSource(enabled bool) Option {
 	}
 }
 
+// Fatal defines a custom fatal level above error.
+// slog 标准库没有 Fatal 级别，这里扩展一个更高的级别用于致命错误。
+const LevelFatal = slog.Level(12)
+
+// Fatalf 以致命级别输出日志后直接退出进程（exit code 1）。
+func Fatal(ctx context.Context, msg string, args ...any) {
+	slog.Log(ctx, LevelFatal, msg, args...)
+	os.Exit(1)
+}
+
 // Init builds a slog Logger with colorized console output and source location,
 // sets it as the default logger, and returns it.
 func Init(opts ...Option) *slog.Logger {
@@ -135,7 +145,7 @@ func replaceAttr(enableColor bool, sourceRoot string, a slog.Attr) slog.Attr {
 		if !ok {
 			return a
 		}
-		upper := level.String()
+		upper := levelText(level)
 		if enableColor {
 			upper = colorize(level, upper)
 		}
@@ -177,6 +187,8 @@ func parseLevelValue(s string) (slog.Level, bool) {
 		return slog.LevelWarn, true
 	case "error", "err":
 		return slog.LevelError, true
+	case "fatal", "crit", "critical":
+		return LevelFatal, true
 	default:
 		return slog.LevelInfo, false
 	}
@@ -225,7 +237,11 @@ func (h *contextHandler) Handle(ctx context.Context, r slog.Record) error {
 	if reqID := RequestIDFromContext(ctx); reqID != "" {
 		r.AddAttrs(slog.String("request_id", reqID))
 	}
-	return h.Handler.Handle(ctx, r)
+	err := h.Handler.Handle(ctx, r)
+	if r.Level >= LevelFatal {
+		os.Exit(1)
+	}
+	return err
 }
 
 type consoleHandler struct {
@@ -264,7 +280,7 @@ func (h *consoleHandler) Handle(_ context.Context, r slog.Record) error {
 	buf.WriteString(timeStr)
 	buf.WriteByte(' ')
 
-	lvl := strings.ToUpper(r.Level.String())
+	lvl := levelText(r.Level)
 	if h.color {
 		lvl = colorize(r.Level, lvl)
 	}
@@ -382,16 +398,19 @@ func trimSourcePath(root, file string) string {
 }
 
 const (
-	colorReset  = "\033[0m"
-	colorRed    = "\033[31m"
-	colorYellow = "\033[33m"
-	colorGreen  = "\033[32m"
-	colorBlue   = "\033[34m"
-	colorCyan   = "\033[36m"
+	colorReset   = "\033[0m"
+	colorRed     = "\033[31m"
+	colorMagenta = "\033[35m"
+	colorYellow  = "\033[33m"
+	colorGreen   = "\033[32m"
+	colorBlue    = "\033[34m"
+	colorCyan    = "\033[36m"
 )
 
 func colorize(level slog.Level, text string) string {
 	switch {
+	case level >= LevelFatal:
+		return colorMagenta + text + colorReset
 	case level >= slog.LevelError:
 		return colorRed + text + colorReset
 	case level >= slog.LevelWarn:
@@ -401,6 +420,14 @@ func colorize(level slog.Level, text string) string {
 	default:
 		return colorBlue + text + colorReset
 	}
+}
+
+// levelText normalizes level to display text, ensuring fatal renders as FATAL instead of ERROR+N.
+func levelText(level slog.Level) string {
+	if level >= LevelFatal {
+		return "FATAL"
+	}
+	return strings.ToUpper(level.String())
 }
 
 func appendAttr(dst []slog.Attr, groups []string, replacer func([]string, slog.Attr) slog.Attr, a slog.Attr) []slog.Attr {

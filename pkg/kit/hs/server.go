@@ -37,8 +37,7 @@ func (e *Engine) Run() error {
 	go func() {
 		slog.Info("Starting server", "address", e.addr)
 		if err := e.srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			slog.Error("Server failed to start", "error", err)
-			os.Exit(1)
+			slog.Log(context.Background(), 12, "Server failed to start", slog.Any("error", err))
 		}
 	}()
 
