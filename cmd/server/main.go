@@ -6,11 +6,11 @@ import (
 
 	"github.com/bobacgo/admin-service/apps"
 	"github.com/bobacgo/admin-service/pkg/kit/hs"
-	"github.com/bobacgo/admin-service/pkg/kit/logger"
+	"github.com/bobacgo/admin-service/pkg/kit/slogx"
 )
 
 func main() {
-	logger.Init()
+	slogx.Init(slogx.WithColor(true))
 	// 注册路由
 	container := apps.NewContainer()
 	handler := apps.RegisterRoutes(container)

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/bobacgo/admin-service/pkg/kit/hs/response"
-	"github.com/bobacgo/admin-service/pkg/kit/logger"
+	"github.com/bobacgo/admin-service/pkg/kit/slogx"
 )
 
 func Logger(next http.Handler) http.Handler {
@@ -27,7 +27,7 @@ func Logger(next http.Handler) http.Handler {
 
 		now := time.Now()
 		next.ServeHTTP(w, r)
-		reqID := logger.RequestIDFromContext(r.Context())
+		reqID := slogx.RequestIDFromContext(r.Context())
 		attrs := []any{
 			slog.String("time", time.Since(now).String()),
 			slog.String("method", r.Method),
@@ -48,7 +48,7 @@ func RequestID(next http.Handler) http.Handler {
 		if reqID == "" {
 			reqID = newRequestID()
 		}
-		ctx := logger.WithRequestID(r.Context(), reqID)
+		ctx := slogx.WithRequestID(r.Context(), reqID)
 		r = r.WithContext(ctx)
 		w.Header().Set("X-Request-Id", reqID)
 		next.ServeHTTP(w, r)

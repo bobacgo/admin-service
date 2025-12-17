@@ -1,4 +1,4 @@
-package logger
+package slogx
 
 import (
 	"bytes"
@@ -440,9 +440,6 @@ func sourceFromRecord(r slog.Record) slog.Source {
 	if src := r.Source(); src != nil && src.File != "" {
 		return *src
 	}
-	if pc := r.PC; pc != 0 {
-		return pcToSource(pc)
-	}
 	if pc, file, line, ok := runtime.Caller(4); ok {
 		return slog.Source{Function: runtime.FuncForPC(pc).Name(), File: file, Line: line}
 	}
@@ -455,12 +452,6 @@ func defaultSourceRoot() string {
 		return ""
 	}
 	return wd
-}
-
-func pcToSource(pc uintptr) slog.Source {
-	frames := runtime.CallersFrames([]uintptr{pc})
-	frame, _ := frames.Next()
-	return slog.Source{Function: frame.Function, File: frame.File, Line: frame.Line}
 }
 
 func applyEnv(cfg *Config) {
