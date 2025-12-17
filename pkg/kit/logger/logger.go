@@ -1,12 +1,15 @@
 package logger
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -112,7 +115,14 @@ func newBaseHandler(cfg *Config) slog.Handler {
 		cfg.Color = false
 		return slog.NewJSONHandler(cfg.Writer, options)
 	}
-	return slog.NewTextHandler(cfg.Writer, options)
+
+	return &consoleHandler{
+		w:           cfg.Writer,
+		level:       cfg.Level,
+		addSource:   cfg.AddSource,
+		replaceAttr: options.ReplaceAttr,
+		color:       cfg.Color,
+	}
 }
 
 func replaceAttr(enableColor bool, a slog.Attr) slog.Attr {
@@ -215,6 +225,110 @@ func (h *contextHandler) Handle(ctx context.Context, r slog.Record) error {
 	return h.Handler.Handle(ctx, r)
 }
 
+type consoleHandler struct {
+	w           io.Writer
+	level       slog.Leveler
+	addSource   bool
+	replaceAttr func([]string, slog.Attr) slog.Attr
+	attrs       []slog.Attr
+	groups      []string
+	color       bool
+}
+
+func (h *consoleHandler) Enabled(_ context.Context, level slog.Level) bool {
+	min := slog.LevelInfo
+	if h.level != nil {
+		min = h.level.Level()
+	}
+	return level >= min
+}
+
+func (h *consoleHandler) Handle(_ context.Context, r slog.Record) error {
+	if !h.Enabled(nil, r.Level) {
+		return nil
+	}
+
+	var buf bytes.Buffer
+	ts := r.Time
+	if ts.IsZero() {
+		ts = time.Now()
+	}
+	buf.WriteString(ts.Local().Format("2006-01-02 15:04:05.000"))
+	buf.WriteByte(' ')
+
+	lvl := strings.ToUpper(r.Level.String())
+	if h.color {
+		lvl = colorize(r.Level, lvl)
+	}
+	buf.WriteByte('[')
+	buf.WriteString(lvl)
+	buf.WriteString("] ")
+
+	if h.addSource {
+		src := sourceFromRecord(r)
+		if src.File != "" {
+			buf.WriteString(filepath.Base(src.File))
+			buf.WriteByte(':')
+			buf.WriteString(fmt.Sprintf("%d", src.Line))
+			buf.WriteByte(' ')
+		}
+	}
+
+	buf.WriteString(r.Message)
+
+	attrs := make([]slog.Attr, 0, len(h.attrs)+r.NumAttrs())
+	for _, a := range h.attrs {
+		attrs = appendAttr(attrs, h.groups, h.replaceAttr, a)
+	}
+	r.Attrs(func(a slog.Attr) bool {
+		attrs = appendAttr(attrs, h.groups, h.replaceAttr, a)
+		return true
+	})
+
+	for _, a := range attrs {
+		buf.WriteByte(' ')
+		buf.WriteString(a.Key)
+		buf.WriteByte('=')
+		buf.WriteString(formatValue(a.Value))
+	}
+
+	buf.WriteByte('\n')
+	_, err := h.w.Write(buf.Bytes())
+	return err
+}
+
+func (h *consoleHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	merged := make([]slog.Attr, 0, len(h.attrs)+len(attrs))
+	merged = append(merged, h.attrs...)
+	merged = append(merged, attrs...)
+	return &consoleHandler{
+		w:           h.w,
+		level:       h.level,
+		addSource:   h.addSource,
+		replaceAttr: h.replaceAttr,
+		attrs:       merged,
+		groups:      h.groups,
+		color:       h.color,
+	}
+}
+
+func (h *consoleHandler) WithGroup(name string) slog.Handler {
+	if name == "" {
+		return h
+	}
+	groups := append([]string{}, h.groups...)
+	groups = append(groups, name)
+	return &consoleHandler{
+		w:           h.w,
+		level:       h.level,
+		addSource:   h.addSource,
+		replaceAttr: h.replaceAttr,
+		attrs:       h.attrs,
+		groups:      groups,
+		color:       h.color,
+	}
+}
+
 func shouldUseColor(w io.Writer) bool {
 	file, ok := w.(*os.File)
 	if !ok {
@@ -255,6 +369,58 @@ func colorize(level slog.Level, text string) string {
 	default:
 		return colorBlue + text + colorReset
 	}
+}
+
+func appendAttr(dst []slog.Attr, groups []string, replacer func([]string, slog.Attr) slog.Attr, a slog.Attr) []slog.Attr {
+	if len(groups) > 0 {
+		keyParts := append(append([]string{}, groups...), a.Key)
+		a.Key = strings.Join(keyParts, ".")
+	}
+	if replacer != nil {
+		a = replacer(groups, a)
+	}
+	if a.Equal(slog.Attr{}) {
+		return dst
+	}
+	return append(dst, a)
+}
+
+func formatValue(v slog.Value) string {
+	switch v.Kind() {
+	case slog.KindString:
+		return v.String()
+	case slog.KindBool:
+		return strconv.FormatBool(v.Bool())
+	case slog.KindInt64:
+		return fmt.Sprint(v.Int64())
+	case slog.KindFloat64:
+		return strconv.FormatFloat(v.Float64(), 'f', -1, 64)
+	case slog.KindDuration:
+		return v.Duration().String()
+	case slog.KindTime:
+		return v.Time().Local().Format("2006-01-02 15:04:05.000")
+	default:
+		return fmt.Sprint(v.Any())
+	}
+}
+
+func sourceFromRecord(r slog.Record) slog.Source {
+	if src := r.Source(); src != nil && src.File != "" {
+		return *src
+	}
+	if pc := r.PC; pc != 0 {
+		return pcToSource(pc)
+	}
+	if pc, file, line, ok := runtime.Caller(4); ok {
+		return slog.Source{Function: runtime.FuncForPC(pc).Name(), File: file, Line: line}
+	}
+	return slog.Source{}
+}
+
+func pcToSource(pc uintptr) slog.Source {
+	frames := runtime.CallersFrames([]uintptr{pc})
+	frame, _ := frames.Next()
+	return slog.Source{Function: frame.Function, File: frame.File, Line: frame.Line}
 }
 
 func applyEnv(cfg *Config) {
