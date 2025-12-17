@@ -1,12 +1,15 @@
 package hs
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
 	"time"
 
 	"github.com/bobacgo/admin-service/pkg/kit/hs/response"
+	"github.com/bobacgo/admin-service/pkg/kit/logger"
 )
 
 func Logger(next http.Handler) http.Handler {
@@ -24,13 +27,40 @@ func Logger(next http.Handler) http.Handler {
 
 		now := time.Now()
 		next.ServeHTTP(w, r)
-		slog.InfoContext(r.Context(), "Request received",
+		reqID := logger.RequestIDFromContext(r.Context())
+		attrs := []any{
 			slog.String("time", time.Since(now).String()),
 			slog.String("method", r.Method),
 			slog.String("path", r.URL.Path),
 			slog.String("remote_addr", r.RemoteAddr),
-		)
+		}
+		if reqID != "" {
+			attrs = append(attrs, slog.String("request_id", reqID))
+		}
+		slog.InfoContext(r.Context(), "Request received", attrs...)
 	})
+}
+
+// RequestID injects a request id into context and response header for tracing.
+func RequestID(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		reqID := r.Header.Get("X-Request-Id")
+		if reqID == "" {
+			reqID = newRequestID()
+		}
+		ctx := logger.WithRequestID(r.Context(), reqID)
+		r = r.WithContext(ctx)
+		w.Header().Set("X-Request-Id", reqID)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func newRequestID() string {
+	var b [12]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return ""
+	}
+	return hex.EncodeToString(b[:])
 }
 
 // Cors 设置跨域请求所需的响应头

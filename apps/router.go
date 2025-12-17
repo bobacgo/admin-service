@@ -25,10 +25,10 @@ func RegisterRoutes(container *Container) http.Handler {
 	mux := http.NewServeMux()
 
 	// 创建一个处理链，先应用Cors中间件设置CORS头，再应用OptionsMiddleware处理OPTIONS请求
-	public := hs.NewGroup("/", mux, hs.Logger, hs.Cors, SetCtx)
+	public := hs.NewGroup("/", mux, hs.RequestID, hs.Logger, hs.Cors, SetCtx)
 	hs.RegisterService(public, "/", container.svc.Basic)
 
-	api := hs.NewGroup("/api", mux, hs.Logger, hs.Cors, SetCtx, AuthMiddleware)
+	api := hs.NewGroup("/api", mux, hs.RequestID, hs.Logger, hs.Cors, SetCtx, AuthMiddleware)
 
 	hs.RegisterService(api, "/user", container.svc.User)
 	hs.RegisterService(api, "/menu", container.svc.Menu)
