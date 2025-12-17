@@ -77,14 +77,13 @@ func WithSource(enabled bool) Option {
 	}
 }
 
-// Fatal defines a custom fatal level above error.
+// LevelFatal defines a custom fatal level above error.
 // slog 标准库没有 Fatal 级别，这里扩展一个更高的级别用于致命错误。
 const LevelFatal = slog.Level(12)
 
-// Fatalf 以致命级别输出日志后直接退出进程（exit code 1）。
+// Fatal 以致命级别输出日志后直接退出进程（exit code 1）。
 func Fatal(ctx context.Context, msg string, args ...any) {
-	slog.Log(ctx, LevelFatal, msg, args...)
-	os.Exit(1)
+	logWithSource(ctx, LevelFatal, msg, args, 1)
 }
 
 // Init builds a slog Logger with colorized console output and source location,
@@ -428,6 +427,33 @@ func levelText(level slog.Level) string {
 		return "FATAL"
 	}
 	return strings.ToUpper(level.String())
+}
+
+// logWithSource builds a record with caller PC to retain correct source location when called via wrappers.
+// callerSkip is the additional stack frames to skip above this helper (e.g., wrapper functions).
+func logWithSource(ctx context.Context, level slog.Level, msg string, args []any, callerSkip int) {
+	h := slog.Default().Handler()
+
+	pcs := make([]uintptr, 16)
+	n := runtime.Callers(2+callerSkip, pcs) // skip runtime.Callers + logWithSource + wrapper(s)
+	frames := runtime.CallersFrames(pcs[:n])
+	var pc uintptr
+	for {
+		frame, more := frames.Next()
+		if frame.File != "" && !strings.Contains(frame.File, "/pkg/kit/slogx/") && !strings.Contains(frame.File, "/runtime/") && !strings.Contains(frame.File, "/log/") {
+			pc = frame.PC
+			break
+		}
+		if !more {
+			break
+		}
+	}
+	rec := slog.NewRecord(time.Now(), level, msg, pc)
+	rec.Add(args...)
+	_ = h.Handle(ctx, rec)
+	if level >= LevelFatal {
+		os.Exit(1)
+	}
 }
 
 func appendAttr(dst []slog.Attr, groups []string, replacer func([]string, slog.Attr) slog.Attr, a slog.Attr) []slog.Attr {

@@ -34,18 +34,24 @@ func (e *Engine) Run() error {
 		Handler: e.handler,
 	}
 
+	errCh := make(chan error, 1)
+
 	go func() {
 		slog.Info("Starting server", "address", e.addr)
 		if err := e.srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			slog.Log(context.Background(), 12, "Server failed to start", slog.Any("error", err))
+			errCh <- err
 		}
 	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
 
-	return e.shutdown()
+	select {
+	case err := <-errCh:
+		return err
+	case <-quit:
+		return e.shutdown()
+	}
 }
 
 func (e *Engine) shutdown() error {
