@@ -27,15 +27,11 @@ func Logger(next http.Handler) http.Handler {
 
 		now := time.Now()
 		next.ServeHTTP(w, r)
-		reqID := slogx.RequestIDFromContext(r.Context())
 		attrs := []any{
 			slog.String("time", time.Since(now).String()),
 			slog.String("method", r.Method),
 			slog.String("path", r.URL.Path),
 			slog.String("remote_addr", r.RemoteAddr),
-		}
-		if reqID != "" {
-			attrs = append(attrs, slog.String("request_id", reqID))
 		}
 		slog.InfoContext(r.Context(), "Request received", attrs...)
 	})
@@ -48,7 +44,7 @@ func RequestID(next http.Handler) http.Handler {
 		if reqID == "" {
 			reqID = newRequestID()
 		}
-		ctx := slogx.WithRequestID(r.Context(), reqID)
+		ctx := slogx.WithValue(r.Context(), "trace_id", reqID)
 		r = r.WithContext(ctx)
 		w.Header().Set("X-Request-Id", reqID)
 		next.ServeHTTP(w, r)

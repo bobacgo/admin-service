@@ -205,27 +205,36 @@ func valueToTime(v slog.Value) (time.Time, bool) {
 	}
 }
 
-type ctxKey string
+type ctxKey struct{}
 
-const requestIDKey ctxKey = "request_id"
-
-// WithRequestID stores request id into context for downstream logging.
-func WithRequestID(ctx context.Context, id string) context.Context {
-	if id == "" {
+// WithValues attaches structured attrs to context for automatic logging.
+func WithValues(ctx context.Context, attrs ...slog.Attr) context.Context {
+	if len(attrs) == 0 {
 		return ctx
 	}
-	return context.WithValue(ctx, requestIDKey, id)
+	existing := valuesFromContext(ctx)
+	merged := make([]slog.Attr, 0, len(existing)+len(attrs))
+	merged = append(merged, existing...)
+	merged = append(merged, attrs...)
+	return context.WithValue(ctx, ctxKey{}, merged)
 }
 
-// RequestIDFromContext fetches request id.
-func RequestIDFromContext(ctx context.Context) string {
-	if ctx == nil {
-		return ""
+// WithValue attaches a single key/value into context for automatic logging.
+func WithValue(ctx context.Context, key string, val any) context.Context {
+	if key == "" {
+		return ctx
 	}
-	if v, ok := ctx.Value(requestIDKey).(string); ok {
+	return WithValues(ctx, slog.Any(key, val))
+}
+
+func valuesFromContext(ctx context.Context) []slog.Attr {
+	if ctx == nil {
+		return nil
+	}
+	if v, ok := ctx.Value(ctxKey{}).([]slog.Attr); ok {
 		return v
 	}
-	return ""
+	return nil
 }
 
 type contextHandler struct {
@@ -233,8 +242,8 @@ type contextHandler struct {
 }
 
 func (h *contextHandler) Handle(ctx context.Context, r slog.Record) error {
-	if reqID := RequestIDFromContext(ctx); reqID != "" {
-		r.AddAttrs(slog.String("request_id", reqID))
+	if values := valuesFromContext(ctx); len(values) > 0 {
+		r.AddAttrs(values...)
 	}
 	err := h.Handler.Handle(ctx, r)
 	if r.Level >= LevelFatal {
@@ -321,10 +330,16 @@ func (h *consoleHandler) Handle(_ context.Context, r slog.Record) error {
 	})
 
 	for _, a := range attrs {
+		key := a.Key
+		val := formatValue(a.Value)
+		if h.color {
+			key = colorCyan + key + colorReset
+			val = colorBlue + val + colorReset
+		}
 		buf.WriteByte(' ')
-		buf.WriteString(a.Key)
+		buf.WriteString(key)
 		buf.WriteByte('=')
-		buf.WriteString(formatValue(a.Value))
+		buf.WriteString(val)
 	}
 
 	buf.WriteByte('\n')
