@@ -16,11 +16,12 @@ import (
 
 // Config holds logger setup options.
 type Config struct {
-	Level     slog.Leveler
-	Writer    io.Writer
-	AddSource bool
-	Color     bool
-	Format    Format
+	Level      slog.Leveler
+	Writer     io.Writer
+	AddSource  bool
+	Color      bool
+	Format     Format
+	SourceRoot string
 
 	colorSet bool
 }
@@ -80,10 +81,11 @@ func WithSource(enabled bool) Option {
 // sets it as the default logger, and returns it.
 func Init(opts ...Option) *slog.Logger {
 	cfg := &Config{
-		Level:     slog.LevelInfo,
-		Writer:    os.Stdout,
-		AddSource: true,
-		Format:    FormatText,
+		Level:      slog.LevelInfo,
+		Writer:     os.Stdout,
+		AddSource:  true,
+		Format:     FormatText,
+		SourceRoot: defaultSourceRoot(),
 	}
 	applyEnv(cfg)
 	for _, opt := range opts {
@@ -107,7 +109,7 @@ func newBaseHandler(cfg *Config) slog.Handler {
 		Level:     cfg.Level,
 		AddSource: cfg.AddSource,
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-			return replaceAttr(cfg.Color, a)
+			return replaceAttr(cfg.Color, cfg.SourceRoot, a)
 		},
 	}
 
@@ -122,10 +124,11 @@ func newBaseHandler(cfg *Config) slog.Handler {
 		addSource:   cfg.AddSource,
 		replaceAttr: options.ReplaceAttr,
 		color:       cfg.Color,
+		sourceRoot:  cfg.SourceRoot,
 	}
 }
 
-func replaceAttr(enableColor bool, a slog.Attr) slog.Attr {
+func replaceAttr(enableColor bool, sourceRoot string, a slog.Attr) slog.Attr {
 	switch a.Key {
 	case slog.LevelKey:
 		level, ok := valueToLevel(a.Value)
@@ -143,7 +146,7 @@ func replaceAttr(enableColor bool, a slog.Attr) slog.Attr {
 		}
 	case slog.SourceKey:
 		if src, ok := a.Value.Any().(slog.Source); ok {
-			file := filepath.Base(src.File)
+			file := trimSourcePath(sourceRoot, src.File)
 			a.Value = slog.StringValue(fmt.Sprintf("%s:%d", file, src.Line))
 		}
 	}
@@ -233,6 +236,7 @@ type consoleHandler struct {
 	attrs       []slog.Attr
 	groups      []string
 	color       bool
+	sourceRoot  string
 }
 
 func (h *consoleHandler) Enabled(_ context.Context, level slog.Level) bool {
@@ -253,7 +257,11 @@ func (h *consoleHandler) Handle(_ context.Context, r slog.Record) error {
 	if ts.IsZero() {
 		ts = time.Now()
 	}
-	buf.WriteString(ts.Local().Format("2006-01-02 15:04:05.000"))
+	timeStr := ts.Local().Format("2006-01-02 15:04:05.000")
+	if h.color {
+		timeStr = colorCyan + timeStr + colorReset
+	}
+	buf.WriteString(timeStr)
 	buf.WriteByte(' ')
 
 	lvl := strings.ToUpper(r.Level.String())
@@ -267,9 +275,17 @@ func (h *consoleHandler) Handle(_ context.Context, r slog.Record) error {
 	if h.addSource {
 		src := sourceFromRecord(r)
 		if src.File != "" {
-			buf.WriteString(filepath.Base(src.File))
+			path := trimSourcePath(h.sourceRoot, src.File)
+			if h.color {
+				path = colorBlue + path + colorReset
+			}
+			buf.WriteString(path)
 			buf.WriteByte(':')
-			buf.WriteString(fmt.Sprintf("%d", src.Line))
+			lineStr := fmt.Sprintf("%d", src.Line)
+			if h.color {
+				lineStr = colorBlue + lineStr + colorReset
+			}
+			buf.WriteString(lineStr)
 			buf.WriteByte(' ')
 		}
 	}
@@ -309,6 +325,7 @@ func (h *consoleHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 		attrs:       merged,
 		groups:      h.groups,
 		color:       h.color,
+		sourceRoot:  h.sourceRoot,
 	}
 }
 
@@ -326,6 +343,7 @@ func (h *consoleHandler) WithGroup(name string) slog.Handler {
 		attrs:       h.attrs,
 		groups:      groups,
 		color:       h.color,
+		sourceRoot:  h.sourceRoot,
 	}
 }
 
@@ -350,12 +368,22 @@ func shouldUseColor(w io.Writer) bool {
 	return true
 }
 
+func trimSourcePath(root, file string) string {
+	if root != "" {
+		if rel, err := filepath.Rel(root, file); err == nil && !strings.HasPrefix(rel, "..") {
+			return rel
+		}
+	}
+	return file
+}
+
 const (
 	colorReset  = "\033[0m"
 	colorRed    = "\033[31m"
 	colorYellow = "\033[33m"
 	colorGreen  = "\033[32m"
 	colorBlue   = "\033[34m"
+	colorCyan   = "\033[36m"
 )
 
 func colorize(level slog.Level, text string) string {
@@ -417,6 +445,14 @@ func sourceFromRecord(r slog.Record) slog.Source {
 	return slog.Source{}
 }
 
+func defaultSourceRoot() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	return wd
+}
+
 func pcToSource(pc uintptr) slog.Source {
 	frames := runtime.CallersFrames([]uintptr{pc})
 	frame, _ := frames.Next()
@@ -437,6 +473,10 @@ func applyEnv(cfg *Config) {
 		} else if lower == string(FormatText) {
 			cfg.Format = FormatText
 		}
+	}
+
+	if v := strings.TrimSpace(os.Getenv("LOG_SOURCE_ROOT")); v != "" {
+		cfg.SourceRoot = v
 	}
 
 	if v := strings.TrimSpace(os.Getenv("LOG_SOURCE")); v != "" {
